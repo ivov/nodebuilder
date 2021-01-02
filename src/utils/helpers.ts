@@ -5,6 +5,11 @@ export default {
   pascalCase,
   escape: (str: string) => str.replace(/\n/g, "<br>").replace(/'/g, "’"),
   isOperationParameter: (field: any) => field.hasOwnProperty("in"),
-  hasMinMax: (parameter: OperationParameter) =>
-    parameter.schema.minimum && parameter.schema.maximum,
+  getDefault: (arg: any) => {
+    if (arg.default) return arg.default;
+    if (arg.type === "boolean") return false;
+    if (arg.type === "number" || arg.type === "integer") return 0;
+    return "";
+  },
+  hasMinMax: (arg: any) => arg.minimum && arg.maximum,
 };

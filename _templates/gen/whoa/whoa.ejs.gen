@@ -1,7 +1,7 @@
 ---
 to: src/output/<%= helpers.pascalCase(metaParams.serviceName) %>.node.ts
 ---
-<% const resources = Object.keys(mainParams); %>
+<%_ const resources = Object.keys(mainParams); _%>
 import {
 	IExecuteFunctions,
 } from 'n8n-core';
@@ -83,7 +83,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 			//         Fields
 			// ----------------------------------
 			<%_ resources.forEach((resource) => { _%>
-			<%_ mainParams[resource].forEach((operation) => { _%>
+      <%_ mainParams[resource].forEach((operation) => { _%>
 			<%_/**
 			 * **********************
 			 * OPERATION PARAMETERS
@@ -96,14 +96,14 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				name: '<%= helpers.camelCase(parameter.name) %>',
 				description: '<%= parameter.description %>',
 				type: '<%= parameter.schema.type %>',
-				<%_ if (helpers.hasMinMax(parameter)) { _%>
+				<%_ if (helpers.hasMinMax(parameter.schema)) { _%>
 				typeOptions: {
 					minValue: <%= parameter.schema.minimum %>,
 					maxValue: <%= parameter.schema.maximum %>
 				},
 				<%_ } _%>
 				required: true,
-				default: '<%= parameter.schema.default %>',
+				default: '<%= helpers.getDefault(parameter.schema) %>',
 				displayOptions: {
 					show: {
 						resource: [
@@ -115,13 +115,112 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					},
 				},
 			},
-			<%_ }); _%> <%#_ end parameters loop _%>
-			<%_ } _%> <%#_ end parameter if _%>
+      <%_ }); _%> <%#_ end parameters loop _%>
+      <%_ } _%> <%#_ end parameters if _%>
+			<%_/**
+			 * **********************
+			 * REQUEST BODY
+			 * **********************
+       */_%>
+      <%_ if (operation.requestBody) { _%>
+      <%_ operation.requestBody.forEach(requestBody => { _%>
+      <%_ Object.keys(requestBody.content).forEach((mimeType) => { _%>
+      <%_ if (mimeType === "text/plain") { _%>
+      {
+        displayName: 'Text',
+        name: 'text',
+        description: '<%= requestBody.description %>',
+        required: true,
+        default: '',
+				displayOptions: {
+					show: {
+						resource: [
+							'<%= helpers.camelCase(resource) %>',
+						],
+						operation: [
+							'<%= helpers.camelCase(operation.operationId) %>',
+						],
+					},
+				},
+      },
+      <%_ } else if (mimeType === "application/x-www-form-urlencoded") { _%>
+      <%_ const schema = requestBody.content[mimeType].schema; _%>
+      <%_ Object.keys(schema.properties).forEach((propertyName) => { _%>
+      <%_ const property = schema.properties[propertyName]; _%>
+      {
+        displayName: '<%= propertyName %>',
+        name: '<%= helpers.camelCase(propertyName) %>',
+        <%_ if (property.description) { _%>
+        description: '<%- helpers.escape(property.description) %>',
+        <%_ } _%>
+        type: '<%= property.type %>',
+        <%_ if (helpers.hasMinMax(property)) { _%>
+        typeOptions: {
+          minValue: <%= property.minimum %>,
+          maxValue: <%= property.maximum %>
+        },
+        <%_ } _%>
+        required: true,
+        default: <%_ if (property.type === "string") { _%>
+          <%_ %> '<%= helpers.getDefault(property) _%>',
+          <%_ } else { _%>
+          <%_ %> <%= helpers.getDefault(property) _%>,
+          <%_ } _%>
+        displayOptions: {
+          show: {
+            resource: [
+              '<%= helpers.camelCase(resource) %>',
+            ],
+            operation: [
+              '<%= helpers.camelCase(operation.operationId) %>',
+            ],
+          },
+        },
+      },
+      <%_ }); _%> <%#_ end properties loop _%>
+      <%_ } _%> <%#_ end mimeType if _%>
+      <%_ }); _%> <%#_ end mimeTypeObj loop _%>
+      <%_ }); _%> <%#_ end requestBody loop _%>
+      <%_ } _%> <%#_ end requestBody if _%>
 			<%_/**
 			 * **********************
 			 * ADDITIONAL FIELDS
 			 * **********************
 			 */_%>
+      <%_ if (operation.additionalFields) { _%>
+      {
+        displayName: 'Additional Fields',
+        name: 'additionalFields',
+        type: 'collection',
+        default: {},
+        displayOptions: {
+          show: {
+            resource: [
+              '<%= helpers.camelCase(resource) %>',
+            ],
+            operation: [
+              '<%= helpers.camelCase(operation.operationId) %>',
+            ],
+          },
+        },
+        options: [
+        <%_ operation.additionalFields.options.forEach(option => { _%>
+          {
+            name: '<%= option.name %>',
+            <%_ if (option.description) { _%>
+            description: '<%- helpers.escape(option.description) %>',
+            <%_ } _%>
+            type: '<%= option.type %>',
+            default: <%_ if (typeof option.default === "string") { _%>
+            <%_ %> '<%= helpers.getDefault(option) _%>',
+            <%_ } else { _%>
+            <%_ %> <%= helpers.getDefault(option) _%>,
+            <%_ } _%>
+					},
+        <%_ }); _%> <%#_ end options loop _%>
+        ]
+      },
+			<%_ } _%> <%#_ end additionalFields if _%>
 	<%_ }); _%> <%#_ end operations loop _%>
 	<%_ }); _%> <%#_ end resources loop _%>
 		],
