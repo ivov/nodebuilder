@@ -1,0 +1,134 @@
+---
+to: output/GenericFunctions.ts
+mainParameters: <%= mainParameters %>
+metaParameters: <%= metaParameters %>
+---
+<%_
+ mainParameters = JSON.parse(mainParameters);
+ metaParameters = JSON.parse(metaParameters);
+_%>
+import {
+	IExecuteFunctions,
+	IHookFunctions,
+} from 'n8n-core';
+
+import {
+	IDataObject,
+} from 'n8n-workflow';
+
+import {
+	OptionsWithUri,
+} from 'request';
+
+
+/**
+ * Make an API request to <%= metaParameters.serviceName %>
+ *
+ * @param {IHookFunctions | IExecuteFunctions} this
+ * @param {string} method
+ * @param {string} endpoint
+ * @param {IDataObject} body
+ * @param {IDataObject} qs
+ * @param {string} [uri]
+ * @param {IDataObject} [headers]
+ * @returns {Promise<any>}
+ */
+export async function <%= h.camelify(metaParameters.serviceName) %>ApiRequest(
+	this: IHookFunctions | IExecuteFunctions,
+	method: string,
+	endpoint: string,
+	body: IDataObject,
+	qs: IDataObject,
+	uri?: string,
+	headers?: IDataObject,
+): Promise<any> { // tslint:disable-line:no-any
+
+	const options: OptionsWithUri = {
+		headers: {},
+		body,
+		method,
+		qs,
+		uri: uri || `<%= metaParameters.apiUrl %>${endpoint}`,
+		json: true,
+	};
+
+	try {
+		<%_ if (metaParameters.authType !== "None") { _%>
+
+		const credentials = this.getCredentials('<%= h.getCredentialsString(h.camelify(metaParameters.serviceName), metaParameters.authType) %>');
+
+		if (credentials === undefined) {
+			throw new Error('No credentials got returned!');
+		}
+		<%_ } _%>
+
+		if (Object.keys(headers).length !== 0) {
+			options.headers = Object.assign({}, options.headers, headers);
+		}
+
+		if (Object.keys(body).length === 0) {
+			delete options.body;
+		}
+
+		<%_ if (metaParameters.authType === "OAuth2") { _%>
+		return await this.helpers.requestOAuth2.call(this, '<%= h.getCredentialsString(h.camelify(metaParameters.serviceName), metaParameters.auth) %>', options);
+		<%_ } else { _%>
+		return await this.helpers.request!(options);
+		<%_ } _%>
+
+	} catch (error) {
+
+		// TODO: Replace TODO_ERROR_STATUS_CODE and TODO_ERROR_MESSAGE based on the error object returned by API.
+
+		<%_ if (metaParameters.authType !== "None") { _%>
+		if (TODO_ERROR_STATUS_CODE === 401) {
+			// Return a clear error
+			throw new Error('The <%= metaParameters.serviceName %> credentials are invalid!');
+		}
+
+		<%_ } _%>
+		if (TODO_ERROR_MESSAGE) {
+			// Try to return the error prettier
+			throw new Error(`<%= metaParameters.serviceName %> error response [${TODO_ERROR_STATUS_CODE}]: ${TODO_ERROR_MESSAGE}`);
+		}
+
+		// If that data does not exist for some reason, return the actual error.
+		throw error;
+	}
+}
+
+
+/**
+ * Make an API request to <%= metaParameters.serviceName %> and return all results
+ *
+ * @export
+ * @param {IHookFunctions | IExecuteFunctions} this
+ * @param {string} method
+ * @param {string} endpoint
+ * @param {IDataObject} body
+ * @param {IDataObject} qs
+ * @returns {Promise<any>}
+ */
+export async function <%= h.camelify(metaParameters.serviceName) %>ApiRequestAllItems(
+	this: IHookFunctions | IExecuteFunctions,
+	propertyName: string,
+	method: string,
+	endpoint: string,
+	body: IDataObject,
+	qs: IDataObject
+): Promise<any> { // tslint:disable-line:no-any
+
+	const returnData: IDataObject[] = [];
+	let responseData: any;
+
+	do {
+		responseData = await <%= h.camelify(metaParameters.serviceName) %>ApiRequest.call(this, method, endpoint, body, qs);
+		// TODO: Get next page using `responseData` or `qs`
+		returnData.push.apply(returnData, responseData[propertyName]);
+
+	} while (
+		// TODO: Add condition for total not yet reached
+	);
+
+	return returnData;
+}

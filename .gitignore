@@ -1,0 +1,9 @@
+/node_modules
+/dist
+.todo
+
+src/input/*
+!src/input/.gitkeep
+
+src/output/*
+!src/output/.gitkeep

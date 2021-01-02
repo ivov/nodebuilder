@@ -1,0 +1,129 @@
+---
+to: src/output/<%= helpers.pascalCase(metaParams.serviceName) %>.node.ts
+---
+<% const resources = Object.keys(mainParams); %>
+import {
+	IExecuteFunctions,
+} from 'n8n-core';
+
+import {
+	INodeExecutionData,
+	INodeType,
+	INodeTypeDescription,
+	IDataObject,
+} from 'n8n-workflow';
+
+import {
+	<%= helpers.camelCase(metaParams.serviceName) %>ApiRequest,
+} from './GenericFunctions';
+
+export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: '<%= metaParams.serviceName %>',
+		name: '<%= helpers.camelCase(metaParams.serviceName) %>',
+		icon: 'file:<%= helpers.camelCase(metaParams.serviceName) %>.png',
+		group: ['transform'],
+		version: 1,
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
+		description: 'Consume <%= metaParams.serviceName %> API',
+		defaults: {
+			name: '<%= metaParams.serviceName %>',
+			color: '<%= metaParams.nodeColor %>',
+		},
+		inputs: ['main'],
+		outputs: ['main'],
+		properties: [
+			// ----------------------------------
+			//         Resources
+			// ----------------------------------
+			{
+				displayName: 'Resource',
+				name: 'resource',
+				type: 'options',
+				options: [
+					<%_ resources.forEach((resource) => { _%>
+					{
+						name: '<%= resource %>',
+						value: '<%= helpers.camelCase(resource) %>',
+					},
+					<%_ }) _%><%#_ end resources loop _%>
+				],
+				default: '<%= resources[0].toLowerCase() %>',
+				description: 'Resource to consume',
+			},
+			// ----------------------------------
+			//         Operations
+			// ----------------------------------
+			<%_ resources.forEach((resource) => { _%>
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: [
+							'<%= resource.toLowerCase() %>',
+						],
+					},
+				},
+				options: [
+					<%_ mainParams[resource].forEach((operation) => { _%>
+					{
+						name: '<%= operation.operationId %>',
+						value: '<%= helpers.camelCase(operation.operationId) %>',
+						description: '<%- helpers.escape(operation.description) %>',
+					},
+					<%_ }); _%><%#_ end operations loop _%>
+				],
+				default: '<%= helpers.camelCase(mainParams[resource][0].operationId) %>',
+				description: 'Operation to perform',
+			},
+			<%_ }); _%><%#_ end resources loop _%>
+			// ----------------------------------
+			//         Fields
+			// ----------------------------------
+			<%_ resources.forEach((resource) => { _%>
+			<%_ mainParams[resource].forEach((operation) => { _%>
+			<%_/**
+			 * **********************
+			 * OPERATION PARAMETERS
+			 * **********************
+			 */_%>
+			<%_ if (operation.parameters) { _%>
+			<%_ operation.parameters.forEach(parameter => { _%>
+			{
+				displayName: '<%= parameter.name %>',
+				name: '<%= helpers.camelCase(parameter.name) %>',
+				description: '<%= parameter.description %>',
+				type: '<%= parameter.schema.type %>',
+				<%_ if (helpers.hasMinMax(parameter)) { _%>
+				typeOptions: {
+					minValue: <%= parameter.schema.minimum %>,
+					maxValue: <%= parameter.schema.maximum %>
+				},
+				<%_ } _%>
+				required: true,
+				default: '<%= parameter.schema.default %>',
+				displayOptions: {
+					show: {
+						resource: [
+							'<%= helpers.camelCase(resource) %>',
+						],
+						operation: [
+							'<%= helpers.camelCase(operation.operationId) %>',
+						],
+					},
+				},
+			},
+			<%_ }); _%> <%#_ end parameters loop _%>
+			<%_ } _%> <%#_ end parameter if _%>
+			<%_/**
+			 * **********************
+			 * ADDITIONAL FIELDS
+			 * **********************
+			 */_%>
+	<%_ }); _%> <%#_ end operations loop _%>
+	<%_ }); _%> <%#_ end resources loop _%>
+		],
+	};
+}
