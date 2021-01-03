@@ -22,7 +22,7 @@ export default class OpenApiNodeGenerator {
       this.executeCommand("gen whoa");
     }
 
-    if (this.nodeGenerationType === "SeparateFiles") {
+    if (this.nodeGenerationType === "MultipleFiles") {
       this.generateResourceDescriptionFile();
     }
 

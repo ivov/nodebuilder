@@ -4,7 +4,7 @@
 
 enum NodeGenerationType {
   SingleFile = "SingleFile",
-  SeparateFiles = "SeparateFiles",
+  MultipleFiles = "MultipleFiles",
 }
 
 enum AuthType {

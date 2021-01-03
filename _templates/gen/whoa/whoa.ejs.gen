@@ -1,7 +1,8 @@
 ---
 to: src/output/<%= helpers.pascalCase(metaParams.serviceName) %>.node.ts
 ---
-<%_ const resources = Object.keys(mainParams); _%>
+<%_ const resourceNames = Object.keys(mainParams);
+		const resourceTuples = Object.entries(mainParams); _%>
 import {
 	IExecuteFunctions,
 } from 'n8n-core';
@@ -41,20 +42,20 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				name: 'resource',
 				type: 'options',
 				options: [
-					<%_ resources.forEach((resource) => { _%>
+					<%_ resourceNames.forEach((resourceName) => { _%>
 					{
-						name: '<%= resource %>',
-						value: '<%= helpers.camelCase(resource) %>',
+						name: '<%= resourceName %>',
+						value: '<%= helpers.camelCase(resourceName) %>',
 					},
-					<%_ }) _%><%#_ end resources loop _%>
+					<%_ }) _%><%#_ end resourceNames loop _%>
 				],
-				default: '<%= resources[0].toLowerCase() %>',
+				default: '<%= resourceNames[0].toLowerCase() %>',
 				description: 'Resource to consume',
 			},
 			// ----------------------------------
 			//         Operations
 			// ----------------------------------
-			<%_ resources.forEach((resource) => { _%>
+			<%_ resourceTuples.forEach(([resourceName, resourceObject]) => { _%>
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -62,12 +63,12 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				displayOptions: {
 					show: {
 						resource: [
-							'<%= resource.toLowerCase() %>',
+							'<%= resourceName.toLowerCase() %>',
 						],
 					},
 				},
 				options: [
-					<%_ mainParams[resource].forEach((operation) => { _%>
+					<%_ resourceObject.forEach((operation) => { _%>
 					{
 						name: '<%= operation.operationId %>',
 						value: '<%= helpers.camelCase(operation.operationId) %>',
@@ -75,15 +76,15 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					},
 					<%_ }); _%><%#_ end operations loop _%>
 				],
-				default: '<%= helpers.camelCase(mainParams[resource][0].operationId) %>',
+				default: '<%= helpers.camelCase(resourceObject[0].operationId) %>',
 				description: 'Operation to perform',
 			},
-			<%_ }); _%><%#_ end resources loop _%>
+			<%_ }); _%><%#_ end resourceTuples loop _%>
 			// ----------------------------------
 			//         Fields
 			// ----------------------------------
-			<%_ resources.forEach((resource) => { _%>
-      <%_ mainParams[resource].forEach((operation) => { _%>
+			<%_ resourceTuples.forEach(([resourceName, resourceObject]) => { _%>
+      <%_ resourceObject.forEach((operation) => { _%>
 			<%_/**
 			 * **********************
 			 * PARAMETERS
@@ -107,7 +108,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				displayOptions: {
 					show: {
 						resource: [
-							'<%= helpers.camelCase(resource) %>',
+							'<%= helpers.camelCase(resourceName) %>',
 						],
 						operation: [
 							'<%= helpers.camelCase(operation.operationId) %>',
@@ -135,7 +136,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				displayOptions: {
 					show: {
 						resource: [
-							'<%= helpers.camelCase(resource) %>',
+							'<%= helpers.camelCase(resourceName) %>',
 						],
 						operation: [
 							'<%= helpers.camelCase(operation.operationId) %>',
@@ -169,7 +170,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
         displayOptions: {
           show: {
             resource: [
-              '<%= helpers.camelCase(resource) %>',
+              '<%= helpers.camelCase(resourceName) %>',
             ],
             operation: [
               '<%= helpers.camelCase(operation.operationId) %>',
@@ -196,7 +197,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
         displayOptions: {
           show: {
             resource: [
-              '<%= helpers.camelCase(resource) %>',
+              '<%= helpers.camelCase(resourceName) %>',
             ],
             operation: [
               '<%= helpers.camelCase(operation.operationId) %>',
@@ -222,7 +223,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
       },
 			<%_ } _%> <%#_ end additionalFields if _%>
 	<%_ }); _%> <%#_ end operations loop _%>
-	<%_ }); _%> <%#_ end resources loop _%>
-		], <%#_ end properties key of object at description class field _%>
-	}; <%#_ end description class field _%>
-} <%#_ end class _%>
+	<%_ }); _%> <%#_ end resourceTuples loop _%>
+		], <%# end properties key of object at description class field %>
+	}; <%# end description class field %>
+} <%# end class %>
