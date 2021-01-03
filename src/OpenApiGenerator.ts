@@ -1,15 +1,11 @@
 import { execSync as exec } from "child_process";
-import { unlinkSync, writeFileSync } from "fs";
-import { join, resolve } from "path";
+import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "fs";
+import { join } from "path";
 
 export default class OpenApiNodeGenerator {
-  private readonly resourcePath = resolve(
-    "./",
-    "src",
-    "output",
-    "temp",
-    "Resource.json"
-  );
+  private readonly resourcesDir = join("src", "output", "resources");
+  private readonly resourcesJson = join(this.resourcesDir, "Resource.json");
+  private readonly hygenBin = join("node_modules", "hygen", "dist", "bin.js");
 
   constructor(
     private mainParams: MainParams,
@@ -19,11 +15,12 @@ export default class OpenApiNodeGenerator {
   /**Generates all node functionality files: `*.node.ts`, `GenericFunctions.ts`, `*.credentials.ts`, and (in complex mode) one `*Description.ts` file per resource.*/
   public run() {
     if (this.nodeGenerationType === "SingleFile") {
-      this.executeCommand("gen whoa");
+      this.executeCommand("make regularNodeSingleFile");
     }
 
-    if (this.nodeGenerationType === "MultipleFiles") {
-      this.generateResourceDescriptionFile();
+    if (this.nodeGenerationType === "MultiFile") {
+      // this.executeCommand("gen regularNodeMultipleFiles")
+      this.generateResourceDescriptions();
     }
 
     // this.generateGenericFunctionsFile();
@@ -34,29 +31,32 @@ export default class OpenApiNodeGenerator {
   }
 
   private executeCommand(command: string) {
-    return exec(
-      `env HYGEN_OVERWRITE=1 node node_modules/hygen/dist/bin.js ${command}`
-    );
+    console.log(`env HYGEN_OVERWRITE=1 node ${this.hygenBin} ${command}`);
+    return exec(`env HYGEN_OVERWRITE=1 node ${this.hygenBin} ${command}`);
   }
 
-  private generateResourceDescriptionFile() {
+  private generateResourceDescriptions() {
+    if (!existsSync(this.resourcesDir)) mkdirSync(this.resourcesDir);
+
     // temp - single
     this.saveResourceJson("Users", this.mainParams["Users"]);
-    this.executeCommand("gen generateResourceDescription");
+    this.executeCommand("make resourceDescription");
 
     // final - all
     // Object.entries(this.mainParams).forEach(
     //   ([resourceName, resourceObject]) => {
     //     this.saveResourceJson(resourceName, resourceObject);
-    //     this.executeCommand("gen generateResourceDescription");
+    //     this.executeCommand("make generateResourceDescription");
     //     // this.deleteResourceJson();
     //   }
     // );
+
+    unlinkSync(this.resourcesJson);
   }
 
   private saveResourceJson(resourceName: string, resourceObject: Resource) {
     writeFileSync(
-      this.resourcePath,
+      this.resourcesJson,
       JSON.stringify({ resourceName, resourceObject }, null, 2),
       "utf8"
     );
