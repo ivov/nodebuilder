@@ -86,7 +86,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
       <%_ mainParams[resource].forEach((operation) => { _%>
 			<%_/**
 			 * **********************
-			 * OPERATION PARAMETERS
+			 * PARAMETERS
 			 * **********************
 			 */_%>
 			<%_ if (operation.parameters) { _%>
@@ -223,6 +223,6 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 			<%_ } _%> <%#_ end additionalFields if _%>
 	<%_ }); _%> <%#_ end operations loop _%>
 	<%_ }); _%> <%#_ end resources loop _%>
-		],
-	};
-}
+		], <%#_ end properties key of object at description class field _%>
+	}; <%#_ end description class field _%>
+} <%#_ end class _%>

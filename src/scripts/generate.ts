@@ -1,9 +1,8 @@
 import OpenApiGenerator from "../OpenApiGenerator";
+import nodegenParams from "../output/nodegenParams";
 
 try {
-  // const ex = new Extractor(json);
-  // const nodegenParams = ex.run();
-  const gen = new OpenApiGenerator("SingleFile");
+  const gen = new OpenApiGenerator(nodegenParams.mainParams, "SingleFile");
   gen.run();
   console.log("Successfully converted JS object into TypeScript node");
 } catch (e) {

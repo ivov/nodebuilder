@@ -1,13 +1,11 @@
 ---
-to: output/<%= resourceName.replace(/\s/g, "") %>Description.ts
-resourceObject: <%= resourceObject %>
+to: src/output/temp/<%= helpers.pascalCase(resourceName) %>Description.ts
 ---
-<%_ resourceObject = JSON.parse(resourceObject); _%>
 import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export const <%= h.camelify(resourceName) %>Operations = [
+export const <%= helpers.camelCase(resourceName) %>Operations = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -15,110 +13,162 @@ export const <%= h.camelify(resourceName) %>Operations = [
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= h.camelify(resourceName) %>',
+					'<%= helpers.camelCase(resourceName) %>',
 				],
 			},
 		},
 		options: [
-			<%_ for (let operation of resourceObject) { _%>
+			<%_ resourceObject.forEach(operation => { _%>
 			{
-				name: '<%= operation.name %>',
-				value: '<%= h.camelify(operation.name) %>',
-				description: '<%= operation.description %>',
+				name: '<%= helpers.capitalCase(operation.operationId) %>',
+				value: '<%= helpers.camelCase(operation.operationId) %>',
+				description: '<%- helpers.escape(operation.description) %>',
 			},
-			<%_ } _%>
+			<%_ }); _%> <%#_ end operations loop _%>
 		],
-		default: '<%= h.camelify(resourceObject[0].name) %>',
+		default: '<%= helpers.camelCase(resourceObject[0].operationId) %>',
 		description: 'Operation to perform',
 	},
 ] as INodeProperties[];
 
-export const <%= h.camelify(resourceName) %>Fields = [
-	<%_ for (let operation of resourceObject) { _%>
-		<%_ for (let field of operation.fields) { _%>
+export const <%= helpers.camelCase(resourceName) %>Fields = [
+	<%_ resourceObject.forEach(operation => { _%>
+		<%_/**
+		* **********************
+		* PARAMETERS
+		* **********************
+		*/_%>
+	 <%_ if (operation.parameters) { _%>
+	 <%_ operation.parameters.forEach(parameter => { _%>
 	{
-		displayName: '<%= field.name %>',
-		name: '<%= field.name %>',
-		<%_ if (field.name !== 'Additional Fields') { _%>
-		description: '<%= field.description %>',
-		<%_ } _%>
-		type: '<%= field.type %>',
-		<%_ if (h.hasNumericalLimits(field)) { _%>
+		displayName: '<%= parameter.name %>',
+		name: '<%= helpers.camelCase(parameter.name) %>',
+		description: '<%= parameter.description %>',
+		type: '<%= parameter.schema.type %>',
+		<%_ if (helpers.hasMinMax(parameter.schema)) { _%>
 		typeOptions: {
-			minValue: <%= field.numericalLimits.minLimit %>,
-			maxValue: <%= field.numericalLimits.maxLimit %>
+			minValue: <%= parameter.schema.minimum %>,
+			maxValue: <%= parameter.schema.maximum %>
 		},
 		<%_ } _%>
-		required: <%= field.name !== 'additionalFields' ? true : false %>,
-		default: <%_ if (field.default === true || field.default === false || typeof field.default === "number") { _%>
-		<%_ %> <%= field.default _%>,
-		<%_ } else if (typeof field.default === 'object' && field.default !== null) { _%>
-		<%_ %> <%= JSON.stringify(field.default) _%>,
-		<%_ } else { _%>
-		<%_ %> '<%= field.default _%>',
-		<%_ } _%>
+		required: true,
+		default: '<%= helpers.getDefault(parameter.schema) %>',
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= h.camelify(resourceName) %>',
+					'<%= helpers.camelCase(resourceName) %>',
 				],
 				operation: [
-					'<%= h.camelify(operation.name) %>',
+					'<%= helpers.camelCase(operation.operationId) %>',
 				],
-				<%_ if (field.extraDisplayRestriction) { _%>
-				<%= h.camelify(Object.keys(field.extraDisplayRestriction).toString()) %>: [
-					<%= Object.values(field.extraDisplayRestriction) %>,
-				]
-				<%_ } _%>
 			},
 		},
-		<%_ if (h.isCollective(field)) { _%>
+	},
+	<%_ }); _%> <%#_ end parameters loop _%>
+	<%_ } _%> <%#_ end parameters if _%>
+	<%_/**
+	* **********************
+	* REQUEST BODY
+	* **********************
+	*/_%>
+	<%_ if (operation.requestBody) { _%>
+	<%_ operation.requestBody.forEach(requestBody => { _%>
+	<%_ Object.keys(requestBody.content).forEach((mimeType) => { _%>
+	<%_ if (mimeType === "text/plain") { _%>
+	{
+		displayName: 'Text',
+		name: 'text',
+		description: '<%= requestBody.description %>',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: {
+				resource: [
+					'<%= helpers.camelCase(resourceName) %>',
+				],
+				operation: [
+					'<%= helpers.camelCase(operation.operationId) %>',
+				],
+			},
+		},
+	},
+	<%_ } else if (mimeType === "application/x-www-form-urlencoded") { _%>
+	<%_ const schema = requestBody.content[mimeType].schema; _%>
+	<%_ Object.keys(schema.properties).forEach((propertyName) => { _%>
+	<%_ const property = schema.properties[propertyName]; _%>
+	{
+		displayName: '<%= propertyName %>',
+		name: '<%= helpers.camelCase(propertyName) %>',
+		<%_ if (property.description) { _%>
+		description: '<%- helpers.escape(property.description) %>',
+		<%_ } _%>
+		type: '<%= property.type %>',
+		<%_ if (helpers.hasMinMax(property)) { _%>
+		typeOptions: {
+			minValue: <%= property.minimum %>,
+			maxValue: <%= property.maximum %>
+		},
+		<%_ } _%>
+		required: true,
+		default: <%_ if (property.type === "string") { _%>
+			<%_ %> '<%= helpers.getDefault(property) _%>',
+			<%_ } else { _%>
+			<%_ %> <%= helpers.getDefault(property) _%>,
+			<%_ } _%>
+		displayOptions: {
+			show: {
+				resource: [
+					'<%= helpers.camelCase(resourceName) %>',
+				],
+				operation: [
+					'<%= helpers.camelCase(operation.operationId) %>',
+				],
+			},
+		},
+	},
+	<%_ }); _%> <%#_ end properties loop _%>
+	<%_ } _%> <%#_ end mimeType if _%>
+	<%_ }); _%> <%#_ end mimeTypeObj loop _%>
+	<%_ }); _%> <%#_ end requestBody loop _%>
+	<%_ } _%> <%#_ end requestBody if _%>
+	<%_/**
+	* **********************
+	* ADDITIONAL FIELDS
+	* **********************
+	*/_%>
+	<%_ if (operation.additionalFields) { _%>
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: [
+					'<%= helpers.camelCase(resourceName) %>',
+				],
+				operation: [
+					'<%= helpers.camelCase(operation.operationId) %>',
+				],
+			},
+		},
 		options: [
-		<%_ for (let option of field.options) { _%>
+		<%_ operation.additionalFields.options.forEach(option => { _%>
 			{
 				name: '<%= option.name %>',
-				description: '<%= option.description %>',
+				<%_ if (option.description) { _%>
+				description: '<%- helpers.escape(option.description) %>',
+				<%_ } _%>
 				type: '<%= option.type %>',
-				default: <%_ if (typeof option.default === "boolean" || typeof option.default === "number") { _%>
-				<%_ %> <%= option.default %>,
-				<%_ } else if (typeof option.default === 'object' && option.default !== null) { _%>
-				<%_ %> <%= JSON.stringify(option.default) %>,
+				default: <%_ if (typeof option.default === "string") { _%>
+				<%_ %> '<%= helpers.getDefault(option) _%>',
 				<%_ } else { _%>
-				<%_ %> '<%= option.default _%>',
+				<%_ %> <%= helpers.getDefault(option) _%>,
 				<%_ } _%>
-				<%_ if (h.isCollective(option)) { _%>
-				options: [
-					<%_ for (let suboption of option.options) { _%>
-					{
-						name: '<%= suboption.name %>',
-						description: '<%= suboption.description %>',
-						type: '<%= suboption.type %>',
-						default: <%_ if (typeof suboption.default === "boolean" || typeof suboption.default === "number") { _%>
-						<%_ %> <%= suboption.default %>,
-						<%_ } else if (typeof suboption.default === 'object' && suboption.default !== null) { _%>
-						<%_ %> <%= JSON.stringify(suboption.default) %>,
-						<%_ } else { _%>
-						<%_ %> '<%= suboption.default %>',
-						<%_ } _%>
-						<%_ if (h.isCollective(suboption)) { _%>
-						options: [
-							<%_ for (let maxNestedOption of suboption.options) { _%>
-							{
-								name: '<%= maxNestedOption.name %>',
-								description: '<%= maxNestedOption.description %>',
-							},
-							<%_ } _%>
-						],
-					<%_ } _%>
-					},
-				<%_ } _%>
-				],
-			<%_ } _%>
 			},
-		<%_ } _%>
-		],
-		<%_ } _%>
+		<%_ }); _%> <%#_ end options loop _%>
+		]
 	},
-	<%_ } _%>
-	<%_ } _%>
+	 <%_ } _%> <%#_ end additionalFields if _%>
+<%_ }); _%> <%#_ end operations loop _%>
 ] as INodeProperties[];

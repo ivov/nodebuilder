@@ -1,10 +1,10 @@
-import { camelCase, pascalCase } from "change-case";
+import { camelCase, pascalCase, capitalCase } from "change-case";
 
 export default {
   camelCase,
   pascalCase,
+  capitalCase,
   escape: (str: string) => str.replace(/\n/g, "<br>").replace(/'/g, "’"),
-  isOperationParameter: (field: any) => field.hasOwnProperty("in"),
   getDefault: (arg: any) => {
     if (arg.default) return arg.default;
     if (arg.type === "boolean") return false;

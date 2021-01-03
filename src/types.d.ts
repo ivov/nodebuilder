@@ -36,6 +36,7 @@ interface Operation {
     | string
     | OperationParameter[]
     | OperationRequestBody[]
+    | AdditionalFields
     | undefined;
   operationId: string;
   description: string;
@@ -52,7 +53,8 @@ interface OperationParameter {
   description?: string;
   schema: {
     type: string;
-    default: boolean | string | number | null;
+    default?: boolean | string | number | null;
+    example?: string | number;
     minimum?: number;
     maximum?: number;
   };
