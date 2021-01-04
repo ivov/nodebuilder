@@ -18,7 +18,7 @@ export const <%= helpers.camelCase(resourceName) %>Operations = [
 			},
 		},
 		options: [
-			<%_ resourceObject.forEach(operation => { _%>
+			<%_ operationsArray.forEach(operation => { _%>
 			{
 				name: '<%= helpers.capitalCase(operation.operationId) %>',
 				value: '<%= helpers.camelCase(operation.operationId) %>',
@@ -26,13 +26,13 @@ export const <%= helpers.camelCase(resourceName) %>Operations = [
 			},
 			<%_ }); _%> <%#_ end operations loop _%>
 		],
-		default: '<%= helpers.camelCase(resourceObject[0].operationId) %>',
+		default: '<%= helpers.camelCase(operationsArray[0].operationId) %>',
 		description: 'Operation to perform',
 	},
 ] as INodeProperties[];
 
 export const <%= helpers.camelCase(resourceName) %>Fields = [
-	<%_ resourceObject.forEach(operation => { _%>
+	<%_ operationsArray.forEach(operation => { _%>
 		<%_/**
 		* **********************
 		* PARAMETERS

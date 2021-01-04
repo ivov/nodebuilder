@@ -2,7 +2,9 @@
 to: src/output/<%= helpers.pascalCase(metaParams.serviceName) %>.node.ts
 ---
 <%_ const resourceNames = Object.keys(mainParams);
-		const resourceTuples = Object.entries(mainParams); _%>
+		const resourceTuples = Object.entries(mainParams);
+		const isFirst = (item, arr) => arr.indexOf(item) === 0
+		const isLast = (item, arr) => arr.indexOf(item) + 1 === arr.length; _%>
 import {
 	IExecuteFunctions,
 } from 'n8n-core';
@@ -55,7 +57,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 			// ----------------------------------
 			//         Operations
 			// ----------------------------------
-			<%_ resourceTuples.forEach(([resourceName, resourceObject]) => { _%>
+			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -68,7 +70,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					},
 				},
 				options: [
-					<%_ resourceObject.forEach((operation) => { _%>
+					<%_ operationsArray.forEach(operation => { _%>
 					{
 						name: '<%= operation.operationId %>',
 						value: '<%= helpers.camelCase(operation.operationId) %>',
@@ -76,15 +78,15 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					},
 					<%_ }); _%><%#_ end operations loop _%>
 				],
-				default: '<%= helpers.camelCase(resourceObject[0].operationId) %>',
+				default: '<%= helpers.camelCase(operationsArray[0].operationId) %>',
 				description: 'Operation to perform',
 			},
 			<%_ }); _%><%#_ end resourceTuples loop _%>
 			// ----------------------------------
 			//         Fields
 			// ----------------------------------
-			<%_ resourceTuples.forEach(([resourceName, resourceObject]) => { _%>
-      <%_ resourceObject.forEach((operation) => { _%>
+			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
+      <%_ operationsArray.forEach(operation => { _%>
 			<%_/**
 			 * **********************
 			 * PARAMETERS
@@ -226,4 +228,103 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 	<%_ }); _%> <%#_ end resourceTuples loop _%>
 		], <%# end properties key of object at description class field %>
 	}; <%# end description class field %>
+
+	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+		const items = this.getInputData();
+		const returnData: IDataObject[] = [];
+
+		const resource = this.getNodeParameter('resource', 0) as string;
+		const operation = this.getNodeParameter('operation', 0) as string;
+
+		let responseData: any;
+
+		for (let i = 0; i < items.length; i++) {
+
+			let qs: IDataObject = {};
+			let body: IDataObject = {};
+
+			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
+			<%_ if (isFirst(resourceName, resourceNames)) { _%>
+			if (resource === '<%= helpers.camelCase(resourceName) %>') {
+			<%_ } else { _%>
+			} else if (resource === '<%= helpers.camelCase(resourceName) %>') {
+			<%_ } _%>
+
+			<%_ operationsArray.forEach(operation => { _%>
+				<%_ if (isFirst(operation, operationsArray)) { _%>
+				if (operation === '<%= helpers.camelCase(operation.operationId) %>') {
+				<%_ } else { _%>
+				} else if (operation === '<%= helpers.camelCase(operation.operationId) %>') {
+				<%_ } _%>
+					<%_/**
+					* **********************
+					* PARAMETERS
+					* **********************
+					*/_%>
+					<%_ if (operation.parameters) { _%>
+					<%_/**
+					 * ------ Path Parameters ------
+					 * */_%>
+					<%_ if (helpers.hasPathParameters(operation.endpoint)) { _%>
+					<% const pathParameters = helpers.getPathParameters(operation.parameters) %>
+					<%_ pathParameters.forEach(pathParameter => { _%>
+					const <%= pathParameter %> = this.getNodeParameter('<%= pathParameter %>', i);
+					<%_ }); _%>
+					const endpoint = `<%= helpers.toTemplateLiteral(operation.endpoint) _%>`;
+					// PENDING API CALL
+					<%_/**
+					 * ------ Query Parameters ------
+					 * */_%>
+					<%_ } else { _%>
+					// CONTINUE HERE
+					const endpoint = '<%= operation.endpoint _%>';
+					// PENDING API CALL
+					<%_ } _%>
+					<%_/**
+					* **********************
+					* REQUEST BODY
+					* **********************
+					*/_%>
+					<%_ } else if (operation.requestBody) { _%>
+					// PENDING EVERYTHING - REQUEST BODY
+					<%_/**
+					* **********************
+					* ADDITIONAL FIELDS
+					* **********************
+					*/_%>
+					<%_ } else if (operation.additionalFields) { _%>
+					// PENDING EVERYTHING - ADDITIONAL FIELDS
+					<%_/**
+					* **************************************************
+					* NO PARAMETERS OR REQUEST BODY OR ADDITIONAL FIELDS
+					* **************************************************
+					*/_%>
+					<%_ } else { _%> <%# end if-check for parameters %>
+					// PENDING EVERYTHING - NOTHING AT ALL
+					<%_ } _%>
+
+				<%_ if (isLast(operation, operationsArray)) { _%>
+				} else {
+					throw new Error(`Unknown operation: ${operation}`);
+				}
+				<%_ } _%>
+			<%_ }); _%> <%#_ end operationsArray loop _%>
+			<%_ if (isLast(resourceName, resourceNames)) { _%>
+
+			} else {
+				throw new Error(`Unknown resource: ${resource}`);
+			}
+			<%_ } _%>
+			<%_ }); _%> <%#_ end resourceTuples loop _%>
+
+			if (Array.isArray(responseData)) {
+				returnData.push.apply(returnData, responseData as IDataObject[]);
+			} else {
+				returnData.push(responseData as IDataObject);
+			}
+
+		}
+
+		return [this.helpers.returnJsonArray(returnData)];
+	}
 } <%# end class %>

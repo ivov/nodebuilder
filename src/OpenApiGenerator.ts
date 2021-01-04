@@ -1,4 +1,4 @@
-import { execSync as exec } from "child_process";
+import { execSync } from "child_process";
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 
@@ -31,8 +31,7 @@ export default class OpenApiNodeGenerator {
   }
 
   private executeCommand(command: string) {
-    console.log(`env HYGEN_OVERWRITE=1 node ${this.hygenBin} ${command}`);
-    return exec(`env HYGEN_OVERWRITE=1 node ${this.hygenBin} ${command}`);
+    return execSync(`env HYGEN_OVERWRITE=1 node ${this.hygenBin} ${command}`);
   }
 
   private generateResourceDescriptions() {
@@ -44,8 +43,8 @@ export default class OpenApiNodeGenerator {
 
     // final - all
     // Object.entries(this.mainParams).forEach(
-    //   ([resourceName, resourceObject]) => {
-    //     this.saveResourceJson(resourceName, resourceObject);
+    //   ([resourceName, operationsArray]) => {
+    //     this.saveResourceJson(resourceName, operationsArray);
     //     this.executeCommand("make generateResourceDescription");
     //     // this.deleteResourceJson();
     //   }
@@ -54,10 +53,10 @@ export default class OpenApiNodeGenerator {
     unlinkSync(this.resourcesJson);
   }
 
-  private saveResourceJson(resourceName: string, resourceObject: Resource) {
+  private saveResourceJson(resourceName: string, operationsArray: Resource) {
     writeFileSync(
       this.resourcesJson,
-      JSON.stringify({ resourceName, resourceObject }, null, 2),
+      JSON.stringify({ resourceName, operationsArray }, null, 2),
       "utf8"
     );
   }
