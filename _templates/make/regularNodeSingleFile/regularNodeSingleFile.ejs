@@ -4,7 +4,8 @@ to: src/output/<%= helpers.pascalCase(metaParams.serviceName) %>.node.ts
 <%_ const resourceNames = Object.keys(mainParams);
 		const resourceTuples = Object.entries(mainParams);
 		const isFirst = (item, arr) => arr.indexOf(item) === 0
-		const isLast = (item, arr) => arr.indexOf(item) + 1 === arr.length; _%>
+		const isLast = (item, arr) => arr.indexOf(item) + 1 === arr.length;
+		const serviceApiRequest = helpers.camelCase(metaParams.serviceName) + "ApiRequest"; _%>
 import {
 	IExecuteFunctions,
 } from 'n8n-core';
@@ -17,7 +18,7 @@ import {
 } from 'n8n-workflow';
 
 import {
-	<%= helpers.camelCase(metaParams.serviceName) %>ApiRequest,
+	<%= serviceApiRequest %>,
 } from './GenericFunctions';
 
 export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeType {
@@ -240,9 +241,6 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 
 		for (let i = 0; i < items.length; i++) {
 
-			let qs: IDataObject = {};
-			let body: IDataObject = {};
-
 			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
 			<%_ if (isFirst(resourceName, resourceNames)) { _%>
 			if (resource === '<%= helpers.camelCase(resourceName) %>') {
@@ -265,20 +263,25 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					<%_/**
 					 * ------ Path Parameters ------
 					 * */_%>
-					<%_ if (helpers.hasPathParameters(operation.endpoint)) { _%>
-					<% const pathParameters = helpers.getPathParameters(operation.parameters) %>
-					<%_ pathParameters.forEach(pathParameter => { _%>
-					const <%= pathParameter %> = this.getNodeParameter('<%= pathParameter %>', i);
+					<%_ if (helpers.hasPathParams(operation.endpoint)) { _%>
+					<% const pathParams = helpers.getParams(operation.parameters, "path"); %>
+					<%_ pathParams.forEach(pathParam => { _%>
+					const <%= pathParam %> = this.getNodeParameter('<%= pathParam %>', i);
 					<%_ }); _%>
 					const endpoint = `<%= helpers.toTemplateLiteral(operation.endpoint) _%>`;
-					// PENDING API CALL
+					responseData = await <%= serviceApiRequest %>.call(this, '<%= operation.requestMethod %>', endpoint, {}, {});
 					<%_/**
 					 * ------ Query Parameters ------
 					 * */_%>
 					<%_ } else { _%>
-					// CONTINUE HERE
-					const endpoint = '<%= operation.endpoint _%>';
-					// PENDING API CALL
+
+					const qs: IDataObject = {};
+					<%_ const queryParams = helpers.getParams(operation.parameters, "query"); _%>
+					<%_ queryParams.forEach(queryParam => { _%>
+					qs.<%= queryParam %> = this.getNodeParameter('<%= queryParam %>', i);
+					<%_ }); _%>
+					const endpoint = '<%= operation.endpoint %>'
+					responseData = await <%= serviceApiRequest %>.call(this, '<%= operation.requestMethod %>', endpoint, {}, qs);
 					<%_ } _%>
 					<%_/**
 					* **********************
@@ -286,21 +289,28 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					* **********************
 					*/_%>
 					<%_ } else if (operation.requestBody) { _%>
-					// PENDING EVERYTHING - REQUEST BODY
+
+					const body: IDataObject = {};
+					const endpoint = '<%= operation.endpoint %>'
+					responseData = await <%= serviceApiRequest %>.call(this, '<%= operation.requestMethod %>', endpoint, body, {});
 					<%_/**
 					* **********************
 					* ADDITIONAL FIELDS
 					* **********************
 					*/_%>
 					<%_ } else if (operation.additionalFields) { _%>
+					const endpoint = '<%= operation.endpoint %>'
+					responseData = await <%= serviceApiRequest %>.call(this, '<%= operation.requestMethod %>', endpoint, {}, qs);
 					// PENDING EVERYTHING - ADDITIONAL FIELDS
 					<%_/**
 					* **************************************************
 					* NO PARAMETERS OR REQUEST BODY OR ADDITIONAL FIELDS
 					* **************************************************
 					*/_%>
-					<%_ } else { _%> <%# end if-check for parameters %>
-					// PENDING EVERYTHING - NOTHING AT ALL
+					<%_ } else { _%>
+
+					const endpoint = '<%= operation.endpoint %>'
+					responseData = await <%= serviceApiRequest %>.call(this, '<%= operation.requestMethod %>', endpoint, {}, {});
 					<%_ } _%>
 
 				<%_ if (isLast(operation, operationsArray)) { _%>

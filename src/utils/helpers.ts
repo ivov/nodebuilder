@@ -12,8 +12,8 @@ export default {
     return "";
   },
   hasMinMax: (arg: any) => arg.minimum && arg.maximum,
-  hasPathParameters: (endpoint: string) => endpoint.split("").includes("{"),
-  getPathParameters: (parameters: OperationParameter[]) =>
-    parameters.filter((p) => p.in === "path").map((p) => p.name),
+  hasPathParams: (endpoint: string) => endpoint.split("").includes("{"),
+  getParams: (params: OperationParameter[], type: "query" | "path") =>
+    params.filter((p) => p.in === type).map((p) => p.name),
   toTemplateLiteral: (endpoint: string) => endpoint.replace(/{/g, "${"),
 };
