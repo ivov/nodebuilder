@@ -1,4 +1,4 @@
-import json from "../input/lichess.json";
+import json from "../input/sample.json";
 import OpenApiExtractor from "../OpenApiExtractor";
 import FilePrinter from "../FilePrinter";
 
