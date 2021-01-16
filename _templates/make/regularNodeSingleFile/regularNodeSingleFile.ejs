@@ -236,6 +236,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
+		const qs: IDataObject = {};
 
 		let responseData: any;
 
@@ -275,7 +276,6 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					 * */_%>
 					<%_ } else { _%>
 
-					const qs: IDataObject = {};
 					<%_ const queryParams = helpers.getParams(operation.parameters, "query"); _%>
 					<%_ queryParams.forEach(queryParam => { _%>
 					qs.<%= queryParam %> = this.getNodeParameter('<%= queryParam %>', i);
@@ -317,21 +317,19 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				} else {
 					throw new Error(`Unknown operation: ${operation}`);
 				}
+
 				<%_ } _%>
 			<%_ }); _%> <%#_ end operationsArray loop _%>
 			<%_ if (isLast(resourceName, resourceNames)) { _%>
-
 			} else {
 				throw new Error(`Unknown resource: ${resource}`);
 			}
 			<%_ } _%>
 			<%_ }); _%> <%#_ end resourceTuples loop _%>
 
-			if (Array.isArray(responseData)) {
-				returnData.push.apply(returnData, responseData as IDataObject[]);
-			} else {
-				returnData.push(responseData as IDataObject);
-			}
+			Array.isArray(responseData)
+				? returnData.push(...responseData)
+				: returnData.push(responseData);
 
 		}
 
