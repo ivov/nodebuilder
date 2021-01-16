@@ -1,9 +1,10 @@
 import OpenApiGenerator from "../OpenApiGenerator";
-import nodegenParams from "../output/nodegenParams";
+// @ts-ignore TODO: Fix import when no file exists
+import { mainParams } from "../output/nodegenParams";
 
 try {
   new OpenApiGenerator({
-    mainParams: nodegenParams.mainParams,
+    mainParams,
     nodeGenerationType: "SingleFile",
   }).run();
 

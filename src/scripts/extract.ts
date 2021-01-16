@@ -3,8 +3,7 @@ import OpenApiExtractor from "../OpenApiExtractor";
 import FilePrinter from "../FilePrinter";
 
 try {
-  const extractor = new OpenApiExtractor(json);
-  const nodegenParams = extractor.run();
+  const nodegenParams = new OpenApiExtractor(json).run();
   const printer = new FilePrinter(nodegenParams);
 
   printer.print({ format: "ts" });
