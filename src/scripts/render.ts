@@ -1,8 +1,8 @@
 import json from "../input/lichess.json";
 
-import TreeRenderer from "../TreeRenderer";
+import TreeRenderer from "../utils/TreeRenderer";
 import OpenApiExtractor from "../OpenApiExtractor";
-import FilePrinter from "../FilePrinter";
+import FilePrinter from "../utils/FilePrinter";
 
 try {
   const extractor = new OpenApiExtractor(json);

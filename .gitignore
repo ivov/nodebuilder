@@ -1,6 +1,7 @@
 /node_modules
 /dist
 .todo
+notes.txt
 
 src/input/*
 !src/input/.gitkeep

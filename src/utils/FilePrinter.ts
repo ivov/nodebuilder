@@ -5,7 +5,7 @@ import { Project } from "ts-morph";
 
 /**Converts nodegen params into TypeScript or JSON, or treeview into TXT.*/
 export default class FilePrinter {
-  private readonly basePath = resolve("./", "src", "output");
+  private readonly basePath = resolve("./", "src", "input");
   private readonly nodegenPath = join(this.basePath, "nodegenParams");
   private readonly treeviewPath = join(this.basePath, "treeview");
 
@@ -29,7 +29,7 @@ export default class FilePrinter {
     new Project()
       .createSourceFile(
         this.nodegenPath + ".ts",
-        `export default <NodegenParams>${this.getJson()}`,
+        `export default ${this.getJson()}`,
         { overwrite: true }
       )
       .saveSync();

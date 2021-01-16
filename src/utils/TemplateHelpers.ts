@@ -1,6 +1,7 @@
 import { camelCase, pascalCase, capitalCase } from "change-case";
 
-export default {
+/**Helper functions for use in the Hygen templates.*/
+export const helpers = {
   camelCase,
   pascalCase,
   capitalCase,
