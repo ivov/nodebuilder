@@ -1,9 +1,9 @@
 import OpenApiGenerator from "../OpenApiGenerator";
-import nodegenParams from "../output/nodegenParams";
+// import nodegenParams from "../output/nodegenParams";
 
 try {
-  const gen = new OpenApiGenerator(nodegenParams.mainParams, "SingleFile");
-  gen.run();
+  // const gen = new OpenApiGenerator(nodegenParams.mainParams, "SingleFile");
+  // gen.run();
 
   // const gen2 = new OpenApiGenerator(nodegenParams.mainParams, "MultiFile");
   // gen2.run();

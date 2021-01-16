@@ -1,5 +1,6 @@
 import { writeFileSync } from "fs";
 import { join, resolve } from "path";
+import { execSync } from "child_process";
 import { Project } from "ts-morph";
 
 /**Converts nodegen params into TypeScript or JSON, or treeview into TXT.*/
@@ -32,6 +33,8 @@ export default class FilePrinter {
         { overwrite: true }
       )
       .saveSync();
+
+    execSync(`npx prettier --write ${this.nodegenPath + ".ts"}`);
   }
 
   private printTxt() {
