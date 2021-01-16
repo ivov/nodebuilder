@@ -2,16 +2,9 @@
 //         Node generation
 // ----------------------------------
 
-enum NodeGenerationType {
-  SingleFile = "SingleFile",
-  MultiFile = "MultiFile",
-}
+type NodeGenerationType = "SingleFile" | "MultiFile";
 
-enum AuthType {
-  OAuth2 = "OAuth2",
-  ApiKey = "ApiKey",
-  None = "None",
-}
+type AuthType = "OAuth2" | "ApiKey" | "None";
 
 type NodegenParams = {
   metaParams: MetaParams;

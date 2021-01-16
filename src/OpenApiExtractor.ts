@@ -1,4 +1,3 @@
-import { request } from "http";
 import { JSONPath as jsonQuery } from "jsonpath-plus";
 
 /**Extracts params from an OpenAPI JSON for use in node generation.*/
@@ -34,7 +33,7 @@ export default class OpenApiExtractor {
   }
 
   // TODO: temp implementation
-  private getAuthType(): keyof typeof AuthType {
+  private getAuthType(): AuthType {
     return "OAuth2";
   }
 

@@ -29,7 +29,7 @@ export default class FilePrinter {
     new Project()
       .createSourceFile(
         this.nodegenPath + ".ts",
-        `export default ${this.getJson()}`,
+        `export default <NodegenParams>${this.getJson()}`,
         { overwrite: true }
       )
       .saveSync();

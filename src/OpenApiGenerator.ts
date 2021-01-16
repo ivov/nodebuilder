@@ -3,14 +3,22 @@ import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 
 export default class OpenApiNodeGenerator {
+  private readonly mainParams: MainParams;
+  private readonly nodeGenerationType: NodeGenerationType;
   private readonly resourcesDir = join("src", "output", "resources");
   private readonly resourcesJson = join(this.resourcesDir, "Resource.json");
   private readonly hygenBin = join("node_modules", "hygen", "dist", "bin.js");
 
-  constructor(
-    private mainParams: MainParams,
-    private nodeGenerationType: keyof typeof NodeGenerationType
-  ) {}
+  constructor({
+    mainParams,
+    nodeGenerationType,
+  }: {
+    mainParams: MainParams;
+    nodeGenerationType: NodeGenerationType;
+  }) {
+    this.mainParams = mainParams;
+    this.nodeGenerationType = nodeGenerationType;
+  }
 
   /**Generates all node functionality files: `*.node.ts`, `GenericFunctions.ts`, `*.credentials.ts`, and (in complex mode) one `*Description.ts` file per resource.*/
   public run() {
