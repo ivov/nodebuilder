@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strictPropertyInitialization": false,
+    "downlevelIteration": true
   },
   "exclude": [
     "src/input",

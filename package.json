@@ -6,7 +6,7 @@
   "scripts": {
     "extract": "tsc && node dist/scripts/extract.js",
     "generate": "tsc && node dist/scripts/generate.js",
-    "render": "tsc && node dist/scripts/view.js",
+    "render": "tsc && node dist/scripts/render.js",
     "clear": "rm src/output/*"
   },
   "keywords": [],

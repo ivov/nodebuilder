@@ -43,7 +43,7 @@ export default class OpenApiExtractor {
     for (const endpoint in this.json.paths) {
       this.currentEndpoint = endpoint;
 
-      const resources = this.extract("tags").filter((r) => r !== "OAuth");
+      const resources = this.getResources();
       const methods = this.extract("requestMethods");
 
       resources.forEach((resource) => {
@@ -58,6 +58,11 @@ export default class OpenApiExtractor {
     return mainParams;
   }
 
+  private getResources() {
+    const resources = this.extract("tags").filter((r) => r !== "OAuth");
+    return [...new Set(resources)];
+  }
+
   private createOperation(requestMethod: string) {
     const operation: Operation = {
       endpoint: this.currentEndpoint,
@@ -66,7 +71,7 @@ export default class OpenApiExtractor {
       description: this.extract("description"),
     };
 
-    const [params, addFields] = this.sortParams(this.extract("parameters"));
+    const [params, addFields] = this.classifyParams(this.extract("parameters"));
     const requestBody = this.extract("requestBody");
 
     if (params.length) operation.parameters = params;
@@ -85,31 +90,41 @@ export default class OpenApiExtractor {
   private extract(key: "parameters"): OperationParameter[];
   private extract(key: "requestBody"): OperationRequestBody[];
   private extract(key: OpenApiKey) {
-    const result = jsonQuery({
+    let result = jsonQuery({
       json: this.json,
       path: `$.paths.[${this.currentEndpoint}].${this.setEndOfPath(key)}`,
     });
 
-    const isSingleElementArray = ["description", "operationId"].includes(key);
+    // reduce extra nesting - see note at `setEndOfPath`
+    if (key === "parameters" && result.length) {
+      return result[0];
+    }
 
-    return isSingleElementArray ? result[0] : result;
+    // reduce extra nesting - always single element array
+    if (key === "description" || key === "operationId") {
+      return result[0];
+    }
+
+    return result;
   }
 
   /**Adjust the end of the JSON Path query based on the key.
    * ```json
    * $.[/endpoint].   *.tags.*
-   * $.[/endpoint].   *.parameters.*
    * $.[/endpoint].   *~
    * $.[/endpoint].   *.otherKey
-   * ```*/
+   * ```
+   * Note: `parameters` is kept in a nested array (instead of together with `tags`)
+   * for the edge case where the endpoint has 2+ request methods. Otherwise, the
+   * parameters for both methods become mixed together, causing duplication.*/
   private setEndOfPath(key: OpenApiKey) {
-    if (["tags", "parameters"].includes(key)) return `*.${key}.*`;
+    if (key === "tags") return `*.${key}.*`;
     if (key === "requestMethods") return `*~`;
     return `*.${key}`;
   }
 
-  /**Sort operation parameters into required and non-required.*/
-  private sortParams(
+  /**Classify operation parameters as required and non-required.*/
+  private classifyParams(
     parameters: OperationParameter[]
   ): [OperationParameter[], AdditionalFields] {
     const requiredParams: OperationParameter[] = [];
