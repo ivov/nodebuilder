@@ -70,7 +70,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				options: [
 					<%_ operationsArray.forEach(operation => { _%>
 					{
-						name: '<%= operation.operationId %>',
+						name: '<%= helpers.pascalCase(operation.operationId) %>',
 						value: '<%= helpers.camelCase(operation.operationId) %>',
 						description: '<%- helpers.escape(operation.description) %>',
 					},
