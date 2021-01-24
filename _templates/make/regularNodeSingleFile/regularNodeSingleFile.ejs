@@ -38,9 +38,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 		inputs: ['main'],
 		outputs: ['main'],
 		properties: [
-			// ----------------------------------
-			//         Resources
-			// ----------------------------------
+			<%= helpers.makeHeader("Resources", dividerLength) %>
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -56,9 +54,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				default: '<%= resourceNames[0].toLowerCase() %>',
 				description: 'Resource to consume',
 			},
-			// ----------------------------------
-			//         Operations
-			// ----------------------------------
+			<%= helpers.makeHeader("Operations", dividerLength) %>
 			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
 			{
 				displayName: 'Operation',
@@ -84,9 +80,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				description: 'Operation to perform',
 			},
 			<%_ }); _%><%#_ end resourceTuples loop _%>
-			// ----------------------------------
-			//         Fields
-			// ----------------------------------
+			<%= helpers.makeHeader("Fields", dividerLength) %>
 			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
       <%_ operationsArray.forEach(operation => { _%>
 			<%_/**

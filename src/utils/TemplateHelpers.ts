@@ -32,6 +32,14 @@ export const helpers = {
 
   isLast: (item: any, arr: any[]) => arr.indexOf(item) + 1 === arr.length,
 
+  makeHeader: (header: string, dividerLength: number) => {
+    const padLength = Math.floor((dividerLength - header.length) / 2);
+    const headerLine = "// " + " ".repeat(padLength) + header;
+    const dividerLine = "// " + "-".repeat(dividerLength);
+
+    return [dividerLine, headerLine, dividerLine].join("\n" + "\t".repeat(3));
+  },
+
   makeDivider: (
     resourceName: string,
     operationId: string,
