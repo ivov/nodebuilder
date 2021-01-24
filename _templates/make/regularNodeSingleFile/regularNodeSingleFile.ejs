@@ -1,11 +1,12 @@
 ---
 to: src/output/<%= helpers.pascalCase(metaParams.serviceName) %>.node.ts
 ---
-<%_ const resourceNames = Object.keys(mainParams);
-		const resourceTuples = Object.entries(mainParams);
-		const isFirst = (item, arr) => arr.indexOf(item) === 0
-		const isLast = (item, arr) => arr.indexOf(item) + 1 === arr.length;
-		const serviceApiRequest = helpers.camelCase(metaParams.serviceName) + "ApiRequest"; _%>
+<%_
+	const resourceTuples = Object.entries(mainParams);
+	const resourceNames = helpers.getResourceNames(resourceTuples);
+	const serviceApiRequest = helpers.getServiceApiRequest(metaParams);
+	const dividerLength = helpers.getDividerLength(mainParams);
+_%>
 import {
 	IExecuteFunctions,
 } from 'n8n-core';
@@ -243,14 +244,16 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 		for (let i = 0; i < items.length; i++) {
 
 			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
-			<%_ if (isFirst(resourceName, resourceNames)) { _%>
+			<%_ if (helpers.isFirst(resourceName, resourceNames)) { _%>
 			if (resource === '<%= helpers.camelCase(resourceName) %>') {
 			<%_ } else { _%>
 			} else if (resource === '<%= helpers.camelCase(resourceName) %>') {
 			<%_ } _%>
 
 			<%_ operationsArray.forEach(operation => { _%>
-				<%_ if (isFirst(operation, operationsArray)) { _%>
+				<%= helpers.makeDivider(helpers.camelCase(resourceName), operation.operationId, dividerLength); %>
+
+				<%_ if (helpers.isFirst(operation, operationsArray)) { _%>
 				if (operation === '<%= helpers.camelCase(operation.operationId) %>') {
 				<%_ } else { _%>
 				} else if (operation === '<%= helpers.camelCase(operation.operationId) %>') {
@@ -292,7 +295,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					<%_ } else if (operation.requestBody) { _%>
 
 					const body: IDataObject = {};
-					const endpoint = '<%= operation.endpoint %>'
+					const endpoint = '<%= operation.endpoint %>';
 					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
 					<%_/**
 					* **********************
@@ -300,7 +303,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					* **********************
 					*/_%>
 					<%_ } else if (operation.additionalFields) { _%>
-					const endpoint = '<%= operation.endpoint %>'
+					const endpoint = '<%= operation.endpoint %>';
 					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
 					// PENDING EVERYTHING - ADDITIONAL FIELDS
 					<%_/**
@@ -310,18 +313,18 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					*/_%>
 					<%_ } else { _%>
 
-					const endpoint = '<%= operation.endpoint %>'
+					const endpoint = '<%= operation.endpoint %>';
 					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
 					<%_ } _%>
 
-				<%_ if (isLast(operation, operationsArray)) { _%>
+				<%_ if (helpers.isLast(operation, operationsArray)) { _%>
 				} else {
 					throw new Error(`Unknown operation: ${operation}`);
 				}
 
 				<%_ } _%>
 			<%_ }); _%> <%#_ end operationsArray loop _%>
-			<%_ if (isLast(resourceName, resourceNames)) { _%>
+			<%_ if (helpers.isLast(resourceName, resourceNames)) { _%>
 			} else {
 				throw new Error(`Unknown resource: ${resource}`);
 			}

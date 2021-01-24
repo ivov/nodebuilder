@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "extract": "tsc && node dist/scripts/extract.js",
-    "generate": "tsc && node dist/scripts/generate.js",
-    "render": "tsc && node dist/scripts/render.js",
+    "extract": "tsc && node dist/src/scripts/extract.js",
+    "generate": "tsc && node dist/src/scripts/generate.js",
+    "render": "tsc && node dist/src/scripts/render.js",
     "clear": "rm src/output/*"
   },
   "keywords": [],

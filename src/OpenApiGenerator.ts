@@ -44,7 +44,12 @@ export default class OpenApiNodeGenerator {
   }
 
   private executeCommand(command: string) {
-    return execSync(`env HYGEN_OVERWRITE=1 node ${this.hygenBin} ${command}`);
+    try {
+      execSync(`env HYGEN_OVERWRITE=1 node ${this.hygenBin} ${command}`);
+    } catch (error) {
+      console.log(error.stdout.toString());
+      console.log(error.message);
+    }
   }
 
   /**For every resource in main params, generates a resource JSON file, feeds it into
