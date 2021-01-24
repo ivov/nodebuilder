@@ -94,7 +94,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				displayName: '<%= parameter.name %>',
 				name: '<%= helpers.camelCase(parameter.name) %>',
 				description: '<%= parameter.description %>',
-				type: '<%= parameter.schema.type %>',
+				type: '<%= helpers.adjustType(parameter.schema.type) %>',
 				<%_ if (helpers.hasMinMax(parameter.schema)) { _%>
 				typeOptions: {
 					minValue: <%= parameter.schema.minimum %>,
@@ -102,7 +102,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				},
 				<%_ } _%>
 				required: true,
-				default: '<%= helpers.getDefault(parameter.schema) %>',
+				default: <%- helpers.getDefault(parameter.schema) %>,
 				displayOptions: {
 					show: {
 						resource: [
@@ -152,7 +152,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
         <%_ if (property.description) { _%>
         description: '<%- helpers.escape(property.description) %>',
         <%_ } _%>
-        type: '<%= property.type %>',
+        type: '<%= helpers.adjustType(property.type) %>',
         <%_ if (helpers.hasMinMax(property)) { _%>
         typeOptions: {
           minValue: <%= property.minimum %>,
@@ -160,11 +160,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
         },
         <%_ } _%>
         required: true,
-        default: <%_ if (property.type === "string") { _%>
-          <%_ %> '<%= helpers.getDefault(property) _%>',
-          <%_ } else { _%>
-          <%_ %> <%= helpers.getDefault(property) _%>,
-          <%_ } _%>
+        default: <%- helpers.getDefault(property) %>,
         displayOptions: {
           show: {
             resource: [
@@ -209,12 +205,8 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
             <%_ if (option.description) { _%>
             description: '<%- helpers.escape(option.description) %>',
             <%_ } _%>
-            type: '<%= option.type %>',
-            default: <%_ if (typeof option.default === "string") { _%>
-            <%_ %> '<%= helpers.getDefault(option) _%>',
-            <%_ } else { _%>
-            <%_ %> <%= helpers.getDefault(option) _%>,
-            <%_ } _%>
+            type: '<%= helpers.adjustType(option.type) %>',
+            default: <%- helpers.getDefault(option) %>,
 					},
         <%_ }); _%> <%#_ end options loop _%>
         ]
