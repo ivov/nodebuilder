@@ -5,7 +5,7 @@ to: src/output/<%= helpers.pascalCase(metaParams.serviceName) %>.node.ts
 	const resourceTuples = Object.entries(mainParams);
 	const resourceNames = helpers.getResourceNames(resourceTuples);
 	const serviceApiRequest = helpers.getServiceApiRequest(metaParams);
-	const dividerLength = helpers.getDividerLength(mainParams);
+	helpers.findDividerLength(mainParams);
 _%>
 import {
 	IExecuteFunctions,
@@ -38,7 +38,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 		inputs: ['main'],
 		outputs: ['main'],
 		properties: [
-			<%= helpers.makeHeader("Resources", dividerLength) %>
+			<%= helpers.makeHeader("Resources") %>
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -54,7 +54,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				default: '<%= resourceNames[0].toLowerCase() %>',
 				description: 'Resource to consume',
 			},
-			<%= helpers.makeHeader("Operations", dividerLength) %>
+			<%= helpers.makeHeader("Operations") %>
 			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
 			{
 				displayName: 'Operation',
@@ -80,7 +80,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				description: 'Operation to perform',
 			},
 			<%_ }); _%><%#_ end resourceTuples loop _%>
-			<%= helpers.makeHeader("Fields", dividerLength) %>
+			<%= helpers.makeHeader("Fields") %>
 			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
       <%_ operationsArray.forEach(operation => { _%>
 			<%_/**
@@ -245,7 +245,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 			<%_ } _%>
 
 			<%_ operationsArray.forEach(operation => { _%>
-				<%= helpers.makeDivider(helpers.camelCase(resourceName), operation.operationId, dividerLength); %>
+				<%= helpers.makeDivider(helpers.camelCase(resourceName), operation.operationId); %>
 
 				<%_ if (helpers.isFirst(operation, operationsArray)) { _%>
 				if (operation === '<%= helpers.camelCase(operation.operationId) %>') {

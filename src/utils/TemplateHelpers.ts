@@ -1,8 +1,9 @@
 import { camelCase, pascalCase, capitalCase } from "change-case";
-import { title } from "process";
 
 /**Helper functions used in Hygen templates.*/
 export const helpers = {
+  dividerLength: 0,
+
   camelCase,
 
   capitalCase,
@@ -32,24 +33,20 @@ export const helpers = {
 
   isLast: (item: any, arr: any[]) => arr.indexOf(item) + 1 === arr.length,
 
-  makeHeader: (header: string, dividerLength: number) => {
-    const padLength = Math.floor((dividerLength - header.length) / 2);
+  makeHeader: function (header: string) {
+    const padLength = Math.floor((this.dividerLength - header.length) / 2);
     const headerLine = "// " + " ".repeat(padLength) + header;
-    const dividerLine = "// " + "-".repeat(dividerLength);
+    const dividerLine = "// " + "-".repeat(this.dividerLength);
 
     return [dividerLine, headerLine, dividerLine].join("\n" + "\t".repeat(3));
   },
 
-  makeDivider: (
-    resourceName: string,
-    operationId: string,
-    dividerLength: number
-  ) => {
+  makeDivider: function (resourceName: string, operationId: string) {
     const title = `${resourceName}: ${operationId}`;
-    const padLength = Math.floor((dividerLength - title.length) / 2);
+    const padLength = Math.floor((this.dividerLength - title.length) / 2);
 
     const titleLine = "// " + " ".repeat(padLength) + title;
-    const dividerLine = "// " + "-".repeat(dividerLength);
+    const dividerLine = "// " + "-".repeat(this.dividerLength);
 
     return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(4));
   },
@@ -57,7 +54,7 @@ export const helpers = {
   getResourceNames: (resourceTuples: [string, Operation[]]) =>
     resourceTuples.map((tuple) => tuple[0]),
 
-  getDividerLength: (mainParams: MainParams) => {
+  findDividerLength: function (mainParams: MainParams) {
     let maxLength = 0;
 
     Object.entries(mainParams).forEach(([resourceName, operationsArray]) => {
@@ -67,7 +64,7 @@ export const helpers = {
       });
     });
 
-    return maxLength + 15;
+    this.dividerLength = maxLength + 15;
   },
 
   toTemplateLiteral: (endpoint: string) => endpoint.replace(/{/g, "${"),
