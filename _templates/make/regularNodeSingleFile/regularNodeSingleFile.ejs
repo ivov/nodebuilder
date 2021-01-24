@@ -282,7 +282,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					qs.<%= queryParam %> = this.getNodeParameter('<%= queryParam %>', i);
 					<%_ }); _%>
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, qs);
+					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
 					<%_ } _%>
 					<%_/**
 					* **********************
@@ -293,7 +293,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 
 					const body: IDataObject = {};
 					const endpoint = '<%= operation.endpoint %>'
-					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, body, {});
+					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
 					<%_/**
 					* **********************
 					* ADDITIONAL FIELDS
@@ -301,7 +301,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					*/_%>
 					<%_ } else if (operation.additionalFields) { _%>
 					const endpoint = '<%= operation.endpoint %>'
-					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, qs);
+					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
 					// PENDING EVERYTHING - ADDITIONAL FIELDS
 					<%_/**
 					* **************************************************
