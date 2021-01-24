@@ -230,20 +230,12 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 		for (let i = 0; i < items.length; i++) {
 
 			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
-			<%_ if (helpers.isFirst(resourceName, resourceNames)) { _%>
-			if (resource === '<%= helpers.camelCase(resourceName) %>') {
-			<%_ } else { _%>
-			} else if (resource === '<%= helpers.camelCase(resourceName) %>') {
-			<%_ } _%>
+			<%- helpers.makeResourceBranch(resourceName) %>
 
 			<%_ operationsArray.forEach(operation => { _%>
 				<%= helpers.makeDivider(helpers.camelCase(resourceName), operation.operationId); %>
 
-				<%_ if (helpers.isFirst(operation, operationsArray)) { _%>
-				if (operation === '<%= helpers.camelCase(operation.operationId) %>') {
-				<%_ } else { _%>
-				} else if (operation === '<%= helpers.camelCase(operation.operationId) %>') {
-				<%_ } _%>
+				<%- helpers.makeOperationBranch(operation, resourceName) %>
 				<%_ const requestMethod = operation.requestMethod.toUpperCase(); _%>
 					<%_/**
 					* **********************

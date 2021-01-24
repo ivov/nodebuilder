@@ -4,6 +4,10 @@ import { camelCase, pascalCase, capitalCase } from "change-case";
 export const helpers = {
   dividerLength: 0,
 
+  resourceNames: <string[]>[],
+
+  mainParams: <MainParams>{},
+
   adjustType: (type: string) => (type === "integer" ? "number" : type),
 
   camelCase,
@@ -47,6 +51,25 @@ export const helpers = {
 
   isLast: (item: any, arr: any[]) => arr.indexOf(item) + 1 === arr.length,
 
+  makeResourceBranch: function (resourceName: string) {
+    const branch = `if (resource === '${this.camelCase(resourceName)}') {`;
+    const prefix = "} else ";
+
+    const isFirst = this.isFirst(resourceName, this.resourceNames);
+
+    return isFirst ? branch : prefix + branch;
+  },
+
+  makeOperationBranch: function (operation: Operation, resourceName: string) {
+    const { operationId } = operation;
+    const branch = `if (operation === '${this.camelCase(operationId)}') {`;
+    const prefix = "} else ";
+
+    const isFirst = this.isFirst(operation, this.mainParams[resourceName]);
+
+    return isFirst ? branch : prefix + branch;
+  },
+
   makeHeader: function (header: string) {
     const padLength = Math.floor((this.dividerLength - header.length) / 2);
     const headerLine = "// " + " ".repeat(padLength) + header;
@@ -65,11 +88,16 @@ export const helpers = {
     return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(4));
   },
 
-  getResourceNames: (resourceTuples: [string, Operation[]]) =>
-    resourceTuples.map((tuple) => tuple[0]),
+  getResourceNames: function (resourceTuples: [string, Operation[]]) {
+    const resourceNames = resourceTuples.map((tuple) => tuple[0]) as string[]; // TODO
+    this.resourceNames = resourceNames;
+    return resourceNames;
+  },
 
   findDividerLength: function (mainParams: MainParams) {
     let maxLength = 0;
+
+    this.mainParams = mainParams;
 
     Object.entries(mainParams).forEach(([resourceName, operationsArray]) => {
       operationsArray.forEach((operation) => {
