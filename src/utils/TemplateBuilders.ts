@@ -24,7 +24,7 @@ export const builders = {
   getDividerLength: function (mainParams: MainParams) {
     let maxLength = 0;
 
-    Object.entries(mainParams).forEach(([resourceName, operationsArray]) => {
+    this.getResourceTuples().forEach(([resourceName, operationsArray]) => {
       operationsArray.forEach((operation) => {
         const title = `${resourceName}: ${operation.operationId}`;
         maxLength = title.length > maxLength ? title.length : maxLength;
@@ -80,21 +80,19 @@ export const builders = {
   buildResourceError: function (resourceName: string) {
     const isLast = this.isLast(resourceName, this.getResourceNames());
     const resourceError = `
-    \t\t} else {
-    \t\t\tthrow new Error(\`Unknown resource: \${resource}\`);
-    \t\t}
-    `;
+    \t} else {
+    \t\tthrow new Error(\`Unknown resource: \${resource}\`);
+    \t}`;
 
     return isLast ? resourceError : null;
   },
 
   buildOperationError: function (operation: Operation, resourceName: string) {
-    const isLast = this.isLast(resourceName, this.getResourceNames());
+    const isLast = this.isLast(operation, this.mainParams[resourceName]);
     const operationError = `
     \t\t} else {
     \t\t\tthrow new Error(\`Unknown operation: \${operation}\`);
-    \t\t}
-    `;
+    \t\t}`;
 
     return isLast ? operationError : null;
   },

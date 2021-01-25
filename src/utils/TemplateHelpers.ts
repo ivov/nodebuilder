@@ -41,7 +41,5 @@ export const helpers = {
 
   hasPathParams: (endpoint: string) => endpoint.split("").includes("{"),
 
-  isLast: (item: any, arr: any[]) => arr.indexOf(item) + 1 === arr.length,
-
   toTemplateLiteral: (endpoint: string) => endpoint.replace(/{/g, "${"),
 };
