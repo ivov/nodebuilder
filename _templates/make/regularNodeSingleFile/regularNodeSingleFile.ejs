@@ -257,6 +257,19 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					<%_ queryParams.forEach(queryParam => { _%>
 					qs.<%= queryParam %> = this.getNodeParameter('<%= queryParam %>', i);
 					<%_ }); _%>
+
+					<%_ if (operation.additionalFields) { _%>
+					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
+					<%_ operation.additionalFields.options.forEach(option => { _%>
+
+					if (additionalFields.<%= option.name %>) {
+					<%_ if (option.in === 'query') { _%>
+						qs.<%= option.name %> = this.getNodeParameter('<%= option.name %>', i);
+					}
+					<%_ } _%>
+					<%_ }); _%>
+					<%_ } _%>
+
 					const endpoint = '<%= operation.endpoint %>';
 					responseData = await <%= helpers.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
 					<%_ } _%>
@@ -271,26 +284,8 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					const endpoint = '<%= operation.endpoint %>';
 					responseData = await <%= helpers.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
 					<%_/**
-					* **********************
-					* ADDITIONAL FIELDS
-					* **********************
-					*/_%>
-					<%_ } else if (operation.additionalFields) { _%>
-					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
-					<%_ operation.additionalFields.options.forEach(option => { _%>
-					if (additionalFields.<%= option.name %>) {
-					<%_ if (option.in === 'query') { _%>
-						qs.<%= option.name %> = this.getNodeParameter('<%= option.name %>', i);
-					}
-					<%_ } else { _%>
-						// PENDING: additionalFields with path parameter
-					<%_ } _%>
-					<%_ }); _%>
-					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= helpers.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
-					<%_/**
 					* **************************************************
-					* NO PARAMETERS OR REQUEST BODY OR ADDITIONAL FIELDS
+					* NO PATH PARAMS OR QUERY PARAMS OR REQUEST BODY
 					* **************************************************
 					*/_%>
 					<%_ } else { _%>
