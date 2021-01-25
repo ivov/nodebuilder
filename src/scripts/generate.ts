@@ -4,6 +4,7 @@ import nodegenParams from "../input/nodegenParams";
 
 try {
   new OpenApiGenerator({
+    // @ts-ignore
     mainParams: nodegenParams.mainParams as MainParams,
     nodeGenerationType: "SingleFile",
   }).run();

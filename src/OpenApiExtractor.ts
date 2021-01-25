@@ -144,6 +144,7 @@ export default class OpenApiExtractor {
       field.required
         ? requiredParams.push(field)
         : additionalFields.options.push({
+            in: field.in,
             name: field.name,
             type: field.schema.type,
             default: this.getDefault(field.schema),

@@ -276,14 +276,17 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					* **********************
 					*/_%>
 					<%_ } else if (operation.additionalFields) { _%>
-					const endpoint = '<%= operation.endpoint %>';
 					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 					<%_ operation.additionalFields.options.forEach(option => { _%>
 					if (additionalFields.<%= option.name %>) {
-						// PENDING
+					<%_ if (option.in === 'query') { _%>
+						qs.<%= option.name %> = this.getNodeParameter('<%= option.name %>', i);
 					}
+					<%_ } else { _%>
+						// PENDING: additionalFields with path parameter
+					<%_ } _%>
 					<%_ }); _%>
-
+					const endpoint = '<%= operation.endpoint %>';
 					responseData = await <%= helpers.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
 					<%_/**
 					* **************************************************

@@ -41,7 +41,7 @@ interface Operation {
 }
 
 interface OperationParameter {
-  in: "query" | "path";
+  in: "path" | "query";
   name: string;
   description?: string;
   schema: {
@@ -67,6 +67,7 @@ interface AdditionalFields {
   description: "";
   default: {};
   options: {
+    in: "path" | "query";
     name: string;
     type: string;
     default: string | boolean | number;
