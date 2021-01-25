@@ -1,12 +1,7 @@
 ---
 to: src/output/<%= helpers.pascalCase(metaParams.serviceName) %>.node.ts
 ---
-<%_
-	const resourceTuples = Object.entries(mainParams);
-	const resourceNames = helpers.getResourceNames(resourceTuples);
-	const serviceApiRequest = helpers.getServiceApiRequest(metaParams);
-	helpers.findDividerLength(mainParams);
-_%>
+<%_ helpers.storeParams(mainParams, metaParams); _%>
 import {
 	IExecuteFunctions,
 } from 'n8n-core';
@@ -19,7 +14,7 @@ import {
 } from 'n8n-workflow';
 
 import {
-	<%= serviceApiRequest %>,
+	<%= helpers.serviceApiRequest %>,
 } from './GenericFunctions';
 
 export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeType {
@@ -44,18 +39,18 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				name: 'resource',
 				type: 'options',
 				options: [
-					<%_ resourceNames.forEach((resourceName) => { _%>
+					<%_ helpers.resourceNames.forEach((resourceName) => { _%>
 					{
-						name: '<%= resourceName %>',
+						name: '<%= helpers.titleCase(resourceName) %>',
 						value: '<%= helpers.camelCase(resourceName) %>',
 					},
 					<%_ }) _%><%#_ end resourceNames loop _%>
 				],
-				default: '<%= resourceNames[0].toLowerCase() %>',
+				default: '<%= helpers.resourceNames[0].toLowerCase() %>',
 				description: 'Resource to consume',
 			},
 			<%= helpers.makeHeader("Operations") %>
-			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
+			<%_ helpers.resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -81,7 +76,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 			},
 			<%_ }); _%><%#_ end resourceTuples loop _%>
 			<%= helpers.makeHeader("Fields") %>
-			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
+			<%_ helpers.resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
       <%_ operationsArray.forEach(operation => { _%>
 			<%_/**
 			 * **********************
@@ -229,7 +224,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 
 		for (let i = 0; i < items.length; i++) {
 
-			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
+			<%_ helpers.resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
 			<%- helpers.makeResourceBranch(resourceName) %>
 
 			<%_ operationsArray.forEach(operation => { _%>
@@ -252,7 +247,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					const <%= pathParam %> = this.getNodeParameter('<%= pathParam %>', i);
 					<%_ }); _%>
 					const endpoint = `<%= helpers.toTemplateLiteral(operation.endpoint) _%>`;
-					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
+					responseData = await <%= helpers.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
 					<%_/**
 					 * ------ Query Parameters ------
 					 * */_%>
@@ -263,7 +258,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					qs.<%= queryParam %> = this.getNodeParameter('<%= queryParam %>', i);
 					<%_ }); _%>
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
+					responseData = await <%= helpers.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
 					<%_ } _%>
 					<%_/**
 					* **********************
@@ -274,7 +269,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 
 					const body: IDataObject = {};
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
+					responseData = await <%= helpers.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
 					<%_/**
 					* **********************
 					* ADDITIONAL FIELDS
@@ -282,7 +277,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					*/_%>
 					<%_ } else if (operation.additionalFields) { _%>
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
+					responseData = await <%= helpers.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
 					// PENDING EVERYTHING - ADDITIONAL FIELDS
 					<%_/**
 					* **************************************************
@@ -292,7 +287,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					<%_ } else { _%>
 
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
+					responseData = await <%= helpers.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
 					<%_ } _%>
 
 				<%_ if (helpers.isLast(operation, operationsArray)) { _%>
@@ -302,7 +297,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 
 				<%_ } _%>
 			<%_ }); _%> <%#_ end operationsArray loop _%>
-			<%_ if (helpers.isLast(resourceName, resourceNames)) { _%>
+			<%_ if (helpers.isLast(resourceName, helpers.resourceNames)) { _%>
 			} else {
 				throw new Error(`Unknown resource: ${resource}`);
 			}

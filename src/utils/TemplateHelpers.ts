@@ -1,12 +1,13 @@
-import { camelCase, pascalCase, capitalCase } from "change-case";
+import { camelCase, capitalCase, pascalCase } from "change-case";
+import { titleCase } from "title-case";
 
 /**Helper functions used in Hygen templates.*/
 export const helpers = {
   dividerLength: 0,
-
   resourceNames: <string[]>[],
-
   mainParams: <MainParams>{},
+  resourceTuples: <[string, Resource][]>[],
+  serviceApiRequest: "",
 
   adjustType: (type: string) => (type === "integer" ? "number" : type),
 
@@ -17,6 +18,41 @@ export const helpers = {
   escape: (str: string) => str.replace(/\n/g, "<br>").replace(/'/g, "’"),
 
   pascalCase,
+
+  titleCase,
+
+  storeParams: function (mainParams: MainParams, metaParams: MetaParams) {
+    this.mainParams = mainParams;
+    this.storeDividerLength(mainParams);
+    this.storeResourceTuples(mainParams);
+    this.storeResourceNames();
+    this.storeServiceApiRequest(metaParams);
+  },
+
+  storeResourceTuples: function (mainParams: MainParams) {
+    this.resourceTuples = Object.entries(mainParams);
+  },
+
+  storeResourceNames: function () {
+    this.resourceNames = this.resourceTuples.map((tuple) => tuple[0]);
+  },
+
+  storeDividerLength: function (mainParams: MainParams) {
+    let maxLength = 0;
+
+    Object.entries(mainParams).forEach(([resourceName, operationsArray]) => {
+      operationsArray.forEach((operation) => {
+        const title = `${resourceName}: ${operation.operationId}`;
+        maxLength = title.length > maxLength ? title.length : maxLength;
+      });
+    });
+
+    this.dividerLength = maxLength + 15;
+  },
+
+  storeServiceApiRequest: function (metaParams: MetaParams) {
+    this.serviceApiRequest = camelCase(metaParams.serviceName) + "ApiRequest";
+  },
 
   getDefault: function (arg: any) {
     if (arg.default && arg.type === "string") return `'${arg.default}'`;
@@ -36,9 +72,6 @@ export const helpers = {
     if (arg.type === "number" || arg.type === "integer") return 0;
     return '""';
   },
-
-  getServiceApiRequest: (metaParams: MetaParams) =>
-    camelCase(metaParams.serviceName) + "ApiRequest",
 
   getParams: (params: OperationParameter[], type: "query" | "path") =>
     params.filter((p) => p.in === type).map((p) => p.name),
@@ -86,27 +119,6 @@ export const helpers = {
     const dividerLine = "// " + "-".repeat(this.dividerLength);
 
     return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(4));
-  },
-
-  getResourceNames: function (resourceTuples: [string, Operation[]]) {
-    const resourceNames = resourceTuples.map((tuple) => tuple[0]) as string[]; // TODO
-    this.resourceNames = resourceNames;
-    return resourceNames;
-  },
-
-  findDividerLength: function (mainParams: MainParams) {
-    let maxLength = 0;
-
-    this.mainParams = mainParams;
-
-    Object.entries(mainParams).forEach(([resourceName, operationsArray]) => {
-      operationsArray.forEach((operation) => {
-        const title = `${resourceName}: ${operation.operationId}`;
-        maxLength = title.length > maxLength ? title.length : maxLength;
-      });
-    });
-
-    this.dividerLength = maxLength + 15;
   },
 
   toTemplateLiteral: (endpoint: string) => endpoint.replace(/{/g, "${"),
