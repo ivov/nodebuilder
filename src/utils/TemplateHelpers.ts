@@ -19,7 +19,7 @@ export const helpers = {
 
   pascalCase,
 
-  titleCase,
+  titleCase: (str: string) => titleCase(str.replace(".", " ")),
 
   storeParams: function (mainParams: MainParams, metaParams: MetaParams) {
     this.mainParams = mainParams;

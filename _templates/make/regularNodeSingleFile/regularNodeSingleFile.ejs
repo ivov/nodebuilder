@@ -44,7 +44,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 						name: '<%= helpers.titleCase(resourceName) %>',
 						value: '<%= helpers.camelCase(resourceName) %>',
 					},
-					<%_ }) _%><%#_ end resourceNames loop _%>
+					<%_ }); _%><%#_ end resourceNames loop _%>
 				],
 				default: '<%= helpers.resourceNames[0].toLowerCase() %>',
 				description: 'Resource to consume',
@@ -86,7 +86,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 			<%_ if (operation.parameters) { _%>
 			<%_ operation.parameters.forEach(parameter => { _%>
 			{
-				displayName: '<%= parameter.name %>',
+				displayName: '<%= helpers.titleCase(parameter.name) %>',
 				name: '<%= helpers.camelCase(parameter.name) %>',
 				description: '<%= parameter.description %>',
 				type: '<%= helpers.adjustType(parameter.schema.type) %>',
@@ -142,7 +142,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
       <%_ Object.keys(schema.properties).forEach((propertyName) => { _%>
       <%_ const property = schema.properties[propertyName]; _%>
       {
-        displayName: '<%= propertyName %>',
+        displayName: '<%= helpers.titleCase(propertyName) %>',
         name: '<%= helpers.camelCase(propertyName) %>',
         <%_ if (property.description) { _%>
         description: '<%- helpers.escape(property.description) %>',
@@ -277,8 +277,14 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					*/_%>
 					<%_ } else if (operation.additionalFields) { _%>
 					const endpoint = '<%= operation.endpoint %>';
+					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
+					<%_ operation.additionalFields.options.forEach(option => { _%>
+					if (additionalFields.<%= option.name %>) {
+						// PENDING
+					}
+					<%_ }); _%>
+
 					responseData = await <%= helpers.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
-					// PENDING EVERYTHING - ADDITIONAL FIELDS
 					<%_/**
 					* **************************************************
 					* NO PARAMETERS OR REQUEST BODY OR ADDITIONAL FIELDS
