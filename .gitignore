@@ -5,6 +5,7 @@ notes.txt
 
 src/input/*
 !src/input/.gitkeep
+!src/input/lichess.json
 
 src/output/*
 !src/output/.gitkeep
