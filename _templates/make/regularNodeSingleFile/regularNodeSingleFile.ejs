@@ -1,7 +1,7 @@
 ---
-to: src/output/<%= helpers.pascalCase(metaParams.serviceName) %>.node.ts
+to: src/output/<%= helper.pascalCase(metaParams.serviceName) %>.node.ts
 ---
-<%_ builders.constructor(mainParams, metaParams); _%>
+<%_ builder.constructor(mainParams, metaParams); _%>
 import {
 	IExecuteFunctions,
 } from 'n8n-core';
@@ -14,14 +14,14 @@ import {
 } from 'n8n-workflow';
 
 import {
-	<%= builders.buildServiceApiRequest() %>,
+	<%= builder.buildServiceApiRequest() %>,
 } from './GenericFunctions';
 
-export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeType {
+export class <%= helper.pascalCase(metaParams.serviceName) %> implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: '<%= metaParams.serviceName %>',
-		name: '<%= helpers.camelCase(metaParams.serviceName) %>',
-		icon: 'file:<%= helpers.camelCase(metaParams.serviceName) %>.png',
+		name: '<%= helper.camelCase(metaParams.serviceName) %>',
+		icon: 'file:<%= helper.camelCase(metaParams.serviceName) %>.png',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
@@ -33,24 +33,24 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 		inputs: ['main'],
 		outputs: ['main'],
 		properties: [
-			<%= builders.buildHeader("Resources") %>
+			<%= builder.buildHeader("Resources") %>
 			{
 				displayName: 'Resource',
 				name: 'resource',
 				type: 'options',
 				options: [
-					<%_ builders.getResourceNames().forEach((resourceName) => { _%>
+					<%_ builder.getResourceNames().forEach((resourceName) => { _%>
 					{
-						name: '<%= helpers.titleCase(resourceName) %>',
-						value: '<%= helpers.camelCase(resourceName) %>',
+						name: '<%= helper.titleCase(resourceName) %>',
+						value: '<%= helper.camelCase(resourceName) %>',
 					},
 					<%_ }); _%><%#_ end resourceNames loop _%>
 				],
-				default: '<%= builders.getResourceNames()[0].toLowerCase() %>',
+				default: '<%= builder.getResourceNames()[0].toLowerCase() %>',
 				description: 'Resource to consume',
 			},
-			<%= builders.buildHeader("Operations") %>
-			<%_ builders.getResourceTuples().forEach(([resourceName, operationsArray]) => { _%>
+			<%= builder.buildHeader("Operations") %>
+			<%_ builder.getResourceTuples().forEach(([resourceName, operationsArray]) => { _%>
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -65,18 +65,18 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				options: [
 					<%_ operationsArray.forEach(operation => { _%>
 					{
-						name: '<%= helpers.pascalCase(operation.operationId) %>',
-						value: '<%= helpers.camelCase(operation.operationId) %>',
-						description: '<%- helpers.escape(operation.description) %>',
+						name: '<%= helper.pascalCase(operation.operationId) %>',
+						value: '<%= helper.camelCase(operation.operationId) %>',
+						description: '<%- helper.escape(operation.description) %>',
 					},
 					<%_ }); _%><%#_ end operations loop _%>
 				],
-				default: '<%= helpers.camelCase(operationsArray[0].operationId) %>',
+				default: '<%= helper.camelCase(operationsArray[0].operationId) %>',
 				description: 'Operation to perform',
 			},
 			<%_ }); _%><%#_ end resourceTuples loop _%>
-			<%= builders.buildHeader("Fields") %>
-			<%_ builders.getResourceTuples().forEach(([resourceName, operationsArray]) => { _%>
+			<%= builder.buildHeader("Fields") %>
+			<%_ builder.getResourceTuples().forEach(([resourceName, operationsArray]) => { _%>
       <%_ operationsArray.forEach(operation => { _%>
 			<%_/**
 			 * **********************
@@ -86,25 +86,25 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 			<%_ if (operation.parameters) { _%>
 			<%_ operation.parameters.forEach(parameter => { _%>
 			{
-				displayName: '<%= helpers.titleCase(parameter.name) %>',
-				name: '<%= helpers.camelCase(parameter.name) %>',
+				displayName: '<%= helper.titleCase(parameter.name) %>',
+				name: '<%= helper.camelCase(parameter.name) %>',
 				description: '<%= parameter.description %>',
-				type: '<%= helpers.adjustType(parameter.schema.type) %>',
-				<%_ if (helpers.hasMinMax(parameter.schema)) { _%>
+				type: '<%= helper.adjustType(parameter.schema.type) %>',
+				<%_ if (helper.hasMinMax(parameter.schema)) { _%>
 				typeOptions: {
 					minValue: <%= parameter.schema.minimum %>,
 					maxValue: <%= parameter.schema.maximum %>
 				},
 				<%_ } _%>
 				required: true,
-				default: <%- helpers.getDefault(parameter.schema) %>,
+				default: <%- helper.getDefault(parameter.schema) %>,
 				displayOptions: {
 					show: {
 						resource: [
-							'<%= helpers.camelCase(resourceName) %>',
+							'<%= helper.camelCase(resourceName) %>',
 						],
 						operation: [
-							'<%= helpers.camelCase(operation.operationId) %>',
+							'<%= helper.camelCase(operation.operationId) %>',
 						],
 					},
 				},
@@ -129,10 +129,10 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 				displayOptions: {
 					show: {
 						resource: [
-							'<%= helpers.camelCase(resourceName) %>',
+							'<%= helper.camelCase(resourceName) %>',
 						],
 						operation: [
-							'<%= helpers.camelCase(operation.operationId) %>',
+							'<%= helper.camelCase(operation.operationId) %>',
 						],
 					},
 				},
@@ -142,27 +142,27 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
       <%_ Object.keys(schema.properties).forEach((propertyName) => { _%>
       <%_ const property = schema.properties[propertyName]; _%>
       {
-        displayName: '<%= helpers.titleCase(propertyName) %>',
-        name: '<%= helpers.camelCase(propertyName) %>',
+        displayName: '<%= helper.titleCase(propertyName) %>',
+        name: '<%= helper.camelCase(propertyName) %>',
         <%_ if (property.description) { _%>
-        description: '<%- helpers.escape(property.description) %>',
+        description: '<%- helper.escape(property.description) %>',
         <%_ } _%>
-        type: '<%= helpers.adjustType(property.type) %>',
-        <%_ if (helpers.hasMinMax(property)) { _%>
+        type: '<%= helper.adjustType(property.type) %>',
+        <%_ if (helper.hasMinMax(property)) { _%>
         typeOptions: {
           minValue: <%= property.minimum %>,
           maxValue: <%= property.maximum %>
         },
         <%_ } _%>
         required: true,
-        default: <%- helpers.getDefault(property) %>,
+        default: <%- helper.getDefault(property) %>,
         displayOptions: {
           show: {
             resource: [
-              '<%= helpers.camelCase(resourceName) %>',
+              '<%= helper.camelCase(resourceName) %>',
             ],
             operation: [
-              '<%= helpers.camelCase(operation.operationId) %>',
+              '<%= helper.camelCase(operation.operationId) %>',
             ],
           },
         },
@@ -186,10 +186,10 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
         displayOptions: {
           show: {
             resource: [
-              '<%= helpers.camelCase(resourceName) %>',
+              '<%= helper.camelCase(resourceName) %>',
             ],
             operation: [
-              '<%= helpers.camelCase(operation.operationId) %>',
+              '<%= helper.camelCase(operation.operationId) %>',
             ],
           },
         },
@@ -198,10 +198,10 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
           {
             name: '<%= option.name %>',
             <%_ if (option.description) { _%>
-            description: '<%- helpers.escape(option.description) %>',
+            description: '<%- helper.escape(option.description) %>',
             <%_ } _%>
-            type: '<%= helpers.adjustType(option.type) %>',
-            default: <%- helpers.getDefault(option) %>,
+            type: '<%= helper.adjustType(option.type) %>',
+            default: <%- helper.getDefault(option) %>,
 					},
         <%_ }); _%> <%#_ end options loop _%>
         ]
@@ -224,13 +224,13 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 
 		for (let i = 0; i < items.length; i++) {
 
-			<%_ builders.getResourceTuples().forEach(([resourceName, operationsArray]) => { %>
-			<%- builders.buildResourceBranch(resourceName) %>
+			<%_ builder.getResourceTuples().forEach(([resourceName, operationsArray]) => { %>
+			<%- builder.buildResourceBranch(resourceName) %>
 
 			<%_ operationsArray.forEach(operation => { _%>
-				<%= builders.buildDivider(helpers.camelCase(resourceName), operation.operationId); %>
+				<%= builder.buildDivider(helper.camelCase(resourceName), operation.operationId); %>
 
-				<%- builders.buildOperationBranch(operation, resourceName) %>
+				<%- builder.buildOperationBranch(operation, resourceName) %>
 				<%_ const requestMethod = operation.requestMethod.toUpperCase(); _%>
 					<%_/**
 					* **********************
@@ -241,19 +241,19 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					<%_/**
 					 * ------ Path Parameters ------
 					 * */_%>
-					<%_ if (helpers.hasPathParams(operation.endpoint)) { _%>
-					<% const pathParams = helpers.getParams(operation.parameters, "path"); %>
+					<%_ if (helper.hasPathParams(operation.endpoint)) { _%>
+					<% const pathParams = helper.getParams(operation.parameters, "path"); %>
 					<%_ pathParams.forEach(pathParam => { _%>
 					const <%= pathParam %> = this.getNodeParameter('<%= pathParam %>', i);
 					<%_ }); _%>
-					const endpoint = `<%= helpers.toTemplateLiteral(operation.endpoint) _%>`;
-					responseData = await <%= builders.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
+					const endpoint = `<%= helper.toTemplateLiteral(operation.endpoint) _%>`;
+					responseData = await <%= builder.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
 					<%_/**
 					 * ------ Query Parameters ------
 					 * */_%>
 					<%_ } else { _%>
 
-					<%_ const queryParams = helpers.getParams(operation.parameters, "query"); _%>
+					<%_ const queryParams = helper.getParams(operation.parameters, "query"); _%>
 					<%_ queryParams.forEach(queryParam => { _%>
 					qs.<%= queryParam %> = this.getNodeParameter('<%= queryParam %>', i);
 					<%_ }); _%>
@@ -270,7 +270,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					<%_ } _%>
 
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= builders.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
+					responseData = await <%= builder.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
 					<%_ } _%>
 					<%_/**
 					* **********************
@@ -281,7 +281,7 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 
 					const body: IDataObject = {};
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= builders.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
+					responseData = await <%= builder.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
 					<%_/**
 					* **************************************************
 					* NO PATH PARAMS OR QUERY PARAMS OR REQUEST BODY
@@ -290,12 +290,12 @@ export class <%= helpers.pascalCase(metaParams.serviceName) %> implements INodeT
 					<%_ } else { _%>
 
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= builders.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
+					responseData = await <%= builder.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
 					<%_ } _%>
-				<%= builders.buildOperationError(operation, resourceName) _%>
+				<%= builder.buildOperationError(operation, resourceName) _%>
 
 			<%_ }); _%> <%#_ end operationsArray loop _%>
-			<%= builders.buildResourceError(resourceName) _%>
+			<%= builder.buildResourceError(resourceName) _%>
 			<%_ }); _%> <%#_ end resourceTuples loop _%>
 
 

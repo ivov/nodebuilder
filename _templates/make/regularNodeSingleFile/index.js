@@ -1,7 +1,7 @@
 const nodegenParams = require("../../../src/input/nodegenParams.json");
-const helpers = require("../../../dist/utils/TemplateHelpers");
-const builders = require("../../../dist/utils/TemplateBuilders");
+const helper = require("../../../dist/utils/TemplateHelper");
+const builder = require("../../../dist/utils/TemplateBuilder");
 
 module.exports = {
-  params: () => ({ ...nodegenParams, ...helpers, ...builders })
+  params: () => ({ ...nodegenParams, ...helper, ...builder })
 };

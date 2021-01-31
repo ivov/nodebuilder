@@ -1,7 +1,7 @@
 import { camelCase } from "change-case";
 
 /**Builder functions for Hygen templates.*/
-export const builders = {
+export const builder = {
   mainParams: <MainParams>{},
   metaParams: <MetaParams>{},
   dividerLength: 0,
@@ -10,7 +10,7 @@ export const builders = {
   constructor: function (mainParams: MainParams, metaParams: MetaParams) {
     this.mainParams = mainParams;
     this.metaParams = metaParams;
-    this.dividerLength = this.getDividerLength(mainParams);
+    this.dividerLength = this.getDividerLength();
   },
 
   getResourceTuples: function () {
@@ -21,7 +21,7 @@ export const builders = {
     return this.getResourceTuples().map((tuple) => tuple[0]);
   },
 
-  getDividerLength: function (mainParams: MainParams) {
+  getDividerLength: function () {
     let maxLength = 0;
 
     this.getResourceTuples().forEach(([resourceName, operationsArray]) => {

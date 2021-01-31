@@ -2,7 +2,7 @@ import { camelCase, capitalCase, pascalCase } from "change-case";
 import { titleCase } from "title-case";
 
 /**Helper functions for Hygen templates.*/
-export const helpers = {
+export const helper = {
   adjustType: (type: string) => (type === "integer" ? "number" : type),
 
   camelCase,
