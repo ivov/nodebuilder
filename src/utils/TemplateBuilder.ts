@@ -26,12 +26,29 @@ export const builder = {
       });
     });
 
-    return maxLength + 15;
+    return maxLength;
   },
 
   isFirst: <T>(item: T, array: T[]) => array.indexOf(item) === 0,
 
   isLast: <T>(item: T, array: T[]) => array.indexOf(item) + 1 === array.length,
+
+  /**  Build a divider for a resource:
+   * ```
+   * // **************************************************************
+   * //                            user
+   * // **************************************************************
+   * ```*/
+  resourceDivider: function (resourceName: string) {
+    const longDividerLength = this.dividerLength + 20;
+
+    const padLength = Math.floor((longDividerLength - resourceName.length) / 2);
+
+    const titleLine = "// " + " ".repeat(padLength) + resourceName;
+    const dividerLine = "// " + "*".repeat(longDividerLength);
+
+    return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(3));
+  },
 
   /** Build a resource branch, either the first:
    * ```
@@ -41,12 +58,28 @@ export const builder = {
    * ```
    * } else if (resource === 'user') {
    * ```*/
-  buildResourceBranch: function (resourceName: string) {
+  resourceBranch: function (resourceName: string) {
     const branch = `if (resource === '${camelCase(resourceName)}') {`;
     const prefix = "} else ";
     const isFirst = this.isFirst(resourceName, this.resourceNames);
 
     return isFirst ? branch : prefix + branch;
+  },
+
+  /** Build the error branch for resources:
+   * ```
+   * } else {
+   *     throw new Error(`Unknown resource: ${resource}`);
+   * }
+   * ```*/
+  resourceError: function (resourceName: string) {
+    const isLast = this.isLast(resourceName, this.resourceNames);
+    const resourceError = `
+    \t} else {
+    \t\tthrow new Error(\`Unknown resource: \${resource}\`);
+    \t}`;
+
+    return isLast ? resourceError : null;
   },
 
   /** Build an operation branch, either the first:
@@ -57,7 +90,7 @@ export const builder = {
    * ```
    * } else if (operation === 'player') {
    * ```*/
-  buildOperationBranch: function (operation: Operation, resourceName: string) {
+  operationBranch: function (operation: Operation, resourceName: string) {
     const branch = `if (operation === '${camelCase(operation.operationId)}') {`;
     const prefix = "} else ";
     const isFirst = this.isFirst(operation, this.mainParams[resourceName]);
@@ -65,29 +98,13 @@ export const builder = {
     return isFirst ? branch : prefix + branch;
   },
 
-  /** Build a header for all resources, operations or fields:
-   * ```
-   * // --------------------------------------------------------------
-   * //                             Fields
-   * // --------------------------------------------------------------
-   * ```
-   */
-  buildHeader: function (header: string) {
-    const padLength = Math.floor((this.dividerLength - header.length) / 2);
-    const headerLine = "// " + " ".repeat(padLength) + header;
-    const dividerLine = "// " + "-".repeat(this.dividerLength);
-
-    return [dividerLine, headerLine, dividerLine].join("\n" + "\t".repeat(3));
-  },
-
-  /**  Build a divider for an individual operation:
+  /**  Build a divider for an operation:
    * ```
    * // --------------------------------------------------------------
    * //                         user: getUser
    * // --------------------------------------------------------------
-   * ```
-   */
-  buildDivider: function (resourceName: string, operationId: string) {
+   * ```*/
+  operationDivider: function (resourceName: string, operationId: string) {
     const title = `${resourceName}: ${operationId}`;
     const padLength = Math.floor((this.dividerLength - title.length) / 2);
 
@@ -97,29 +114,13 @@ export const builder = {
     return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(4));
   },
 
-  /** Build the error branch for resources:
-   * ```
-   * } else {
-   *     throw new Error(`Unknown resource: ${resource}`);
-   * }
-   * ```*/
-  buildResourceError: function (resourceName: string) {
-    const isLast = this.isLast(resourceName, this.resourceNames);
-    const resourceError = `
-    \t} else {
-    \t\tthrow new Error(\`Unknown resource: \${resource}\`);
-    \t}`;
-
-    return isLast ? resourceError : null;
-  },
-
   /** Build the error branch for operations:
    * ```
    * } else {
    *     throw new Error(`Unknown operation: ${operation}`);
    * }
    * ```*/
-  buildOperationError: function (operation: Operation, resourceName: string) {
+  operationError: function (operation: Operation, resourceName: string) {
     const isLast = this.isLast(operation, this.mainParams[resourceName]);
     const operationError = `
     \t\t} else {

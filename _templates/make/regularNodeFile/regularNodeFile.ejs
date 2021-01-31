@@ -40,7 +40,6 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 		inputs: ['main'],
 		outputs: ['main'],
 		properties: [
-			<%= builder.buildHeader("Resources"); %>
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -56,7 +55,6 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 				default: '<%= builder.resourceNames[0].toLowerCase() %>',
 				description: 'Resource to consume',
 			},
-			<%= builder.buildHeader("Operations"); %>
 			<%_ builder.resourceNames.forEach((resourceName) => { _%>
 			...<%= helper.camelCase(resourceName) %>Operations,
 			...<%= helper.camelCase(resourceName) %>Fields,
@@ -76,12 +74,14 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 
 		for (let i = 0; i < items.length; i++) {
 			<%_ builder.resourceTuples.forEach(([resourceName, operationsArray]) => { %>
-			<%- builder.buildResourceBranch(resourceName); %>
+			<%= builder.resourceDivider(helper.camelCase(resourceName)); %>
+
+			<%- builder.resourceBranch(resourceName); %>
 
 			<%_ operationsArray.forEach(operation => { _%>
-				<%= builder.buildDivider(helper.camelCase(resourceName), operation.operationId); %>
+				<%= builder.operationDivider(helper.camelCase(resourceName), operation.operationId); %>
 
-				<%- builder.buildOperationBranch(operation, resourceName); %>
+				<%- builder.operationBranch(operation, resourceName); %>
 				<%_ const requestMethod = operation.requestMethod.toUpperCase(); _%>
 					<%_/**
 					* **********************
@@ -143,10 +143,10 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 					const endpoint = '<%= operation.endpoint %>';
 					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
 					<%_ } _%>
-				<%= builder.buildOperationError(operation, resourceName); _%>
+				<%= builder.operationError(operation, resourceName); _%>
 
 			<%_ }); _%> <%#_ end operationsArray loop _%>
-			<%= builder.buildResourceError(resourceName); _%>
+			<%= builder.resourceError(resourceName); _%>
 			<%_ }); _%> <%#_ end resourceTuples loop _%>
 
 
