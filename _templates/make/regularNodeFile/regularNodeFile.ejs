@@ -93,12 +93,8 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 					 * ------ Path Parameters ------
 					 * */_%>
 					<%_ if (helper.hasPathParams(operation.endpoint)) { _%>
-					<% const pathParams = helper.getParams(operation.parameters, "path"); %>
-					<%_ pathParams.forEach(pathParam => { _%>
-					const <%= pathParam %> = this.getNodeParameter('<%= pathParam %>', i);
-					<%_ }); _%>
-					const endpoint = `<%= helper.toTemplateLiteral(operation.endpoint); _%>`;
-					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
+
+					<%- builder.pathParamCall(operation); %>
 					<%_/**
 					 * ------ Query Parameters ------
 					 * */_%>

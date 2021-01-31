@@ -129,4 +129,29 @@ export const builder = {
 
     return isLast ? operationError : null;
   },
+
+  pathParamCall: function ({ parameters, endpoint, requestMethod }: Operation) {
+    const indentation = "\t".repeat(5);
+
+    const paramsLines = this.getParams(parameters!, "path")
+      .map((pp) => `const ${pp} = this.getNodeParameter('${pp}', i);`)
+      .join("\n" + indentation);
+    const endpointLine = `const endpoint = \`${this.toLiteral(endpoint)}\`;`;
+    const responseLine = `responseData = await ${this.serviceApiRequest}.call(this, '${requestMethod}', endpoint, {}, {});`;
+
+    return [
+      paramsLines,
+      indentation + endpointLine,
+      indentation + responseLine,
+    ].join("\n");
+  },
+
+  getParams: (params: OperationParameter[], type: "query" | "path") =>
+    params.filter((p) => p.in === type).map((p) => p.name),
+
+  /**Convert an endpoint with path params into an endpoint with template literal slots.
+   * ```
+   * "/player/top/{nb}/{perfType}" → `/player/top/${nb}/${perfType}`
+   * ```*/
+  toLiteral: (endpoint: string) => endpoint.replace(/{/g, "${"),
 };
