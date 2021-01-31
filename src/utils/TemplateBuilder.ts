@@ -33,6 +33,25 @@ export const builder = {
 
   isLast: <T>(item: T, array: T[]) => array.indexOf(item) + 1 === array.length,
 
+  adjustType: (type: string) => (type === "integer" ? "number" : type),
+
+  getParams: (params: OperationParameter[], type: "query" | "path") =>
+    params.filter((p) => p.in === type).map((p) => p.name),
+
+  getPathParams: function (params: OperationParameter[]) {
+    return this.getParams(params, "path");
+  },
+
+  getQueryParams: function (params: OperationParameter[]) {
+    return this.getParams(params, "query");
+  },
+
+  /**Convert an endpoint with path params into an endpoint with template literal slots.
+   * ```
+   * "/player/top/{nb}/{perfType}" → `/player/top/${nb}/${perfType}`
+   * ```*/
+  toLiteral: (endpoint: string) => endpoint.replace(/{/g, "${"),
+
   /**  Build a divider for a resource:
    * ```
    * // **************************************************************
@@ -130,28 +149,110 @@ export const builder = {
     return isLast ? operationError : null;
   },
 
-  pathParamCall: function ({ parameters, endpoint, requestMethod }: Operation) {
+  pathParamCall: function ({
+    parameters,
+    endpoint,
+    requestMethod,
+    additionalFields,
+  }: Operation) {
     const indentation = "\t".repeat(5);
 
-    const paramsLines = this.getParams(parameters!, "path")
+    const pathParamLines = this.getPathParams(parameters!)
       .map((pp) => `const ${pp} = this.getNodeParameter('${pp}', i);`)
       .join("\n" + indentation);
-    const endpointLine = `const endpoint = \`${this.toLiteral(endpoint)}\`;`;
-    const responseLine = `responseData = await ${this.serviceApiRequest}.call(this, '${requestMethod}', endpoint, {}, {});`;
 
     return [
-      paramsLines,
-      indentation + endpointLine,
-      indentation + responseLine,
+      pathParamLines,
+      this.getAdditionalFields(additionalFields!),
+      indentation + `const endpoint = \`${this.toLiteral(endpoint)}\`;`,
+      indentation +
+        this.getCallLine(requestMethod, {
+          withQueryString: true,
+        }),
     ].join("\n");
   },
 
-  getParams: (params: OperationParameter[], type: "query" | "path") =>
-    params.filter((p) => p.in === type).map((p) => p.name),
+  queryParamCall: function ({
+    parameters,
+    endpoint,
+    requestMethod,
+    additionalFields,
+  }: Operation) {
+    const indentation = "\t".repeat(5);
 
-  /**Convert an endpoint with path params into an endpoint with template literal slots.
+    const queryParamLines = this.getQueryParams(parameters!)
+      .map((qp) => `qs.${qp} = this.getNodeParameter('${qp}', i);`)
+      .join("\n" + indentation);
+
+    return [
+      queryParamLines,
+      this.getAdditionalFields(additionalFields!),
+      indentation + `const endpoint = '${endpoint}';`,
+      indentation +
+        this.getCallLine(requestMethod, {
+          withQueryString: true,
+        }),
+    ].join("\n");
+  },
+
+  slimCall: function ({
+    endpoint,
+    requestMethod,
+    additionalFields,
+  }: Operation) {
+    const indentation = "\t".repeat(5);
+
+    return [
+      this.getAdditionalFields(additionalFields!),
+      indentation + `const endpoint = '${endpoint}';`,
+      indentation +
+        this.getCallLine(requestMethod, {
+          withQueryString: true,
+        }),
+    ].join("\n");
+  },
+
+  /** Build the call line at the end of an operation branch:
    * ```
-   * "/player/top/{nb}/{perfType}" → `/player/top/${nb}/${perfType}`
+   * responseData = await lichessApiRequest.call(this, 'get', endpoint, qs, {});
    * ```*/
-  toLiteral: (endpoint: string) => endpoint.replace(/{/g, "${"),
+  getCallLine: function (
+    requestMethod: string,
+    {
+      withQueryString = false,
+      withRequestBody = false,
+    }: { withQueryString?: boolean; withRequestBody?: boolean }
+  ) {
+    const qs = () => (withQueryString ? "qs" : "{}");
+    const body = () => (withRequestBody ? "body" : "{}");
+
+    const call = `responseData = await ${this.serviceApiRequest}.call`;
+    const args = `(this, '${requestMethod}', endpoint, ${qs()}, ${body()});`;
+
+    return call + args;
+  },
+
+  getAdditionalFields: function (additionalFields: AdditionalFields) {
+    if (!additionalFields) return;
+
+    const indentation = "\t".repeat(5);
+
+    const addFieldsIntroLine = `const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;`;
+    const addFieldsOptionsLines = additionalFields!.options
+      .map((option) => {
+        if (option.in !== "query") {
+          throw new Error(`Additional field without qs arg: ${option}`);
+        }
+
+        return `qs.${option.name} = additionalFields.${
+          option.name
+        } as ${this.adjustType(option.type)};`;
+      })
+      .join("\n" + indentation);
+
+    return [
+      "\n" + indentation + addFieldsIntroLine,
+      indentation + addFieldsOptionsLines + "\n",
+    ].join("\n");
+  },
 };
