@@ -6,25 +6,21 @@ export const builder = {
   metaParams: <MetaParams>{},
   dividerLength: 0,
   serviceApiRequest: "",
+  resourceTuples: <[string, Resource][]>[],
+  resourceNames: <string[]>[],
 
   constructor: function (mainParams: MainParams, metaParams: MetaParams) {
     this.mainParams = mainParams;
     this.metaParams = metaParams;
+    this.resourceTuples = Object.entries(this.mainParams);
+    this.resourceNames = this.resourceTuples.map((tuple) => tuple[0]);
     this.dividerLength = this.getDividerLength();
-  },
-
-  getResourceTuples: function () {
-    return Object.entries(this.mainParams);
-  },
-
-  getResourceNames: function () {
-    return this.getResourceTuples().map((tuple) => tuple[0]);
   },
 
   getDividerLength: function () {
     let maxLength = 0;
 
-    this.getResourceTuples().forEach(([resourceName, operationsArray]) => {
+    this.resourceTuples.forEach(([resourceName, operationsArray]) => {
       operationsArray.forEach((operation) => {
         const title = `${resourceName}: ${operation.operationId}`;
         maxLength = title.length > maxLength ? title.length : maxLength;
@@ -38,14 +34,14 @@ export const builder = {
     return camelCase(this.metaParams.serviceName) + "ApiRequest";
   },
 
-  isFirst: (item: any, arr: any[]) => arr.indexOf(item) === 0,
+  isFirst: <T>(item: T, array: T[]) => array.indexOf(item) === 0,
 
-  isLast: (item: any, arr: any[]) => arr.indexOf(item) + 1 === arr.length,
+  isLast: <T>(item: T, array: T[]) => array.indexOf(item) + 1 === array.length,
 
   buildResourceBranch: function (resourceName: string) {
     const branch = `if (resource === '${camelCase(resourceName)}') {`;
     const prefix = "} else ";
-    const isFirst = this.isFirst(resourceName, this.getResourceNames());
+    const isFirst = this.isFirst(resourceName, this.resourceNames);
 
     return isFirst ? branch : prefix + branch;
   },
@@ -78,7 +74,7 @@ export const builder = {
   },
 
   buildResourceError: function (resourceName: string) {
-    const isLast = this.isLast(resourceName, this.getResourceNames());
+    const isLast = this.isLast(resourceName, this.resourceNames);
     const resourceError = `
     \t} else {
     \t\tthrow new Error(\`Unknown resource: \${resource}\`);

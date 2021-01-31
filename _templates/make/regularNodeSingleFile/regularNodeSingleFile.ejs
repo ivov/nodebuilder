@@ -39,18 +39,18 @@ export class <%= helper.pascalCase(metaParams.serviceName) %> implements INodeTy
 				name: 'resource',
 				type: 'options',
 				options: [
-					<%_ builder.getResourceNames().forEach((resourceName) => { _%>
+					<%_ builder.resourceNames.forEach((resourceName) => { _%>
 					{
 						name: '<%= helper.titleCase(resourceName) %>',
 						value: '<%= helper.camelCase(resourceName) %>',
 					},
 					<%_ }); _%><%#_ end resourceNames loop _%>
 				],
-				default: '<%= builder.getResourceNames()[0].toLowerCase() %>',
+				default: '<%= builder.resourceNames[0].toLowerCase() %>',
 				description: 'Resource to consume',
 			},
 			<%= builder.buildHeader("Operations") %>
-			<%_ builder.getResourceTuples().forEach(([resourceName, operationsArray]) => { _%>
+			<%_ builder.resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -76,7 +76,7 @@ export class <%= helper.pascalCase(metaParams.serviceName) %> implements INodeTy
 			},
 			<%_ }); _%><%#_ end resourceTuples loop _%>
 			<%= builder.buildHeader("Fields") %>
-			<%_ builder.getResourceTuples().forEach(([resourceName, operationsArray]) => { _%>
+			<%_ builder.resourceTuples.forEach(([resourceName, operationsArray]) => { _%>
       <%_ operationsArray.forEach(operation => { _%>
 			<%_/**
 			 * **********************
@@ -224,7 +224,7 @@ export class <%= helper.pascalCase(metaParams.serviceName) %> implements INodeTy
 
 		for (let i = 0; i < items.length; i++) {
 
-			<%_ builder.getResourceTuples().forEach(([resourceName, operationsArray]) => { %>
+			<%_ builder.resourceTuples.forEach(([resourceName, operationsArray]) => { %>
 			<%- builder.buildResourceBranch(resourceName) %>
 
 			<%_ operationsArray.forEach(operation => { _%>
