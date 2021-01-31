@@ -1,0 +1,161 @@
+---
+to: src/output/<%= helper.pascalCase(metaParams.serviceName) %>.node.ts
+---
+<%_ builder.constructor(mainParams, metaParams); _%>
+import {
+	IExecuteFunctions,
+} from 'n8n-core';
+
+import {
+	INodeExecutionData,
+	INodeType,
+	INodeTypeDescription,
+	IDataObject,
+} from 'n8n-workflow';
+
+import {
+	<%= builder.serviceApiRequest %>,
+} from './GenericFunctions';
+
+<%_ builder.resourceNames.forEach((resourceName) => { _%>
+import {
+	<%= helper.camelCase(resourceName) %>Operations,
+	<%= helper.camelCase(resourceName) %>Fields,
+} from './<%= helper.pascalCase(resourceName) %>Description';
+
+<%_ }); _%>
+export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: '<%= metaParams.serviceName %>',
+		name: '<%= helper.camelCase(metaParams.serviceName) %>',
+		icon: 'file:<%= helper.camelCase(metaParams.serviceName) %>.png',
+		group: ['transform'],
+		version: 1,
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
+		description: 'Consume <%= metaParams.serviceName %> API',
+		defaults: {
+			name: '<%= metaParams.serviceName %>',
+			color: '<%= metaParams.nodeColor %>',
+		},
+		inputs: ['main'],
+		outputs: ['main'],
+		properties: [
+			<%= builder.buildHeader("Resources"); %>
+			{
+				displayName: 'Resource',
+				name: 'resource',
+				type: 'options',
+				options: [
+					<%_ builder.resourceNames.forEach((resourceName) => { _%>
+					{
+						name: '<%= helper.titleCase(resourceName); %>',
+						value: '<%= helper.camelCase(resourceName); %>',
+					},
+					<%_ }); _%><%#_ end resourceNames loop _%>
+				],
+				default: '<%= builder.resourceNames[0].toLowerCase() %>',
+				description: 'Resource to consume',
+			},
+			<%= builder.buildHeader("Operations"); %>
+			<%_ builder.resourceNames.forEach((resourceName) => { _%>
+			...<%= helper.camelCase(resourceName) %>Operations,
+			...<%= helper.camelCase(resourceName) %>Fields,
+			<%_ }); _%><%#_ end resourceNames loop _%>
+		], <%# end properties key of object at description class field %>
+	}; <%# end description class field %>
+
+	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+		const items = this.getInputData();
+		const returnData: IDataObject[] = [];
+
+		const resource = this.getNodeParameter('resource', 0) as string;
+		const operation = this.getNodeParameter('operation', 0) as string;
+		const qs: IDataObject = {};
+
+		let responseData: any;
+
+		for (let i = 0; i < items.length; i++) {
+			<%_ builder.resourceTuples.forEach(([resourceName, operationsArray]) => { %>
+			<%- builder.buildResourceBranch(resourceName); %>
+
+			<%_ operationsArray.forEach(operation => { _%>
+				<%= builder.buildDivider(helper.camelCase(resourceName), operation.operationId); %>
+
+				<%- builder.buildOperationBranch(operation, resourceName); %>
+				<%_ const requestMethod = operation.requestMethod.toUpperCase(); _%>
+					<%_/**
+					* **********************
+					* PARAMETERS
+					* **********************
+					*/_%>
+					<%_ if (operation.parameters) { _%>
+					<%_/**
+					 * ------ Path Parameters ------
+					 * */_%>
+					<%_ if (helper.hasPathParams(operation.endpoint)) { _%>
+					<% const pathParams = helper.getParams(operation.parameters, "path"); %>
+					<%_ pathParams.forEach(pathParam => { _%>
+					const <%= pathParam %> = this.getNodeParameter('<%= pathParam %>', i);
+					<%_ }); _%>
+					const endpoint = `<%= helper.toTemplateLiteral(operation.endpoint); _%>`;
+					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
+					<%_/**
+					 * ------ Query Parameters ------
+					 * */_%>
+					<%_ } else { _%>
+
+					<%_ const queryParams = helper.getParams(operation.parameters, "query"); _%>
+					<%_ queryParams.forEach(queryParam => { _%>
+					qs.<%= queryParam %> = this.getNodeParameter('<%= queryParam %>', i);
+					<%_ }); _%>
+					<%_ if (operation.additionalFields) { _%>
+					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
+					<%_ operation.additionalFields.options.forEach(option => { _%>
+
+					if (additionalFields.<%= option.name %>) {
+					<%_ if (option.in === 'query') { _%>
+						qs.<%= option.name %> = this.getNodeParameter('<%= option.name %>', i);
+					}
+					<%_ } _%>
+					<%_ }); _%>
+					<%_ } _%>
+
+					const endpoint = '<%= operation.endpoint %>';
+					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
+					<%_ } _%>
+					<%_/**
+					* **********************
+					* REQUEST BODY
+					* **********************
+					*/_%>
+					<%_ } else if (operation.requestBody) { _%>
+
+					const body: IDataObject = {};
+					const endpoint = '<%= operation.endpoint %>';
+					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
+					<%_/**
+					* **************************************************
+					* NO PATH PARAMS OR QUERY PARAMS OR REQUEST BODY
+					* **************************************************
+					*/_%>
+					<%_ } else { _%>
+
+					const endpoint = '<%= operation.endpoint %>';
+					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
+					<%_ } _%>
+				<%= builder.buildOperationError(operation, resourceName); _%>
+
+			<%_ }); _%> <%#_ end operationsArray loop _%>
+			<%= builder.buildResourceError(resourceName); _%>
+			<%_ }); _%> <%#_ end resourceTuples loop _%>
+
+
+			Array.isArray(responseData)
+				? returnData.push(...responseData)
+				: returnData.push(responseData);
+
+		}
+
+		return [this.helpers.returnJsonArray(returnData)];
+	}
+} <%# end class %>

@@ -1,11 +1,11 @@
 ---
-to: src/output/<%= helpers.pascalCase(resourceName) %>Description.ts
+to: src/output/<%= helper.pascalCase(resourceName) %>Description.ts
 ---
 import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export const <%= helpers.camelCase(resourceName) %>Operations = [
+export const <%= helper.camelCase(resourceName) %>Operations = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -13,53 +13,53 @@ export const <%= helpers.camelCase(resourceName) %>Operations = [
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= helpers.camelCase(resourceName) %>',
+					'<%= helper.camelCase(resourceName) %>',
 				],
 			},
 		},
 		options: [
 			<%_ operationsArray.forEach(operation => { _%>
 			{
-				name: '<%= helpers.capitalCase(operation.operationId) %>',
-				value: '<%= helpers.camelCase(operation.operationId) %>',
-				description: '<%- helpers.escape(operation.description) %>',
+				name: '<%= helper.capitalCase(operation.operationId) %>',
+				value: '<%= helper.camelCase(operation.operationId) %>',
+				description: '<%- helper.escape(operation.description) %>',
 			},
 			<%_ }); _%> <%#_ end operations loop _%>
 		],
-		default: '<%= helpers.camelCase(operationsArray[0].operationId) %>',
+		default: '<%= helper.camelCase(operationsArray[0].operationId) %>',
 		description: 'Operation to perform',
 	},
 ] as INodeProperties[];
 
-export const <%= helpers.camelCase(resourceName) %>Fields = [
+export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ operationsArray.forEach(operation => { _%>
-		<%_/**
-		* **********************
-		* PARAMETERS
-		* **********************
-		*/_%>
-	 <%_ if (operation.parameters) { _%>
-	 <%_ operation.parameters.forEach(parameter => { _%>
+	<%_/**
+	 * **********************
+	 * PARAMETERS
+	 * **********************
+	 */_%>
+	<%_ if (operation.parameters) { _%>
+	<%_ operation.parameters.forEach(parameter => { _%>
 	{
-		displayName: '<%= parameter.name %>',
-		name: '<%= helpers.camelCase(parameter.name) %>',
-		description: '<%= parameter.description %>',
-		type: '<%= parameter.schema.type %>',
-		<%_ if (helpers.hasMinMax(parameter.schema)) { _%>
+		displayName: '<%= helper.titleCase(parameter.name); %>',
+		name: '<%= helper.camelCase(parameter.name); %>',
+		description: '<%= parameter.description; %>',
+		type: '<%= helper.adjustType(parameter.schema.type); %>',
+		<%_ if (helper.hasMinMax(parameter.schema)) { _%>
 		typeOptions: {
 			minValue: <%= parameter.schema.minimum %>,
 			maxValue: <%= parameter.schema.maximum %>
 		},
 		<%_ } _%>
 		required: true,
-		default: '<%= helpers.getDefault(parameter.schema) %>',
+		default: <%- helper.getDefault(parameter.schema); %>,
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= helpers.camelCase(resourceName) %>',
+					'<%= helper.camelCase(resourceName); %>',
 				],
 				operation: [
-					'<%= helpers.camelCase(operation.operationId) %>',
+					'<%= helper.camelCase(operation.operationId); %>',
 				],
 			},
 		},
@@ -67,10 +67,10 @@ export const <%= helpers.camelCase(resourceName) %>Fields = [
 	<%_ }); _%> <%#_ end parameters loop _%>
 	<%_ } _%> <%#_ end parameters if _%>
 	<%_/**
-	* **********************
-	* REQUEST BODY
-	* **********************
-	*/_%>
+	 * **********************
+	 * REQUEST BODY
+	 * **********************
+	 */_%>
 	<%_ if (operation.requestBody) { _%>
 	<%_ operation.requestBody.forEach(requestBody => { _%>
 	<%_ Object.keys(requestBody.content).forEach((mimeType) => { _%>
@@ -84,10 +84,10 @@ export const <%= helpers.camelCase(resourceName) %>Fields = [
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= helpers.camelCase(resourceName) %>',
+					'<%= helper.camelCase(resourceName); %>',
 				],
 				operation: [
-					'<%= helpers.camelCase(operation.operationId) %>',
+					'<%= helper.camelCase(operation.operationId); %>',
 				],
 			},
 		},
@@ -97,31 +97,27 @@ export const <%= helpers.camelCase(resourceName) %>Fields = [
 	<%_ Object.keys(schema.properties).forEach((propertyName) => { _%>
 	<%_ const property = schema.properties[propertyName]; _%>
 	{
-		displayName: '<%= propertyName %>',
-		name: '<%= helpers.camelCase(propertyName) %>',
+		displayName: '<%= helper.titleCase(propertyName); %>',
+		name: '<%= helper.camelCase(propertyName); %>',
 		<%_ if (property.description) { _%>
-		description: '<%- helpers.escape(property.description) %>',
+		description: '<%- helper.escape(property.description) %>',
 		<%_ } _%>
-		type: '<%= property.type %>',
-		<%_ if (helpers.hasMinMax(property)) { _%>
+		type: '<%= helper.adjustType(property.type); %>',
+		<%_ if (helper.hasMinMax(property)) { _%>
 		typeOptions: {
 			minValue: <%= property.minimum %>,
 			maxValue: <%= property.maximum %>
 		},
 		<%_ } _%>
 		required: true,
-		default: <%_ if (property.type === "string") { _%>
-			<%_ %> '<%= helpers.getDefault(property) _%>',
-			<%_ } else { _%>
-			<%_ %> <%= helpers.getDefault(property) _%>,
-			<%_ } _%>
+		default: <%- helper.getDefault(property); %>,
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= helpers.camelCase(resourceName) %>',
+					'<%= helper.camelCase(resourceName); %>',
 				],
 				operation: [
-					'<%= helpers.camelCase(operation.operationId) %>',
+					'<%= helper.camelCase(operation.operationId); %>',
 				],
 			},
 		},
@@ -132,10 +128,10 @@ export const <%= helpers.camelCase(resourceName) %>Fields = [
 	<%_ }); _%> <%#_ end requestBody loop _%>
 	<%_ } _%> <%#_ end requestBody if _%>
 	<%_/**
-	* **********************
-	* ADDITIONAL FIELDS
-	* **********************
-	*/_%>
+	 * **********************
+	 * ADDITIONAL FIELDS
+	 * **********************
+	 */_%>
 	<%_ if (operation.additionalFields) { _%>
 	{
 		displayName: 'Additional Fields',
@@ -145,10 +141,10 @@ export const <%= helpers.camelCase(resourceName) %>Fields = [
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= helpers.camelCase(resourceName) %>',
+					'<%= helper.camelCase(resourceName); %>',
 				],
 				operation: [
-					'<%= helpers.camelCase(operation.operationId) %>',
+					'<%= helper.camelCase(operation.operationId); %>',
 				],
 			},
 		},
@@ -157,18 +153,14 @@ export const <%= helpers.camelCase(resourceName) %>Fields = [
 			{
 				name: '<%= option.name %>',
 				<%_ if (option.description) { _%>
-				description: '<%- helpers.escape(option.description) %>',
+				description: '<%- helper.escape(option.description) %>',
 				<%_ } _%>
-				type: '<%= option.type %>',
-				default: <%_ if (typeof option.default === "string") { _%>
-				<%_ %> '<%= helpers.getDefault(option) _%>',
-				<%_ } else { _%>
-				<%_ %> <%= helpers.getDefault(option) _%>,
-				<%_ } _%>
+				type: '<%= helper.adjustType(option.type); %>',
+				default: <%- helper.getDefault(option); %>,
 			},
 		<%_ }); _%> <%#_ end options loop _%>
 		]
 	},
-	 <%_ } _%> <%#_ end additionalFields if _%>
+	<%_ } _%> <%#_ end additionalFields if _%>
 <%_ }); _%> <%#_ end operations loop _%>
 ] as INodeProperties[];

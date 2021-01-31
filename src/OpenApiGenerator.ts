@@ -28,7 +28,7 @@ export default class OpenApiNodeGenerator {
   public run() {
     if (this.nodeGenerationType === "SingleFile") {
       this.generateResourceDescriptions(); // TEMP FOR DEBUGGING: This belongs to multifile
-      this.executeCommand("make regularNodeSingleFile");
+      this.executeCommand("make regularNodeFile");
     }
 
     if (this.nodeGenerationType === "MultiFile") {
