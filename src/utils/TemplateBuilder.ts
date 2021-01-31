@@ -3,18 +3,17 @@ import { camelCase } from "change-case";
 /**Builder functions for Hygen templates.*/
 export const builder = {
   mainParams: <MainParams>{},
-  metaParams: <MetaParams>{},
   dividerLength: 0,
-  serviceApiRequest: "",
   resourceTuples: <[string, Resource][]>[],
   resourceNames: <string[]>[],
+  serviceApiRequest: "",
 
-  constructor: function (mainParams: MainParams, metaParams: MetaParams) {
+  constructor: function (mainParams: MainParams, { serviceName }: MetaParams) {
     this.mainParams = mainParams;
-    this.metaParams = metaParams;
     this.resourceTuples = Object.entries(this.mainParams);
     this.resourceNames = this.resourceTuples.map((tuple) => tuple[0]);
     this.dividerLength = this.getDividerLength();
+    this.serviceApiRequest = camelCase(serviceName) + "ApiRequest";
   },
 
   getDividerLength: function () {
@@ -30,14 +29,18 @@ export const builder = {
     return maxLength + 15;
   },
 
-  buildServiceApiRequest: function () {
-    return camelCase(this.metaParams.serviceName) + "ApiRequest";
-  },
-
   isFirst: <T>(item: T, array: T[]) => array.indexOf(item) === 0,
 
   isLast: <T>(item: T, array: T[]) => array.indexOf(item) + 1 === array.length,
 
+  /** Build a resource branch, either the first:
+   * ```
+   * if (resource === 'user') {
+   * ```
+   * Or subsequent branches:
+   * ```
+   * } else if (resource === 'user') {
+   * ```*/
   buildResourceBranch: function (resourceName: string) {
     const branch = `if (resource === '${camelCase(resourceName)}') {`;
     const prefix = "} else ";
@@ -46,15 +49,29 @@ export const builder = {
     return isFirst ? branch : prefix + branch;
   },
 
+  /** Build an operation branch, either the first:
+   * ```
+   * if (operation === 'player') {
+   * ```
+   * Or subsequent branches:
+   * ```
+   * } else if (operation === 'player') {
+   * ```*/
   buildOperationBranch: function (operation: Operation, resourceName: string) {
-    const { operationId } = operation;
-    const branch = `if (operation === '${camelCase(operationId)}') {`;
+    const branch = `if (operation === '${camelCase(operation.operationId)}') {`;
     const prefix = "} else ";
     const isFirst = this.isFirst(operation, this.mainParams[resourceName]);
 
     return isFirst ? branch : prefix + branch;
   },
 
+  /** Build a header for all resources, operations or fields:
+   * ```
+   * // --------------------------------------------------------------
+   * //                             Fields
+   * // --------------------------------------------------------------
+   * ```
+   */
   buildHeader: function (header: string) {
     const padLength = Math.floor((this.dividerLength - header.length) / 2);
     const headerLine = "// " + " ".repeat(padLength) + header;
@@ -63,6 +80,13 @@ export const builder = {
     return [dividerLine, headerLine, dividerLine].join("\n" + "\t".repeat(3));
   },
 
+  /**  Build a divider for an individual operation:
+   * ```
+   * // --------------------------------------------------------------
+   * //                         user: getUser
+   * // --------------------------------------------------------------
+   * ```
+   */
   buildDivider: function (resourceName: string, operationId: string) {
     const title = `${resourceName}: ${operationId}`;
     const padLength = Math.floor((this.dividerLength - title.length) / 2);
@@ -73,6 +97,12 @@ export const builder = {
     return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(4));
   },
 
+  /** Build the error branch for resources:
+   * ```
+   * } else {
+   *     throw new Error(`Unknown resource: ${resource}`);
+   * }
+   * ```*/
   buildResourceError: function (resourceName: string) {
     const isLast = this.isLast(resourceName, this.resourceNames);
     const resourceError = `
@@ -83,6 +113,12 @@ export const builder = {
     return isLast ? resourceError : null;
   },
 
+  /** Build the error branch for operations:
+   * ```
+   * } else {
+   *     throw new Error(`Unknown operation: ${operation}`);
+   * }
+   * ```*/
   buildOperationError: function (operation: Operation, resourceName: string) {
     const isLast = this.isLast(operation, this.mainParams[resourceName]);
     const operationError = `

@@ -14,7 +14,7 @@ import {
 } from 'n8n-workflow';
 
 import {
-	<%= builder.buildServiceApiRequest() %>,
+	<%= builder.serviceApiRequest %>,
 } from './GenericFunctions';
 
 export class <%= helper.pascalCase(metaParams.serviceName) %> implements INodeType {
@@ -247,7 +247,7 @@ export class <%= helper.pascalCase(metaParams.serviceName) %> implements INodeTy
 					const <%= pathParam %> = this.getNodeParameter('<%= pathParam %>', i);
 					<%_ }); _%>
 					const endpoint = `<%= helper.toTemplateLiteral(operation.endpoint) _%>`;
-					responseData = await <%= builder.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
+					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
 					<%_/**
 					 * ------ Query Parameters ------
 					 * */_%>
@@ -270,7 +270,7 @@ export class <%= helper.pascalCase(metaParams.serviceName) %> implements INodeTy
 					<%_ } _%>
 
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= builder.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
+					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, qs, {});
 					<%_ } _%>
 					<%_/**
 					* **********************
@@ -281,7 +281,7 @@ export class <%= helper.pascalCase(metaParams.serviceName) %> implements INodeTy
 
 					const body: IDataObject = {};
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= builder.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
+					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
 					<%_/**
 					* **************************************************
 					* NO PATH PARAMS OR QUERY PARAMS OR REQUEST BODY
@@ -290,7 +290,7 @@ export class <%= helper.pascalCase(metaParams.serviceName) %> implements INodeTy
 					<%_ } else { _%>
 
 					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= builder.buildServiceApiRequest() %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
+					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, {});
 					<%_ } _%>
 				<%= builder.buildOperationError(operation, resourceName) _%>
 
