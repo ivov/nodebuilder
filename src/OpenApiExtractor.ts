@@ -88,7 +88,7 @@ export default class OpenApiExtractor {
   private extract(key: "description" | "operationId"): string;
   private extract(key: "tags" | "requestMethods"): string[];
   private extract(key: "parameters"): OperationParameter[];
-  private extract(key: "requestBody"): OperationRequestBody[];
+  private extract(key: "requestBody"): OperationRequestBodyComponent[];
   private extract(key: OpenApiKey) {
     let result = jsonQuery({
       json: this.json,

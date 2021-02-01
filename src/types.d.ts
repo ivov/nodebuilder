@@ -28,7 +28,7 @@ interface Operation {
   [key: string]:
     | string
     | OperationParameter[]
-    | OperationRequestBody[]
+    | OperationRequestBodyComponent[]
     | AdditionalFields
     | undefined;
   operationId: string;
@@ -36,7 +36,7 @@ interface Operation {
   requestMethod: string;
   endpoint: string;
   parameters?: OperationParameter[];
-  requestBody?: OperationRequestBody[];
+  requestBody?: OperationRequestBodyComponent[];
   additionalFields?: AdditionalFields;
 }
 
@@ -55,10 +55,37 @@ interface OperationParameter {
   example?: string;
 }
 
-interface OperationRequestBody {
+interface OperationRequestBodyComponent {
   description?: string;
   required: boolean;
-  content: JsonObject;
+  content: OperationRequestBodyComponentContent;
+}
+
+interface OperationRequestBodyComponentContent {
+  [key: "application/x-www-form-urlencoded"]: AppFormUrlEncoded;
+  [key: "text/plain"]: TextPlain;
+  "application/x-www-form-urlencoded": AppFormUrlEncoded;
+  "text/plain": TextPlain;
+}
+
+interface AppFormUrlEncoded {
+  schema: {
+    type: "object";
+    properties: {
+      [key: string]: {
+        type: string;
+        description: string;
+      };
+    };
+  };
+}
+
+interface TextPlain {
+  "text/plain": {
+    schema: {
+      type: string;
+    };
+  };
 }
 
 interface AdditionalFields {

@@ -68,7 +68,6 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
-		const qs: IDataObject = {};
 
 		let responseData: any;
 
@@ -85,29 +84,31 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 				<%_ const requestMethod = operation.requestMethod.toUpperCase(); _%>
 					<%_/**
 					* **********************
-					* PARAMETERS
+					* PATH PARAMS
 					* **********************
 					*/_%>
 					<%_ if (operation.parameters) { _%>
 					<% if (helper.hasPathParams(operation.endpoint)) { %>
 					<%- builder.pathParamCall(operation); %>
 					<% } else { %>
-					<%- builder.queryParamCall(operation); %>
+					<%_/**
+					* **********************
+					* QS PARAMS
+					* **********************
+					*/_%>
+					<%- builder.queryStringCall(operation); %>
 					<%_ } _%>
 					<%_/**
 					* **********************
 					* REQUEST BODY
 					* **********************
 					*/_%>
-					<%_ } else if (operation.requestBody) { _%>
-
-					const body: IDataObject = {};
-					const endpoint = '<%= operation.endpoint %>';
-					responseData = await <%= builder.serviceApiRequest %>.call(this, '<%= requestMethod %>', endpoint, {}, body);
+					<% } else if (operation.requestBody) { %>
+					<%- builder.bodyCall(operation); %>
 					<%_/**
-					* **************************************************
-					* NO PATH PARAMS OR QUERY PARAMS OR REQUEST BODY
-					* **************************************************
+					* **********************
+					* SLIM CALL
+					* **********************
 					*/_%>
 					<%_ } else { _%>
 					<%- builder.slimCall(operation); %>
