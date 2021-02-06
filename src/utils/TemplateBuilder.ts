@@ -260,7 +260,10 @@ export const builder = {
     return [
       addFields ? qsDeclarationLine + "\n" + addFields : null,
       indentation + `const endpoint = '${endpoint}';`,
-      indentation + this.getCallLine(requestMethod),
+      indentation +
+        this.getCallLine(requestMethod, {
+          withQueryString: addFields !== undefined,
+        }),
     ].join("\n");
   },
 
@@ -270,13 +273,13 @@ export const builder = {
    * ```*/
   getCallLine: function (
     requestMethod: string,
-    options?: { withQueryString?: boolean; withRequestBody?: boolean }
+    { withQueryString, withRequestBody }: GetCallLineOptionalArgs = {}
   ) {
-    const qs = () => (options?.withQueryString ? "qs" : "{}");
-    const body = () => (options?.withRequestBody ? "body" : "{}");
+    const qs = withQueryString ? "qs" : "{}";
+    const body = withRequestBody ? "body" : "{}";
 
     const call = `responseData = await ${this.serviceApiRequest}.call`;
-    const args = `(this, '${requestMethod}', endpoint, ${qs()}, ${body()});`;
+    const args = `(this, '${requestMethod}', endpoint, ${qs}, ${body});`;
 
     return call + args;
   },

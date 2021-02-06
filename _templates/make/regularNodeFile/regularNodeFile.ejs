@@ -110,7 +110,7 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 					* SLIM CALL
 					* **********************
 					*/_%>
-					<%_ } else { _%>
+					<% } else { %>
 					<%- builder.slimCall(operation); %>
 					<%_ } _%>
 				<%= builder.operationError(operation, resourceName); _%>

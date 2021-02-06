@@ -53,6 +53,7 @@ interface OperationParameter {
   };
   required?: boolean;
   example?: string;
+  $ref?: string;
 }
 
 interface OperationRequestBodyComponent {
@@ -135,3 +136,12 @@ type JsonValue =
 declare module "object-treeify" {
   export default function treeify(jsObject: Object): string;
 }
+
+// ----------------------------------
+//             Builder
+// ----------------------------------
+
+type GetCallLineOptionalArgs = {
+  withQueryString?: boolean;
+  withRequestBody?: boolean;
+};
