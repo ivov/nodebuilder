@@ -8,8 +8,9 @@ export default class FilePrinter {
   private readonly basePath = resolve("./", "src", "input");
   private readonly nodegenPath = join(this.basePath, "nodegenParams");
   private readonly treeviewPath = join(this.basePath, "treeview");
+  private readonly apiMapPath = join(this.basePath, "apiMap");
 
-  constructor(private readonly printable: NodegenParams | string) {}
+  constructor(private readonly printable: NodegenParams | TreeView | ApiMap) {}
 
   public print({ format }: { format: "json" | "ts" | "txt" }) {
     if (format === "json") this.printJson();
@@ -22,7 +23,11 @@ export default class FilePrinter {
   }
 
   private printJson() {
-    writeFileSync(this.nodegenPath + ".json", this.getJson(), "utf8");
+    if (isNodegenParams(this.printable)) {
+      writeFileSync(this.nodegenPath + ".json", this.getJson(), "utf8");
+    } else {
+      writeFileSync(this.apiMapPath + ".json", this.getJson(), "utf8");
+    }
   }
 
   private printTypeScript() {
@@ -43,4 +48,8 @@ export default class FilePrinter {
     }
     writeFileSync(this.treeviewPath + ".txt", this.printable, "utf8");
   }
+}
+
+function isNodegenParams(value: any): value is NodegenParams {
+  return "metaParams" in value && "mainParams" in value;
 }

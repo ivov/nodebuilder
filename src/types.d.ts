@@ -19,7 +19,7 @@ type MetaParams = {
 };
 
 interface MainParams {
-  [key: string]: Resource;
+  [key: string]: Operation[];
 }
 
 type Resource = Operation[];
@@ -58,8 +58,8 @@ interface OperationParameter {
 
 interface OperationRequestBodyComponent {
   description?: string;
-  required: boolean;
-  content: OperationRequestBodyComponentContent;
+  required?: boolean;
+  content: OperationRequestBodyComponentContent | any; // TODO
 }
 
 interface OperationRequestBodyComponentContent {
@@ -145,3 +145,21 @@ type GetCallLineOptionalArgs = {
   withQueryString?: boolean;
   withRequestBody?: boolean;
 };
+
+// ----------------------------------
+//            Printer
+// ----------------------------------
+
+type ApiMap = {
+  [key: string]: ApiMapOperation[];
+};
+
+type ApiMapOperation = {
+  ATTENTION?: string;
+  nodeOperation: string;
+  requestMethod;
+  endpoint: string;
+  IRREGULAR?: string;
+};
+
+type TreeView = string;

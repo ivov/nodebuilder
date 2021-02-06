@@ -67,7 +67,9 @@ export default class OpenApiExtractor {
     const operation: Operation = {
       endpoint: this.currentEndpoint,
       requestMethod: requestMethod.toUpperCase(),
-      operationId: this.extract("operationId"),
+      operationId:
+        this.extract("operationId") ??
+        this.getFallbackOperationId(requestMethod),
       description: this.extract("description"),
     };
 
@@ -79,6 +81,10 @@ export default class OpenApiExtractor {
     if (requestBody.length) operation.requestBody = requestBody;
 
     return operation;
+  }
+
+  private getFallbackOperationId(requestMethod: string) {
+    return requestMethod + this.currentEndpoint;
   }
 
   /**Extract the keys and values from the OpenAPI JSON
@@ -138,7 +144,7 @@ export default class OpenApiExtractor {
     };
 
     parameters.forEach((field) => {
-      // @ts-ignore // TODO: Properly handle OpenAPI $ref
+      // TODO: Properly handle OpenAPI $ref
       if (field.$ref) return;
 
       field.required

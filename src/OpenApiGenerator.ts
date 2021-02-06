@@ -58,7 +58,8 @@ export default class OpenApiNodeGenerator {
     if (!existsSync(this.inputDir)) mkdirSync(this.inputDir);
 
     // TEMP FOR DEBUGGING - single resource: only "Users"
-    this.saveResourceJson("Users", this.mainParams["Users"]);
+    // this.saveResourceJson("Users", this.mainParams["Users"]);
+    this.saveResourceJson("Collections", this.mainParams["Collections"]);
     this.executeCommand("make resourceDescription");
     unlinkSync(this.resourceJson);
 

@@ -7,6 +7,7 @@
     "extract": "tsc && node dist/scripts/extract.js",
     "generate": "tsc && node dist/scripts/generate.js",
     "render": "tsc && node dist/scripts/render.js",
+    "map": "tsc && node dist/scripts/map.js",
     "clear": "rm src/output/*"
   },
   "keywords": [],
