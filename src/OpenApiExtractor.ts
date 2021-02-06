@@ -84,7 +84,20 @@ export default class OpenApiExtractor {
   }
 
   private getFallbackOperationId(requestMethod: string) {
-    return requestMethod + this.currentEndpoint;
+    const hasBracket = (endpoint: string) => endpoint.split("").includes("}");
+
+    const getOperation = (requestMethod: string) => {
+      if (requestMethod === "get" && hasBracket(this.currentEndpoint))
+        return "get";
+      if (requestMethod === "get" && !hasBracket(this.currentEndpoint))
+        return "getAll";
+      if (requestMethod === "put") return "update";
+      if (requestMethod === "delete") return "delete";
+      if (requestMethod === "post") return "create";
+      return "unnamed";
+    };
+
+    return getOperation(requestMethod);
   }
 
   /**Extract the keys and values from the OpenAPI JSON
