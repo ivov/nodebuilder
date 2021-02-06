@@ -9,7 +9,7 @@ export const helper = {
 
   capitalCase,
 
-  escape: (str: string) => str.replace(/\n/g, "<br>").replace(/'/g, "’"),
+  escape: (str: string) => str.replace(/(\r)?\n/g, "<br>").replace(/'/g, "’"),
 
   pascalCase,
 
