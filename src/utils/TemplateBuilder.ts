@@ -26,7 +26,7 @@ export const builder = {
       });
     });
 
-    return maxLength;
+    return maxLength + 20;
   },
 
   isFirst: <T>(item: T, array: T[]) => array.indexOf(item) === 0,
@@ -138,9 +138,9 @@ export const builder = {
 
   /**  Build a divider for an operation:
    * ```
-   * // --------------------------------------------------------------
-   * //                         user: getUser
-   * // --------------------------------------------------------------
+   * // ----------------------------------------
+   * //             user: getUser
+   * // ----------------------------------------
    * ```*/
   operationDivider: function (resourceName: string, operationId: string) {
     const title = `${resourceName}: ${operationId}`;
