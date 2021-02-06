@@ -66,7 +66,7 @@ export default class OpenApiExtractor {
   private createOperation(requestMethod: string) {
     const operation: Operation = {
       endpoint: this.currentEndpoint,
-      requestMethod,
+      requestMethod: requestMethod.toUpperCase(),
       operationId: this.extract("operationId"),
       description: this.extract("description"),
     };
