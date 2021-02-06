@@ -73,15 +73,15 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 
 		for (let i = 0; i < items.length; i++) {
 			<%_ builder.resourceTuples.forEach(([resourceName, operationsArray]) => { %>
-			<%= builder.resourceDivider(helper.camelCase(resourceName)); %>
-
 			<%- builder.resourceBranch(resourceName); %>
 
-			<%_ operationsArray.forEach(operation => { _%>
-				<%= builder.operationDivider(helper.camelCase(resourceName), operation.operationId); %>
+				<%= builder.resourceDivider(helper.camelCase(resourceName)); %>
 
+				<%_ operationsArray.forEach(operation => { _%>
 				<%- builder.operationBranch(operation, resourceName); %>
-				<%_ const requestMethod = operation.requestMethod.toUpperCase(); _%>
+
+					<%= builder.operationDivider(helper.camelCase(resourceName), operation.operationId); %>
+					<%_ const requestMethod = operation.requestMethod.toUpperCase(); _%>
 					<%_/**
 					* **********************
 					* PATH PARAMS

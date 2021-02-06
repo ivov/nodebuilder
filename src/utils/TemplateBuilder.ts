@@ -85,7 +85,7 @@ export const builder = {
     const titleLine = "// " + " ".repeat(padLength) + resourceName;
     const dividerLine = "// " + "*".repeat(longDividerLength);
 
-    return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(3));
+    return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(4));
   },
 
   /** Build a resource branch, either the first:
@@ -149,7 +149,7 @@ export const builder = {
     const titleLine = "// " + " ".repeat(padLength) + title;
     const dividerLine = "// " + "-".repeat(this.dividerLength);
 
-    return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(4));
+    return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(5));
   },
 
   /** Build the error branch for operations:
