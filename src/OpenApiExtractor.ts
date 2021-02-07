@@ -1,10 +1,16 @@
+import { execSync } from "child_process";
+import { readFileSync } from "fs";
 import { JSONPath as jsonQuery } from "jsonpath-plus";
 
 /**Extracts params from an OpenAPI JSON for use in node generation.*/
 export default class OpenApiExtractor {
+  private readonly json: any; // TODO
   private currentEndpoint: string;
 
-  constructor(private readonly json: any) {}
+  constructor(serviceName: string) {
+    this.dereferenceSpec(serviceName);
+    this.json = JSON.parse(readFileSync("src/input/_deref.json").toString());
+  }
 
   public run(): NodegenParams {
     return {
@@ -16,6 +22,18 @@ export default class OpenApiExtractor {
       },
       mainParams: this.getMainParams(),
     };
+  }
+
+  private dereferenceSpec(serviceName: string) {
+    const swaggerCliPath =
+      "node_modules/@apidevtools/swagger-cli/bin/swagger-cli.js";
+
+    const args = [
+      `--dereference src/input/${serviceName}.json`,
+      "--outfile src/input/_deref.json",
+    ].join(" ");
+
+    execSync(`node ${swaggerCliPath} bundle ${args}`);
   }
 
   private getApiUrl() {
@@ -73,64 +91,66 @@ export default class OpenApiExtractor {
       description: this.extract("description"),
     };
 
-    const [params, addFields] = this.classifyParams(this.extract("parameters"));
+    const [params, addFields] = this.processParams();
     const requestBody = this.extract("requestBody");
 
     if (params.length) operation.parameters = params;
     if (addFields.options.length) operation.additionalFields = addFields;
-    if (requestBody.length) operation.requestBody = requestBody;
+    if (requestBody) operation.requestBody = requestBody;
 
     return operation;
   }
 
-  private getFallbackOperationId(requestMethod: string) {
-    const hasBracket = (endpoint: string) => endpoint.split("").includes("}");
-
-    const getOperation = (requestMethod: string) => {
-      if (requestMethod === "get" && hasBracket(this.currentEndpoint))
-        return "get";
-      if (requestMethod === "get" && !hasBracket(this.currentEndpoint))
-        return "getAll";
-      if (requestMethod === "put") return "update";
-      if (requestMethod === "delete") return "delete";
-      if (requestMethod === "post") return "create";
-      return "unnamed";
-    };
-
-    return getOperation(requestMethod);
+  /**Process the path and query string params for the current endpoint.*/
+  private processParams() {
+    const allParams = this.extract("parameters");
+    return this.classifyParams(allParams);
   }
 
-  /**Extract the keys and values from the OpenAPI JSON
-   * using [JSON Path Plus](https://github.com/JSONPath-Plus/JSONPath).
+  private getFallbackOperationId(requestMethod: string) {
+    const hasBracket = this.currentEndpoint.split("").includes("}");
+
+    if (requestMethod === "get" && hasBracket) return "get";
+    if (requestMethod === "get" && !hasBracket) return "getAll";
+    if (requestMethod === "put") return "update";
+    if (requestMethod === "delete") return "delete";
+    if (requestMethod === "post") return "create";
+
+    return "unnamed";
+  }
+
+  /**Extract the keys and values from the OpenAPI JSON based on the current endpoint.
+   * Based on [JSON Path Plus](https://github.com/JSONPath-Plus/JSONPath).
    *
    * Note: The square brackets escape chars in the endpoint.*/
   private extract(key: "description" | "operationId"): string;
   private extract(key: "tags" | "requestMethods"): string[];
   private extract(key: "parameters"): OperationParameter[];
-  private extract(key: "requestBody"): OperationRequestBodyComponent[];
+  private extract(key: "requestBody"): OperationRequestBody | null;
   private extract(key: OpenApiKey) {
-    let result = jsonQuery({
+    const result = jsonQuery({
       json: this.json,
       path: `$.paths.[${this.currentEndpoint}].${this.setEndOfPath(key)}`,
     });
 
-    // reduce extra nesting - see note at `setEndOfPath`
-    if (key === "parameters" && result.length) {
-      return result[0];
-    }
+    if (key === "requestBody" && !result.length) return null;
 
-    // reduce extra nesting - always single element array
-    if (key === "description" || key === "operationId") {
-      return result[0];
-    }
+    // always a one-element array, so remove nesting
+    const hasExtraNesting =
+      (key === "parameters" && result.length) ||
+      key === "description" ||
+      key === "operationId" ||
+      (key === "requestBody" && result.length);
+
+    if (hasExtraNesting) return result[0];
 
     return result;
   }
 
   /**Adjust the end of the JSON Path query based on the key.
    * ```json
-   * $.[/endpoint].   *.tags.*
-   * $.[/endpoint].   *~
+   * $.[/endpoint].   *.tags.*      resources
+   * $.[/endpoint].   *~            request methods
    * $.[/endpoint].   *.otherKey
    * ```
    * Note: `parameters` is kept in a nested array (instead of together with `tags`)
@@ -157,9 +177,6 @@ export default class OpenApiExtractor {
     };
 
     parameters.forEach((field) => {
-      // TODO: Properly handle OpenAPI $ref
-      if (field.$ref) return;
-
       field.required
         ? requiredParams.push(field)
         : additionalFields.options.push({
