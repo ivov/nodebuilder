@@ -2,8 +2,6 @@
 //         Node generation
 // ----------------------------------
 
-type NodeGenerationType = "SingleFile" | "MultiFile";
-
 type AuthType = "OAuth2" | "ApiKey" | "None";
 
 type NodegenParams = {

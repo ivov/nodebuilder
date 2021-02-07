@@ -4,20 +4,11 @@ import { join } from "path";
 
 export default class OpenApiNodeGenerator {
   private readonly mainParams: MainParams;
-  private readonly nodeGenerationType: NodeGenerationType;
   private readonly inputDir = join("src", "input");
   private readonly resourceJson = join(this.inputDir, "Resource.json");
-  private readonly hygenBin = join("node_modules", "hygen", "dist", "bin.js");
 
-  constructor({
-    mainParams,
-    nodeGenerationType,
-  }: {
-    mainParams: MainParams;
-    nodeGenerationType: NodeGenerationType;
-  }) {
+  constructor(mainParams: MainParams) {
     this.mainParams = mainParams;
-    this.nodeGenerationType = nodeGenerationType;
   }
 
   /**Generates all node functionality files:
@@ -26,15 +17,8 @@ export default class OpenApiNodeGenerator {
    * - `GenericFunctions.ts`, and
    * - `*.credentials.ts`.*/
   public run() {
-    if (this.nodeGenerationType === "SingleFile") {
-      this.generateResourceDescriptions(); // TEMP FOR DEBUGGING: This belongs to multifile
-      this.executeCommand("make regularNodeFile");
-    }
-
-    if (this.nodeGenerationType === "MultiFile") {
-      // this.executeCommand("gen regularNodeMultipleFiles")
-      this.generateResourceDescriptions();
-    }
+    this.generateResourceDescriptions();
+    this.executeCommand("make regularNodeFile");
 
     // this.generateGenericFunctionsFile();
 
@@ -44,8 +28,10 @@ export default class OpenApiNodeGenerator {
   }
 
   private executeCommand(command: string) {
+    const hygen = join("node_modules", "hygen", "dist", "bin.js");
+
     try {
-      execSync(`env HYGEN_OVERWRITE=1 node ${this.hygenBin} ${command}`);
+      execSync(`env HYGEN_OVERWRITE=1 node ${hygen} ${command}`);
     } catch (error) {
       console.log(error.stdout.toString());
       console.log(error.message);

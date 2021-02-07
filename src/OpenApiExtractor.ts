@@ -1,14 +1,17 @@
 import { execSync } from "child_process";
 import { JSONPath as jsonQuery } from "jsonpath-plus";
-import path from "path";
+import { join } from "path";
 import { readFileSync } from "fs";
+import { titleCase } from "title-case";
 
 /**Extracts params from an OpenAPI JSON for use in node generation.*/
 export default class OpenApiExtractor {
   private readonly json: any; // TODO
+  private readonly serviceName: string;
   private currentEndpoint: string;
 
   constructor(serviceName: string) {
+    this.serviceName = serviceName;
     this.json = this.parseSpec(serviceName);
   }
 
@@ -17,7 +20,7 @@ export default class OpenApiExtractor {
       metaParams: {
         apiUrl: this.getApiUrl(),
         authType: this.getAuthType(),
-        serviceName: this.getServiceName(),
+        serviceName: titleCase(this.serviceName),
         nodeColor: this.getNodeColor(),
       },
       mainParams: this.getMainParams(),
@@ -26,17 +29,16 @@ export default class OpenApiExtractor {
 
   /**Replace `$ref` with its referenced value and parse the resulting JSON.*/
   private parseSpec(serviceName: string) {
-    const source = path.join("src", "input", serviceName + ".json");
-    const dest = path.join("src", "input", "_deref.json");
-    const swagger = path.join(
+    const source = join("src", "input", serviceName + ".json");
+    const dest = join("src", "input", "_deref.json");
+    const args = `--dereference ${source} --outfile ${dest}`;
+    const swagger = join(
       "node_modules",
       "@apidevtools",
       "swagger-cli",
       "bin",
       "swagger-cli.js"
     );
-
-    const args = [`--dereference ${source}`, `--outfile ${dest}`].join(" ");
 
     execSync(`node ${swagger} bundle ${args}`);
 
@@ -45,11 +47,6 @@ export default class OpenApiExtractor {
 
   private getApiUrl() {
     return jsonQuery({ json: this.json, path: "$.servers.*.url" })[0];
-  }
-
-  // TODO: temp implementation
-  private getServiceName() {
-    return "Lichess";
   }
 
   // TODO: temp implementation
