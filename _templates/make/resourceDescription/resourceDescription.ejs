@@ -1,5 +1,5 @@
 ---
-to: src/output/<%= helper.pascalCase(resourceName) %>Description.ts
+to: src/output/descriptions/<%= helper.pascalCase(resourceName) %>Description.ts
 ---
 import {
 	INodeProperties,
@@ -77,7 +77,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	{
 		displayName: 'Text',
 		name: 'text',
-		description: '<%= requestBody.description %>',
+		description: '<%= operation.requestBody.description %>',
 		required: true,
 		default: '',
 		displayOptions: {

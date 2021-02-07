@@ -96,7 +96,10 @@ export const ApiCallBuilder = {
   },
 
   requestBodyComponents: function (requestBody: OperationRequestBody) {
-    const bodyComponentLines = this.getBodyComponents(requestBody!).map(
+    const bodyComponents = this.getBodyComponents(requestBody);
+    if (!bodyComponents) return;
+
+    const bodyComponentLines = bodyComponents.map(
       (rbc) => `body.${rbc} = this.getNodeParameter('${rbc}', i);`
     );
 
@@ -108,23 +111,35 @@ export const ApiCallBuilder = {
   addNewLine: (array: string[]) => (array[array.length - 1] += "\n"),
 
   // TODO: temp implementation
-  getBodyComponents: (components: OperationRequestBody) => {
-    const urlEncoded = "application/x-www-form-urlencoded";
+  getBodyComponents: (requestBody: OperationRequestBody) => {
+    const textPlainContent = requestBody.content["text/plain"];
+    const formUrlEncoded =
+      requestBody.content["application/x-www-form-urlencoded"];
 
-    const urlEncodedProps = [components]
-      .filter((c) => c.content[urlEncoded])
-      .map((c) => c.content[urlEncoded].schema.properties)
-      .map((c) => Object.keys(c))
-      .flat();
+    if (textPlainContent) return null; // TODO
 
-    if (urlEncodedProps.length) return urlEncodedProps;
+    if (formUrlEncoded) {
+      return Object.keys(formUrlEncoded.schema.properties);
+    }
 
-    const textPlain = "text/plain";
-    const textPlainProps = [components]
-      .filter((c) => c.content[textPlain])
-      .map((_) => "text");
+    return null;
 
-    return textPlainProps;
+    // const urlEncoded = "application/x-www-form-urlencoded";
+
+    // const urlEncodedProps = [requestBody]
+    //   .filter((c) => c.content[urlEncoded])
+    //   .map((c) => c.content[urlEncoded].schema.properties)
+    //   .map((c) => Object.keys(c))
+    //   .flat();
+
+    // if (urlEncodedProps.length) return urlEncodedProps;
+
+    // const textPlain = "text/plain";
+    // const textPlainProps = [requestBody]
+    //   .filter((c) => c.content[textPlain])
+    //   .map((_) => "text");
+
+    // return textPlainProps;
   },
 
   // ------------------ additional fields -------------------

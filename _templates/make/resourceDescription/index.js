@@ -1,4 +1,4 @@
-const resource = require("../../../src/input/Resource.json");
+const resource = require("../../../src/input/_resource.json");
 const helper = require("../../../dist/utils/TemplateHelper");
 const builder = require("../../../dist/utils/TemplateBuilder");
 

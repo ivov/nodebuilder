@@ -5,7 +5,8 @@ import { join } from "path";
 export default class OpenApiNodeGenerator {
   private readonly mainParams: MainParams;
   private readonly inputDir = join("src", "input");
-  private readonly resourceJson = join(this.inputDir, "Resource.json");
+  private readonly resourceJson = join(this.inputDir, "_resource.json");
+  private readonly outputDir = join("src", "output", "descriptions");
 
   constructor(mainParams: MainParams) {
     this.mainParams = mainParams;
@@ -13,11 +14,11 @@ export default class OpenApiNodeGenerator {
 
   /**Generates all node functionality files:
    * - `*.node.ts`,
-   * - one `*Description.ts` file per resource (if applicable),
+   * - one `*Description.ts` per resource,
    * - `GenericFunctions.ts`, and
-   * - `*.credentials.ts`.*/
+   * - `*.credentials.ts` if applicable.*/
   public run() {
-    // this.generateResourceDescriptions();
+    this.generateResourceDescriptions();
     this.executeCommand("make regularNodeFile");
 
     // this.generateGenericFunctionsFile();
@@ -41,15 +42,17 @@ export default class OpenApiNodeGenerator {
   /**For every resource in main params, generates a resource JSON file, feeds it into
    * the Hygen template for code generation and deletes the resource JSON file.*/
   private generateResourceDescriptions() {
-    if (!existsSync(this.inputDir)) mkdirSync(this.inputDir);
+    this.createDirs();
 
-    // TEMP FOR DEBUGGING - single resource: only "Users"
-    // this.saveResourceJson("Users", this.mainParams["Users"]);
-    this.saveResourceJson("Collections", this.mainParams["Collections"]);
+    // TEMP -------------------------------------------
+    // only first resource
+    const firstResource = Object.keys(this.mainParams)[0];
+    this.saveResourceJson(firstResource, this.mainParams[firstResource]);
     this.executeCommand("make resourceDescription");
-    unlinkSync(this.resourceJson);
+    // unlinkSync(this.resourceJson);
+    // TEMP -------------------------------------------
 
-    // final version - all resources
+    // FINAL VERSION: ALL RESOURCES
     // Object.entries(this.mainParams).forEach(
     //   ([resourceName, operationsArray]) => {
     //     this.saveResourceJson(resourceName, operationsArray);
@@ -57,6 +60,12 @@ export default class OpenApiNodeGenerator {
     //     unlinkSync(this.resourceJson);
     //   }
     // );
+  }
+
+  private createDirs() {
+    [this.inputDir, this.outputDir].forEach((dir) => {
+      if (!existsSync(dir)) mkdirSync(dir);
+    });
   }
 
   private saveResourceJson(resourceName: string, operationsArray: Resource) {
