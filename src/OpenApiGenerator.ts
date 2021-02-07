@@ -17,7 +17,7 @@ export default class OpenApiNodeGenerator {
    * - `GenericFunctions.ts`, and
    * - `*.credentials.ts`.*/
   public run() {
-    this.generateResourceDescriptions();
+    // this.generateResourceDescriptions();
     this.executeCommand("make regularNodeFile");
 
     // this.generateGenericFunctionsFile();

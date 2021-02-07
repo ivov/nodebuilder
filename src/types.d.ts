@@ -129,9 +129,9 @@ declare module "object-treeify" {
 //             Builder
 // ----------------------------------
 
-type GetCallLineOptionalArgs = {
-  withQueryString?: boolean;
-  withRequestBody?: boolean;
+type CallLineOptionalArgs = {
+  hasQueryString?: boolean;
+  hasRequestBody?: boolean;
 };
 
 // ----------------------------------

@@ -82,37 +82,9 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 
 					<%= builder.operationDivider(helper.camelCase(resourceName), operation.operationId); %>
 					<%_ const requestMethod = operation.requestMethod.toUpperCase(); _%>
-					<%_/**
-					* **********************
-					* PATH PARAMS
-					* **********************
-					*/_%>
-					<%_ if (operation.parameters) { _%>
-					<% if (helper.hasPathParams(operation.endpoint)) { %>
-					<%- builder.pathParamCall(operation); %>
-					<% } else { %>
-					<%_/**
-					* **********************
-					* QS PARAMS
-					* **********************
-					*/_%>
-					<%- builder.queryStringCall(operation); %>
-					<%_ } _%>
-					<%_/**
-					* **********************
-					* REQUEST BODY
-					* **********************
-					*/_%>
-					<% } else if (operation.requestBody) { %>
-					<%- builder.bodyCall(operation); %>
-					<%_/**
-					* **********************
-					* SLIM CALL
-					* **********************
-					*/_%>
-					<% } else { %>
-					<%- builder.slimCall(operation); %>
-					<%_ } _%>
+
+					<%- builder.apiCall(operation); %>
+
 				<%= builder.operationError(operation, resourceName); _%>
 
 			<%_ }); _%> <%#_ end operationsArray loop _%>
