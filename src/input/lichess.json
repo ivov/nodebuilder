@@ -2024,7 +2024,8 @@
             "schema": {
               "type": "integer",
               "minimum": 1
-            }
+            },
+            "required": true
           }
         ],
         "responses": {

@@ -78,17 +78,16 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 				<%= builder.resourceDivider(helper.camelCase(resourceName)); %>
 
 				<%_ operationsArray.forEach(operation => { _%>
-				<%- builder.operationBranch(operation, resourceName); %>
+				<%- builder.operationBranch(resourceName, operation); %>
 
 					<%= builder.operationDivider(helper.camelCase(resourceName), operation.operationId); %>
-					<%_ const requestMethod = operation.requestMethod.toUpperCase(); _%>
 
-					<%- builder.apiCall(operation); %>
+					<%- builder.apiCall(operation); _%>
 
-				<%= builder.operationError(operation, resourceName); _%>
+				<%- builder.operationError(resourceName, operation); _%>
 
 			<%_ }); _%> <%#_ end operationsArray loop _%>
-			<%= builder.resourceError(resourceName); _%>
+			<%- builder.resourceError(resourceName); _%>
 			<%_ }); _%> <%#_ end resourceTuples loop _%>
 
 
