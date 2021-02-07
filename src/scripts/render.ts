@@ -5,7 +5,7 @@ import OpenApiExtractor from "../OpenApiExtractor";
 import FilePrinter from "../utils/FilePrinter";
 
 try {
-  const extractor = new OpenApiExtractor(json);
+  const extractor = new OpenApiExtractor("lichess");
   const nodegenParams = extractor.run();
   const treeViewer = new TreeRenderer(nodegenParams.mainParams, json);
   const treeview = treeViewer.run();

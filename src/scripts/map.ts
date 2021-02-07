@@ -1,6 +1,5 @@
-import { request } from "http";
 import { sortBy } from "underscore";
-import nodegenParams from "../input/nodegenParams.json";
+import nodegenParams from "../input/_nodegenParams.json";
 import FilePrinter from "../utils/FilePrinter";
 
 const { mainParams } = nodegenParams as NodegenParams;

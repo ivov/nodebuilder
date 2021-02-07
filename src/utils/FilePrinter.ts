@@ -6,9 +6,9 @@ import { Project } from "ts-morph";
 /**Converts nodegen params into TypeScript or JSON, or treeview into TXT.*/
 export default class FilePrinter {
   private readonly basePath = resolve("./", "src", "input");
-  private readonly nodegenPath = join(this.basePath, "nodegenParams");
-  private readonly treeviewPath = join(this.basePath, "treeview");
-  private readonly apiMapPath = join(this.basePath, "apiMap");
+  private readonly nodegenPath = join(this.basePath, "_nodegenParams");
+  private readonly treeviewPath = join(this.basePath, "_treeview");
+  private readonly apiMapPath = join(this.basePath, "_apiMap");
 
   constructor(private readonly printable: NodegenParams | TreeView | ApiMap) {}
 
