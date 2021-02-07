@@ -72,8 +72,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	 * **********************
 	 */_%>
 	<%_ if (operation.requestBody) { _%>
-	<%_ operation.requestBody.forEach(requestBody => { _%>
-	<%_ Object.keys(requestBody.content).forEach((mimeType) => { _%>
+	<%_ Object.keys(operation.requestBody.content).forEach((mimeType) => { _%>
 	<%_ if (mimeType === "text/plain") { _%>
 	{
 		displayName: 'Text',
@@ -125,7 +124,6 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ }); _%> <%#_ end properties loop _%>
 	<%_ } _%> <%#_ end mimeType if _%>
 	<%_ }); _%> <%#_ end mimeTypeObj loop _%>
-	<%_ }); _%> <%#_ end requestBody loop _%>
 	<%_ } _%> <%#_ end requestBody if _%>
 	<%_/**
 	 * **********************
