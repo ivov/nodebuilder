@@ -22,6 +22,8 @@ interface MainParams {
 
 type Resource = Operation[];
 
+type ResourceTuples = [string, Resource][];
+
 interface Operation {
   [key: string]:
     | string

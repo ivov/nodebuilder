@@ -1,15 +1,14 @@
-export const DividerBuilder = {
-  mainParams: <MainParams>{},
-  resourceTuples: <[string, Resource][]>[],
-  dividerLength: 0,
+export class DividerBuilder {
+  private resourceTuples: ResourceTuples = [];
+  private dividerLength = 0;
 
-  constructor: function (resourceTuples: [string, Resource][]) {
+  constructor(resourceTuples: ResourceTuples) {
     this.resourceTuples = resourceTuples;
     this.dividerLength = this.getDividerLength();
     return this;
-  },
+  }
 
-  getDividerLength: function () {
+  getDividerLength() {
     let maxTitleLength = 0;
 
     this.resourceTuples.forEach(([resourceName, operationsArray]) => {
@@ -21,7 +20,7 @@ export const DividerBuilder = {
     });
 
     return maxTitleLength + 20;
-  },
+  }
 
   /**  Build a divider for a resource:
    * ```
@@ -29,7 +28,7 @@ export const DividerBuilder = {
    * //                            user
    * // **************************************************************
    * ```*/
-  resourceDivider: function (resourceName: string) {
+  resourceDivider(resourceName: string) {
     const longDividerLength = this.dividerLength + 20;
 
     const padLength = Math.floor((longDividerLength - resourceName.length) / 2);
@@ -38,7 +37,7 @@ export const DividerBuilder = {
     const dividerLine = "// " + "*".repeat(longDividerLength);
 
     return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(4));
-  },
+  }
 
   /**  Build a divider for an operation:
    * ```
@@ -46,7 +45,7 @@ export const DividerBuilder = {
    * //             user: getUser
    * // ----------------------------------------
    * ```*/
-  operationDivider: function (resourceName: string, operationId: string) {
+  operationDivider(resourceName: string, operationId: string) {
     const title = `${resourceName}: ${operationId}`;
     const padLength = Math.floor((this.dividerLength - title.length) / 2);
 
@@ -54,5 +53,5 @@ export const DividerBuilder = {
     const dividerLine = "// " + "-".repeat(this.dividerLength);
 
     return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(5));
-  },
-};
+  }
+}

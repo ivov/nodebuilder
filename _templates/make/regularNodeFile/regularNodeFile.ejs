@@ -21,7 +21,7 @@ import {
 import {
 	<%= helper.camelCase(resourceName) %>Operations,
 	<%= helper.camelCase(resourceName) %>Fields,
-} from './<%= helper.pascalCase(resourceName) %>Description';
+} from './descriptions/<%= helper.pascalCase(resourceName) %>Description';
 
 <%_ }); _%>
 export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeType {

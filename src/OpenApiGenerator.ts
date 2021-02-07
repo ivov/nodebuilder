@@ -49,7 +49,7 @@ export default class OpenApiNodeGenerator {
     const firstResource = Object.keys(this.mainParams)[0];
     this.saveResourceJson(firstResource, this.mainParams[firstResource]);
     this.executeCommand("make resourceDescription");
-    // unlinkSync(this.resourceJson);
+    unlinkSync(this.resourceJson);
     // TEMP -------------------------------------------
 
     // FINAL VERSION: ALL RESOURCES

@@ -4,33 +4,31 @@ import { DividerBuilder } from "./DividerBuilder";
 import { BranchBuilder } from "./BranchBuilder";
 
 export const builder = {
-  mainParams: <MainParams>{},
-  resourceTuples: <[string, Resource][]>[],
+  resourceTuples: <ResourceTuples>[],
   resourceNames: <string[]>[],
   serviceApiRequest: "",
 
-  apiCallBuilder: <any>{}, // TODO
-  dividerBuilder: <any>{}, // TODO
-  branchBuilder: <any>{}, // TODO
+  apiCallBuilder: <ApiCallBuilder>{},
+  dividerBuilder: <DividerBuilder>{},
+  branchBuilder: <BranchBuilder>{},
 
   constructor: function (mainParams: MainParams, { serviceName }: MetaParams) {
-    this.mainParams = mainParams;
-    this.resourceTuples = Object.entries(this.mainParams);
+    this.resourceTuples = Object.entries(mainParams);
     this.resourceNames = this.resourceTuples.map((tuple) => tuple[0]);
     this.serviceApiRequest = camelCase(serviceName) + "ApiRequest";
 
-    this.apiCallBuilder = ApiCallBuilder.constructor(this.serviceApiRequest);
-    this.dividerBuilder = DividerBuilder.constructor(this.resourceTuples);
-    this.branchBuilder = BranchBuilder.constructor(mainParams);
+    this.apiCallBuilder = new ApiCallBuilder(this.serviceApiRequest);
+    this.dividerBuilder = new DividerBuilder(this.resourceTuples);
+    this.branchBuilder = new BranchBuilder(mainParams);
   },
 
-  // apiCall ------------------
+  // ApiCallBuilder ------------------
 
   apiCall: function (operation: Operation) {
-    return ApiCallBuilder.run(operation);
+    return this.apiCallBuilder.run(operation);
   },
 
-  // divider ------------------
+  // DividerBuilder ------------------
 
   resourceDivider: function (resourceName: string) {
     return this.dividerBuilder.resourceDivider(resourceName);
@@ -40,7 +38,7 @@ export const builder = {
     return this.dividerBuilder.operationDivider(resourceName, operationId);
   },
 
-  // branch ------------------
+  // BranchBuilder ------------------
 
   resourceBranch: function (resourceName: string) {
     return this.branchBuilder.resourceBranch(resourceName);
@@ -54,7 +52,7 @@ export const builder = {
     return this.branchBuilder.resourceError(resourceName);
   },
 
-  operationError: function (operation: Operation, resourceName: string) {
-    return this.branchBuilder.operationError(operation, resourceName);
+  operationError: function (resourceName: string, operation: Operation) {
+    return this.branchBuilder.operationError(resourceName, operation);
   },
 };
