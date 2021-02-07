@@ -1,6 +1,7 @@
 import { execSync } from "child_process";
-import { readFileSync } from "fs";
 import { JSONPath as jsonQuery } from "jsonpath-plus";
+import path from "path";
+import { readFileSync } from "fs";
 
 /**Extracts params from an OpenAPI JSON for use in node generation.*/
 export default class OpenApiExtractor {
@@ -8,8 +9,7 @@ export default class OpenApiExtractor {
   private currentEndpoint: string;
 
   constructor(serviceName: string) {
-    this.dereferenceSpec(serviceName);
-    this.json = JSON.parse(readFileSync("src/input/_deref.json").toString());
+    this.json = this.parseSpec(serviceName);
   }
 
   public run(): NodegenParams {
@@ -24,16 +24,23 @@ export default class OpenApiExtractor {
     };
   }
 
-  private dereferenceSpec(serviceName: string) {
-    const swaggerCliPath =
-      "node_modules/@apidevtools/swagger-cli/bin/swagger-cli.js";
+  /**Replace `$ref` with its referenced value and parse the resulting JSON.*/
+  private parseSpec(serviceName: string) {
+    const source = path.join("src", "input", serviceName + ".json");
+    const dest = path.join("src", "input", "_deref.json");
+    const swagger = path.join(
+      "node_modules",
+      "@apidevtools",
+      "swagger-cli",
+      "bin",
+      "swagger-cli.js"
+    );
 
-    const args = [
-      `--dereference src/input/${serviceName}.json`,
-      "--outfile src/input/_deref.json",
-    ].join(" ");
+    const args = [`--dereference ${source}`, `--outfile ${dest}`].join(" ");
 
-    execSync(`node ${swaggerCliPath} bundle ${args}`);
+    execSync(`node ${swagger} bundle ${args}`);
+
+    return JSON.parse(readFileSync(dest).toString());
   }
 
   private getApiUrl() {
@@ -85,9 +92,7 @@ export default class OpenApiExtractor {
     const operation: Operation = {
       endpoint: this.currentEndpoint,
       requestMethod: requestMethod.toUpperCase(),
-      operationId:
-        this.extract("operationId") ??
-        this.getFallbackOperationId(requestMethod),
+      operationId: this.processOperationId(requestMethod),
       description: this.extract("description"),
     };
 
@@ -101,13 +106,18 @@ export default class OpenApiExtractor {
     return operation;
   }
 
+  private processOperationId(requestMethod: string) {
+    return this.extract("operationId") ?? this.getFallbackId(requestMethod);
+  }
+
   /**Process the path and query string params for the current endpoint.*/
   private processParams() {
     const allParams = this.extract("parameters");
     return this.classifyParams(allParams);
   }
 
-  private getFallbackOperationId(requestMethod: string) {
+  /**Return a fallback operation ID if missing in the spec.*/
+  private getFallbackId(requestMethod: string) {
     const hasBracket = this.currentEndpoint.split("").includes("}");
 
     if (requestMethod === "get" && hasBracket) return "get";
