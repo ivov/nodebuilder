@@ -28,7 +28,7 @@ interface Operation {
   [key: string]:
     | string
     | OperationParameter[]
-    | OperationRequestBodyComponent[]
+    | OperationRequestBody
     | AdditionalFields
     | undefined;
   operationId: string;
@@ -36,7 +36,7 @@ interface Operation {
   requestMethod: string;
   endpoint: string;
   parameters?: OperationParameter[];
-  requestBody?: OperationRequestBodyComponent[];
+  requestBody?: OperationRequestBody;
   additionalFields?: AdditionalFields;
 }
 
@@ -56,35 +56,25 @@ interface OperationParameter {
   $ref?: string;
 }
 
-interface OperationRequestBodyComponent {
+interface OperationRequestBody {
+  content?: OperationRequestBodyContent | any; // TODO
   description?: string;
   required?: boolean;
-  content: OperationRequestBodyComponentContent | any; // TODO
 }
 
-interface OperationRequestBodyComponentContent {
-  [key: "application/x-www-form-urlencoded"]: AppFormUrlEncoded;
-  [key: "text/plain"]: TextPlain;
-  "application/x-www-form-urlencoded": AppFormUrlEncoded;
-  "text/plain": TextPlain;
+interface OperationRequestBodyContent {
+  [key: string]: { schema: Schema };
+  "application/x-www-form-urlencoded": { schema: Schema };
+  "text/plain": { schema: Schema };
 }
 
-interface AppFormUrlEncoded {
-  schema: {
-    type: "object";
-    properties: {
-      [key: string]: {
-        type: string;
-        description: string;
-      };
-    };
-  };
-}
-
-interface TextPlain {
-  "text/plain": {
-    schema: {
+interface Schema {
+  type: string;
+  required?: string[];
+  properties: {
+    [key: string]: {
       type: string;
+      description: string;
     };
   };
 }

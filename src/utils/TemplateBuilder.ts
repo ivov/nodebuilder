@@ -46,10 +46,11 @@ export const builder = {
     return this.getParams(params, "query");
   },
 
-  getRequestBodyComponents: (components: OperationRequestBodyComponent[]) => {
+  // TODO: temp implementation
+  getRequestBodyComponents: (components: OperationRequestBody) => {
     const urlEncoded = "application/x-www-form-urlencoded";
 
-    const urlEncodedProps = components
+    const urlEncodedProps = [components]
       .filter((c) => c.content[urlEncoded])
       .map((c) => c.content[urlEncoded].schema.properties)
       .map((c) => Object.keys(c))
@@ -58,9 +59,9 @@ export const builder = {
     if (urlEncodedProps.length) return urlEncodedProps;
 
     const textPlain = "text/plain";
-    const textPlainProps = components
+    const textPlainProps = [components]
       .filter((c) => c.content[textPlain])
-      .map((c) => "text");
+      .map((_) => "text");
 
     return textPlainProps;
   },
