@@ -4,6 +4,8 @@ import FilePrinter from "../utils/FilePrinter";
 
 const { mainParams } = nodegenParams as NodegenParams;
 
+const addIrregularMarkers = false;
+
 const apiMap: ApiMap = {};
 
 const derivenodeOperation = (requestMethod: string, endpoint: string) => {
@@ -22,13 +24,15 @@ Object.entries(mainParams).forEach(([resource, operations]) => {
   apiMap[resource] = operations.map(({ requestMethod, endpoint }) => {
     const result: { [key: string]: any } = {};
 
-    if (/}\//.test(endpoint)) result["ATTENTION"] = "-".repeat(40);
+    if (addIrregularMarkers && /}\//.test(endpoint))
+      result["ATTENTION"] = "-".repeat(40);
 
     result.nodeOperation = derivenodeOperation(requestMethod, endpoint);
     result.requestMethod = requestMethod;
     result.endpoint = endpoint;
 
-    if (/}\//.test(endpoint)) result["IRREGULAR"] = "-".repeat(40);
+    if (addIrregularMarkers && /}\//.test(endpoint))
+      result["IRREGULAR"] = "-".repeat(40);
 
     return result as ApiMapOperation;
   });
