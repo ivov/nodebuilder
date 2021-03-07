@@ -2,29 +2,13 @@ import { camelCase, capitalCase, pascalCase } from "change-case";
 import { titleCase } from "title-case";
 
 export class Helper {
-  adjustType(type: string) {
-    type === "integer" ? "number" : type;
-  }
+  adjustType = (type: string) => (type === "integer" ? "number" : type);
 
-  camelCase(str: string) {
-    return camelCase(str);
-  }
+  camelCase = (str: string) => camelCase(str);
 
-  capitalCase(str: string) {
-    return capitalCase(str);
-  }
+  capitalCase = (str: string) => capitalCase(str);
 
-  pascalCase(str: string) {
-    return pascalCase(str);
-  }
-
-  titleCase(str: string) {
-    titleCase(str.replace(".", " "));
-  }
-
-  escape(str: string) {
-    str.replace(/(\r)?\n/g, "<br>").replace(/'/g, "’");
-  }
+  escape = (str: string) => str.replace(/(\r)?\n/g, "<br>").replace(/'/g, "’");
 
   getDefault(arg: any) {
     if (arg.default && arg.type === "string") return `'${arg.default}'`;
@@ -44,19 +28,16 @@ export class Helper {
     return '""';
   }
 
-  getParams(params: OperationParameter[], type: "query" | "path") {
-    return params.filter((p) => p.in === type).map((p) => p.name);
-  }
+  getParams = (params: OperationParameter[], type: "query" | "path") =>
+    params.filter((p) => p.in === type).map((p) => p.name);
 
-  hasMinMax(arg: any) {
-    return arg.minimum && arg.maximum;
-  }
+  hasMinMax = (arg: any) => arg.minimum && arg.maximum;
 
-  hasPathParams(endpoint: string) {
-    return endpoint.split("").includes("{");
-  }
+  hasPathParams = (endpoint: string) => endpoint.split("").includes("{");
 
-  toTemplateLiteral(endpoint: string) {
-    return endpoint.replace(/{/g, "${");
-  }
+  pascalCase = (str: string) => pascalCase(str);
+
+  titleCase = (str: string) => titleCase(str.replace(".", " "));
+
+  toTemplateLiteral = (endpoint: string) => endpoint.replace(/{/g, "${");
 }

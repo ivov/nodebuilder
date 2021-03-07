@@ -61,7 +61,7 @@ export class ApiCallBuilder {
     return this.indentLines();
   }
 
-  private resetState() {
+  resetState() {
     this.lines = [];
     this.hasPathParam = false;
     this.hasQsParam = false;
@@ -174,9 +174,8 @@ export class ApiCallBuilder {
     );
   }
 
-  pathParamEndpoint(endpoint: string) {
-    return `const endpoint = \`${this.toTemplateLiteral(endpoint)}\`;`;
-  }
+  pathParamEndpoint = (endpoint: string) =>
+    `const endpoint = \`${this.toTemplateLiteral(endpoint)}\`;`;
 
   ordinaryEndpoint = (endpoint: string) => `const endpoint = '${endpoint}';`;
 
