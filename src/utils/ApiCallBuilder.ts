@@ -2,7 +2,8 @@ export class ApiCallBuilder {
   serviceApiRequest: string;
   lines: string[];
   hasPathParam = false;
-  hasQsParam = false;
+  hasQueryString = false;
+  hasRequestBody = false;
   _additionalFields: AdditionalFields;
 
   constructor(serviceApiRequest: string) {
@@ -31,7 +32,7 @@ export class ApiCallBuilder {
         }
 
         if (this.isQsParam(param)) {
-          this.hasQsParam = true;
+          this.hasQueryString = true;
           this.qsDeclaration();
           this.qsParam(param);
           if (additionalFields) {
@@ -42,6 +43,7 @@ export class ApiCallBuilder {
     }
 
     if (requestBody) {
+      this.hasRequestBody = true;
       this.requestBodyDeclaration();
       this.requestBodyComponents(requestBody);
       if (additionalFields) {
@@ -53,8 +55,8 @@ export class ApiCallBuilder {
 
     this.lines.push(
       this.callLine(requestMethod, {
-        hasQueryString: this.hasQsParam,
-        hasRequestBody: requestBody !== undefined,
+        hasQueryString: this.hasQueryString,
+        hasRequestBody: this.hasRequestBody,
       })
     );
 
@@ -64,7 +66,8 @@ export class ApiCallBuilder {
   resetState() {
     this.lines = [];
     this.hasPathParam = false;
-    this.hasQsParam = false;
+    this.hasQueryString = false;
+    this.hasRequestBody = false;
   }
 
   indentLines() {
@@ -185,13 +188,13 @@ export class ApiCallBuilder {
 
   callLine(
     requestMethod: string,
-    { hasQueryString, hasRequestBody }: CallLineOptionalArgs = {}
+    { hasRequestBody, hasQueryString }: CallLineOptionalArgs = {}
   ) {
-    const qs = hasQueryString ? "qs" : "{}";
     const body = hasRequestBody ? "body" : "{}";
+    const qs = hasQueryString ? "qs" : "{}";
 
     const call = `responseData = await ${this.serviceApiRequest}.call`;
-    const args = `(this, '${requestMethod}', endpoint, ${qs}, ${body});`;
+    const args = `(this, '${requestMethod}', endpoint, ${body}, ${qs});`;
 
     return call + args;
   }
