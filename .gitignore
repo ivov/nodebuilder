@@ -9,3 +9,6 @@ src/input/*
 
 src/output/*
 !src/output/.gitkeep
+
+/*.txt
+/*.xlsx
