@@ -1,6 +1,7 @@
 ---
-to: src/output/descriptions/<%= helper.pascalCase(resourceName) %>Description.ts
+to: src/output/descriptions/<%= pascalCase(resourceName) %>Description.ts
 ---
+<%_ const helper = new Helper(); _%>
 import {
 	INodeProperties,
 } from 'n8n-workflow';

@@ -1,7 +1,8 @@
 ---
-to: src/output/<%= helper.pascalCase(metaParams.serviceName) %>.node.ts
+to: src/output/<%= pascalCase(metaParams.serviceName) %>.node.ts
 ---
 <%_ const builder = new Builder(mainParams, metaParams); _%>
+<%_ const helper = new Helper(); _%>
 import {
 	IExecuteFunctions,
 } from 'n8n-core';

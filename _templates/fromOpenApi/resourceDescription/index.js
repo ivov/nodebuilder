@@ -1,7 +1,7 @@
 const resource = require("../../../src/input/_resource.json");
-const helper = require("../../../dist/utils/TemplateHelper");
-const builder = require("../../../dist/utils/TemplateBuilder");
+const { Helper } = require("../../../dist/utils/TemplateHelper");
+const { pascalCase } = require("change-case"); // for file path generation
 
 module.exports = {
-  params: () => ({ ...resource, ...helper, ...builder }),
+  params: () => ({ ...resource, Helper, pascalCase }),
 };

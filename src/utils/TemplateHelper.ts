@@ -1,25 +1,35 @@
 import { camelCase, capitalCase, pascalCase } from "change-case";
 import { titleCase } from "title-case";
 
-/**Helper functions for Hygen templates.*/
-export const helper = {
-  adjustType: (type: string) => (type === "integer" ? "number" : type),
+export class Helper {
+  adjustType(type: string) {
+    type === "integer" ? "number" : type;
+  }
 
-  camelCase,
+  camelCase(str: string) {
+    return camelCase(str);
+  }
 
-  capitalCase,
+  capitalCase(str: string) {
+    return capitalCase(str);
+  }
 
-  escape: (str: string) => str.replace(/(\r)?\n/g, "<br>").replace(/'/g, "’"),
+  pascalCase(str: string) {
+    return pascalCase(str);
+  }
 
-  pascalCase,
+  titleCase(str: string) {
+    titleCase(str.replace(".", " "));
+  }
 
-  titleCase: (str: string) => titleCase(str.replace(".", " ")),
+  escape(str: string) {
+    str.replace(/(\r)?\n/g, "<br>").replace(/'/g, "’");
+  }
 
-  getDefault: function (arg: any) {
+  getDefault(arg: any) {
     if (arg.default && arg.type === "string") return `'${arg.default}'`;
 
-    // fix inconsistency in OpenAPI source:
-    // sometimes a number type gets a string default
+    // edge case: number type with string default (third-party error)
     if (
       arg.default &&
       (arg.type === "number" || arg.type === "integer") &&
@@ -32,14 +42,21 @@ export const helper = {
     if (arg.type === "boolean") return false;
     if (arg.type === "number" || arg.type === "integer") return 0;
     return '""';
-  },
+  }
 
-  getParams: (params: OperationParameter[], type: "query" | "path") =>
-    params.filter((p) => p.in === type).map((p) => p.name),
+  getParams(params: OperationParameter[], type: "query" | "path") {
+    return params.filter((p) => p.in === type).map((p) => p.name);
+  }
 
-  hasMinMax: (arg: any) => arg.minimum && arg.maximum,
+  hasMinMax(arg: any) {
+    return arg.minimum && arg.maximum;
+  }
 
-  hasPathParams: (endpoint: string) => endpoint.split("").includes("{"),
+  hasPathParams(endpoint: string) {
+    return endpoint.split("").includes("{");
+  }
 
-  toTemplateLiteral: (endpoint: string) => endpoint.replace(/{/g, "${"),
-};
+  toTemplateLiteral(endpoint: string) {
+    return endpoint.replace(/{/g, "${");
+  }
+}
