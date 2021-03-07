@@ -1,12 +1,12 @@
 export class DividerBuilder {
-  private resourceTuples: ResourceTuples = [];
+  // private resourceTuples: ResourceTuples = [];
   // private dividerLength = 0;
 
-  constructor(resourceTuples: ResourceTuples) {
-    this.resourceTuples = resourceTuples;
-    // this.dividerLength = this.getDividerLength();
-    return this;
-  }
+  // constructor(resourceTuples: ResourceTuples) {
+  //   this.resourceTuples = resourceTuples;
+  //   // this.dividerLength = this.getDividerLength();
+  //   return this;
+  // }
 
   // getDividerLength() {
   //   let maxTitleLength = 0;
