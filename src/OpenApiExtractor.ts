@@ -4,7 +4,9 @@ import { join } from "path";
 import { readFileSync } from "fs";
 import { titleCase } from "title-case";
 
-/**Extracts params from an OpenAPI JSON for use in node generation.*/
+/**
+ * Extracts params from an OpenAPI JSON file for use in node generation.
+ */
 export default class OpenApiExtractor {
   private readonly json: any; // TODO
   private readonly serviceName: string;

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "generate": "tsc && node dist/scripts/generate.js",
+    "generate": "tsc && npm run clear && node dist/scripts/generate.js",
     "render": "tsc && node dist/scripts/render.js",
     "map": "tsc && node dist/scripts/map.js",
     "clear": "tsc && node dist/scripts/clear.js"

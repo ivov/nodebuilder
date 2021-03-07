@@ -93,7 +93,9 @@ export class ApiCallBuilder {
     this.lines.push(`qs.${name} = this.getNodeParameter('${name}', i);`);
   }
 
-  isPathParam = (param: OperationParameter) => param.in === "path";
+  isPathParam = (param: OperationParameter) => {
+    return param.in === "path";
+  };
 
   isQsParam = (param: OperationParameter) => param.in === "query";
 
@@ -197,5 +199,18 @@ export class ApiCallBuilder {
     const args = `(this, '${requestMethod}', endpoint, ${body}, ${qs});`;
 
     return call + args;
+  }
+}
+
+export class ApiCallBuilderFromOpenAPI extends ApiCallBuilder {}
+
+export class ApiCallBuilderFromYAML extends ApiCallBuilder {
+  endpoint(endpoint: string) {
+    const hasPathParam = (endpoint: string) => endpoint.split("").includes("{");
+    this.lines.push(
+      hasPathParam(endpoint)
+        ? this.pathParamEndpoint(endpoint)
+        : this.ordinaryEndpoint(endpoint)
+    );
   }
 }

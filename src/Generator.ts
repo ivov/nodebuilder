@@ -25,7 +25,11 @@ export default class Generator {
   public run() {
     this.createInputOutputDirs();
 
+    // TEMP condition - TODO: implement resource descriptions for YAML source
+    // if (this.source === "OpenAPI") {
     this.generateResourceDescriptions();
+    // }
+
     this.generateRegularNodeFile();
 
     // this.generateGenericFunctionsFile();

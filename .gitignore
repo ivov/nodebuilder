@@ -6,6 +6,7 @@ notes.txt
 src/input/*
 !src/input/.gitkeep
 !src/input/lichess.json
+!src/input/razorpay.yaml
 
 src/output/*
 !src/output/.gitkeep

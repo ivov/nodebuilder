@@ -6,7 +6,7 @@ import OpenApiExtractor from "../OpenApiExtractor";
 import FilePrinter from "../utils/FilePrinter";
 import Generator from "../Generator";
 
-const source = "OpenAPI" as string;
+const source = "OpenAPI" as GenerationSource;
 
 try {
   if (source === "OpenAPI") {

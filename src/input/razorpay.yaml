@@ -1,0 +1,41 @@
+---
+metaParams:
+  apiUrl: https://razorpay.org
+  authType: OAuth2
+  serviceName: RazorPay
+  nodeColor: \#ff6600
+mainParams:
+  Customer:
+    - endpoint: /customers
+      requestMethod: POST
+      operationId: create
+      requestBody:
+        name: string
+        contact: string
+        email: string
+        fail_existing: boolean
+        gstin: string
+        additionalFields:
+
+    - endpoint: /customers
+      requestMethod: PUT
+      operationId: update
+    - endpoint: /customers
+      requestMethod: GET
+      operationId: getAll
+    - endpoint: /customers/{id}
+      requestMethod: GET
+      operationId: get
+  Orders:
+    - endpoint: /orders
+      requestMethod: POST
+      operationId: create
+    - endpoint: /orders
+      requestMethod: GET
+      operationId: getAll
+    - endpoint: /orders/{id}
+      requestMethod: GET
+      operationId: get
+    - endpoint: /orders/{id}
+      requestMethod: PATCH
+      operationId: update

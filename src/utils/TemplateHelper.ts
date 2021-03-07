@@ -33,8 +33,6 @@ export class Helper {
 
   hasMinMax = (arg: any) => arg.minimum && arg.maximum;
 
-  hasPathParams = (endpoint: string) => endpoint.split("").includes("{");
-
   pascalCase = (str: string) => pascalCase(str);
 
   titleCase = (str: string) => titleCase(str.replace(".", " "));
