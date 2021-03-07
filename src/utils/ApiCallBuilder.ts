@@ -2,6 +2,7 @@ export class ApiCallBuilder {
   serviceApiRequest: string;
   lines: string[];
   hasPathParam = false;
+  hasQsParam = false;
   _additionalFields: AdditionalFields;
 
   constructor(serviceApiRequest: string) {
@@ -16,14 +17,13 @@ export class ApiCallBuilder {
     requestMethod,
     endpoint,
   }: Operation) {
-    this.lines = [];
+    this.resetState();
 
     if (additionalFields) {
       this._additionalFields = additionalFields;
     }
 
     if (parameters) {
-      this.qsDeclaration();
       parameters.forEach((param) => {
         if (this.isPathParam(param)) {
           this.hasPathParam = true;
@@ -31,6 +31,8 @@ export class ApiCallBuilder {
         }
 
         if (this.isQsParam(param)) {
+          this.hasQsParam = true;
+          this.qsDeclaration();
           this.qsParam(param);
           if (additionalFields) {
             this.additionalFields("qs");
@@ -51,12 +53,18 @@ export class ApiCallBuilder {
 
     this.lines.push(
       this.callLine(requestMethod, {
-        hasQueryString: parameters !== undefined,
+        hasQueryString: this.hasQsParam,
         hasRequestBody: requestBody !== undefined,
       })
     );
 
     return this.indentLines();
+  }
+
+  private resetState() {
+    this.lines = [];
+    this.hasPathParam = false;
+    this.hasQsParam = false;
   }
 
   indentLines() {
