@@ -1,56 +1,63 @@
 export class DividerBuilder {
   private resourceTuples: ResourceTuples = [];
-  private dividerLength = 0;
+  // private dividerLength = 0;
 
   constructor(resourceTuples: ResourceTuples) {
     this.resourceTuples = resourceTuples;
-    this.dividerLength = this.getDividerLength();
+    // this.dividerLength = this.getDividerLength();
     return this;
   }
 
-  getDividerLength() {
-    let maxTitleLength = 0;
+  // getDividerLength() {
+  //   let maxTitleLength = 0;
 
-    this.resourceTuples.forEach(([resourceName, operationsArray]) => {
-      operationsArray.forEach((operation) => {
-        const title = `${resourceName}: ${operation.operationId}`;
-        maxTitleLength =
-          title.length > maxTitleLength ? title.length : maxTitleLength;
-      });
-    });
+  //   this.resourceTuples.forEach(([resourceName, operationsArray]) => {
+  //     operationsArray.forEach((operation) => {
+  //       const title = `${resourceName}: ${operation.operationId}`;
+  //       maxTitleLength =
+  //         title.length > maxTitleLength ? title.length : maxTitleLength;
+  //     });
+  //   });
 
-    return maxTitleLength + 20;
-  }
+  //   return maxTitleLength + 20;
+  // }
 
-  /**  Build a divider for a resource:
+  /**  Build a comment divider for a resource:
    * ```
-   * // **************************************************************
-   * //                            user
-   * // **************************************************************
+   * // **********************************************************************
+   * //                               user
+   * // **********************************************************************
    * ```*/
   resourceDivider(resourceName: string) {
-    const longDividerLength = this.dividerLength + 20;
+    const RESOURCE_DIVIDER_LENGTH = 70;
 
-    const padLength = Math.floor((longDividerLength - resourceName.length) / 2);
+    const padLength = Math.floor(
+      (RESOURCE_DIVIDER_LENGTH - resourceName.length) / 2
+    );
 
     const titleLine = "// " + " ".repeat(padLength) + resourceName;
-    const dividerLine = "// " + "*".repeat(longDividerLength);
+    const dividerLine = "// " + "*".repeat(RESOURCE_DIVIDER_LENGTH);
 
     return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(4));
   }
 
-  /**  Build a divider for an operation:
+  /**  Build a comment divider for an operation:
    * ```
    * // ----------------------------------------
    * //             user: getUser
    * // ----------------------------------------
    * ```*/
   operationDivider(resourceName: string, operationId: string) {
+    const OPERATION_DIVIDER_LENGTH = 40;
+
     const title = `${resourceName}: ${operationId}`;
-    const padLength = Math.floor((this.dividerLength - title.length) / 2);
+    const padLengthCandidate = Math.floor(
+      (OPERATION_DIVIDER_LENGTH - title.length) / 2
+    );
+    const padLength = padLengthCandidate > 0 ? padLengthCandidate : 0;
 
     const titleLine = "// " + " ".repeat(padLength) + title;
-    const dividerLine = "// " + "-".repeat(this.dividerLength);
+    const dividerLine = "// " + "-".repeat(OPERATION_DIVIDER_LENGTH);
 
     return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(5));
   }
