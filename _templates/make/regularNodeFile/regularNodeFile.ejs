@@ -73,7 +73,8 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 		let responseData: any;
 
 		for (let i = 0; i < items.length; i++) {
-			<%_ builder.resourceTuples.forEach(([resourceName, operationsArray]) => { %>
+			<%_ const resourceTuples = source === 'OpenAPI' ? builder.resourceTuples : 'YAML' _%>
+			<%_ resourceTuples.forEach(([resourceName, operationsArray]) => { %>
 			<%- builder.resourceBranch(resourceName); %>
 
 				<%= builder.resourceDivider(helper.camelCase(resourceName)); %>

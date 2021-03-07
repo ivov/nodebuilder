@@ -2,13 +2,18 @@ import { execSync } from "child_process";
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 
-export default class OpenApiNodeGenerator {
-  private readonly mainParams: MainParams;
-  private readonly inputDir = join("src", "input");
-  private readonly resourceJson = join(this.inputDir, "_resource.json");
-  private readonly outputDir = join("src", "output", "descriptions");
+export default class Generator {
+  private mainParams: MainParams;
+  private source: GenerationSource;
 
-  constructor(mainParams: MainParams) {
+  private inputDir = join("src", "input");
+  private outputDir = join("src", "output", "descriptions");
+
+  private resourceJson = join(this.inputDir, "_resource.json");
+  private hygen = join("node_modules", "hygen", "dist", "bin.js");
+
+  constructor(source: GenerationSource, mainParams: MainParams) {
+    this.source = source;
     this.mainParams = mainParams;
   }
 
@@ -16,10 +21,10 @@ export default class OpenApiNodeGenerator {
    * - `*.node.ts`,
    * - one `*Description.ts` per resource,
    * - `GenericFunctions.ts`, and
-   * - `*.credentials.ts` if applicable.*/
+   * - `*.credentials.ts` if needed.*/
   public run() {
     this.generateResourceDescriptions();
-    this.executeCommand("fromOpenApi regularNodeFile");
+    this.generateRegularNodeFile();
 
     // this.generateGenericFunctionsFile();
 
@@ -28,11 +33,13 @@ export default class OpenApiNodeGenerator {
     // }
   }
 
-  private executeCommand(command: string) {
-    const hygen = join("node_modules", "hygen", "dist", "bin.js");
+  private generateRegularNodeFile() {
+    this.executeCommand(`make regularNodeFile --source=${this.source}`);
+  }
 
+  private executeCommand(command: string) {
     try {
-      execSync(`env HYGEN_OVERWRITE=1 node ${hygen} ${command}`);
+      execSync(`env HYGEN_OVERWRITE=1 node ${this.hygen} ${command}`);
     } catch (error) {
       console.log(error.stdout.toString());
       console.log(error.message);
@@ -51,12 +58,10 @@ export default class OpenApiNodeGenerator {
       this.mainParams[firstResourceName]
     );
 
-    this.executeCommand("fromOpenApi resourceDescription");
+    this.executeCommand("make resourceDescription");
 
     const resourceNames = Object.keys(this.mainParams);
-    this.executeCommand(
-      `fromOpenApi resourceIndex --resourceNames ${resourceNames}`
-    );
+    this.executeCommand(`make resourceIndex --resourceNames ${resourceNames}`);
     unlinkSync(this.resourceJson);
     // TEMP -------------------------------------------
 
@@ -64,12 +69,12 @@ export default class OpenApiNodeGenerator {
     // Object.entries(this.mainParams).forEach(
     //   ([resourceName, operationsArray]) => {
     //     this.saveResourceJson(resourceName, operationsArray);
-    //     this.executeCommand("fromOpenApi generateResourceDescription");
+    //     this.executeCommand("make generateResourceDescription");
     //     unlinkSync(this.resourceJson);
     //   }
     // );
     // this.executeCommand(
-    //   `fromOpenApi resourceIndex --resourceNames ${resourceNames}`
+    //   `make resourceIndex --resourceNames ${resourceNames}`
     // );
   }
 

@@ -1,12 +1,11 @@
-import OpenApiGenerator from "../OpenApiGenerator";
+import Generator from "../Generator";
 import nodegenParams from "../input/_nodegenParams.json";
 
 try {
   const mainParams = nodegenParams.mainParams as MainParams;
-  new OpenApiGenerator(mainParams).run();
+  new Generator("OpenAPI", mainParams).run();
 
   console.log("Successfully converted JS object into TypeScript node");
 } catch (e) {
-  // throw new Error("Failed to convert JS object into TypeScript node");
   console.log(e);
 }

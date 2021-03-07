@@ -2,6 +2,8 @@
 //         Node generation
 // ----------------------------------
 
+type GenerationSource = "OpenAPI" | "YAML";
+
 type AuthType = "OAuth2" | "ApiKey" | "None";
 
 type NodegenParams = {
@@ -32,9 +34,9 @@ interface Operation {
     | AdditionalFields
     | undefined;
   operationId: string;
-  description: string;
   requestMethod: string;
   endpoint: string;
+  description?: string;
   parameters?: OperationParameter[];
   requestBody?: OperationRequestBody;
   additionalFields?: AdditionalFields;
