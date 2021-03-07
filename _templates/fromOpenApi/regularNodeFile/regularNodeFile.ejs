@@ -17,13 +17,13 @@ import {
 	<%= builder.serviceApiRequest %>,
 } from './GenericFunctions';
 
-<%_ builder.resourceNames.forEach((resourceName) => { _%>
 import {
+<%_ builder.resourceNames.forEach((resourceName) => { _%>
 	<%= helper.camelCase(resourceName) %>Operations,
 	<%= helper.camelCase(resourceName) %>Fields,
-} from './descriptions/<%= helper.pascalCase(resourceName) %>Description';
-
 <%_ }); _%>
+} from './descriptions';
+
 export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: '<%= metaParams.serviceName %>',
