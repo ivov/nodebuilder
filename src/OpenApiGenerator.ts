@@ -19,7 +19,7 @@ export default class OpenApiNodeGenerator {
    * - `*.credentials.ts` if applicable.*/
   public run() {
     this.generateResourceDescriptions();
-    this.executeCommand("make regularNodeFile");
+    this.executeCommand("fromOpenApi regularNodeFile");
 
     // this.generateGenericFunctionsFile();
 
@@ -44,11 +44,19 @@ export default class OpenApiNodeGenerator {
   private generateResourceDescriptions() {
     this.createDirs();
 
-    // TEMP -------------------------------------------
-    // only first resource
-    const firstResource = Object.keys(this.mainParams)[0];
-    this.saveResourceJson(firstResource, this.mainParams[firstResource]);
-    this.executeCommand("make resourceDescription");
+    // TEMP: only first resource -----------------------------
+    const firstResourceName = Object.keys(this.mainParams)[0];
+    this.saveResourceJson(
+      firstResourceName,
+      this.mainParams[firstResourceName]
+    );
+
+    this.executeCommand("fromOpenApi resourceDescription");
+
+    const resourceNames = Object.keys(this.mainParams);
+    this.executeCommand(
+      `fromOpenApi resourceIndex --resourceNames ${resourceNames}`
+    );
     unlinkSync(this.resourceJson);
     // TEMP -------------------------------------------
 
@@ -56,9 +64,12 @@ export default class OpenApiNodeGenerator {
     // Object.entries(this.mainParams).forEach(
     //   ([resourceName, operationsArray]) => {
     //     this.saveResourceJson(resourceName, operationsArray);
-    //     this.executeCommand("make generateResourceDescription");
+    //     this.executeCommand("fromOpenApi generateResourceDescription");
     //     unlinkSync(this.resourceJson);
     //   }
+    // );
+    // this.executeCommand(
+    //   `fromOpenApi resourceIndex --resourceNames ${resourceNames}`
     // );
   }
 
