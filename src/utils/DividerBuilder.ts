@@ -1,27 +1,4 @@
 export class DividerBuilder {
-  // private resourceTuples: ResourceTuples = [];
-  // private dividerLength = 0;
-
-  // constructor(resourceTuples: ResourceTuples) {
-  //   this.resourceTuples = resourceTuples;
-  //   // this.dividerLength = this.getDividerLength();
-  //   return this;
-  // }
-
-  // getDividerLength() {
-  //   let maxTitleLength = 0;
-
-  //   this.resourceTuples.forEach(([resourceName, operationsArray]) => {
-  //     operationsArray.forEach((operation) => {
-  //       const title = `${resourceName}: ${operation.operationId}`;
-  //       maxTitleLength =
-  //         title.length > maxTitleLength ? title.length : maxTitleLength;
-  //     });
-  //   });
-
-  //   return maxTitleLength + 20;
-  // }
-
   /**  Build a comment divider for a resource:
    * ```
    * // **********************************************************************
