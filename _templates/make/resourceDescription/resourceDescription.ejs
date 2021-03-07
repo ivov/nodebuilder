@@ -23,9 +23,11 @@ export const <%= helper.camelCase(resourceName) %>Operations = [
 			{
 				name: '<%= helper.capitalCase(operation.operationId) %>',
 				value: '<%= helper.camelCase(operation.operationId) %>',
+				<%_ if (operation.description) { _%>
 				description: '<%- helper.escape(operation.description) %>',
+				<%_ } _%>
 			},
-			<%_ }); _%> <%#_ end operations loop _%>
+			<%_ }); _%>
 		],
 		default: '<%= helper.camelCase(operationsArray[0].operationId) %>',
 		description: 'Operation to perform',

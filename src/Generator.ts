@@ -23,6 +23,8 @@ export default class Generator {
    * - `GenericFunctions.ts`, and
    * - `*.credentials.ts` if needed.*/
   public run() {
+    this.createInputOutputDirs();
+
     this.generateResourceDescriptions();
     this.generateRegularNodeFile();
 
@@ -31,10 +33,6 @@ export default class Generator {
     // if (this.metaParams.authType !== "None") {
     //   this.generateCredentialsFile();
     // }
-  }
-
-  private generateRegularNodeFile() {
-    this.executeCommand(`make regularNodeFile --source=${this.source}`);
   }
 
   private executeCommand(command: string) {
@@ -46,11 +44,13 @@ export default class Generator {
     }
   }
 
+  private generateRegularNodeFile() {
+    this.executeCommand(`make regularNodeFile --source=${this.source}`);
+  }
+
   /**For every resource in main params, generates a resource JSON file, feeds it into
    * the Hygen template for code generation and deletes the resource JSON file.*/
   private generateResourceDescriptions() {
-    this.createDirs();
-
     // TEMP: only first resource -----------------------------
     const firstResourceName = Object.keys(this.mainParams)[0];
     this.saveResourceJson(
@@ -78,7 +78,7 @@ export default class Generator {
     // );
   }
 
-  private createDirs() {
+  private createInputOutputDirs() {
     [this.inputDir, this.outputDir].forEach((dir) => {
       if (!existsSync(dir)) mkdirSync(dir);
     });
