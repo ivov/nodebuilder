@@ -2058,12 +2058,13 @@
         ],
         "parameters": [
           {
-            "in": "query",
+            "in": "path",
             "name": "teamId",
             "description": "ID of the team",
             "schema": {
               "type": "string"
-            }
+            },
+            "required": true
           }
         ],
         "requestBody": {
