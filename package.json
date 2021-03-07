@@ -8,12 +8,14 @@
     "generate": "tsc && node dist/scripts/generate.js",
     "render": "tsc && node dist/scripts/render.js",
     "map": "tsc && node dist/scripts/map.js",
+    "frame": "tsc && node dist/scripts/frame.js",
     "clear": "rm src/output/*"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/js-yaml": "^4.0.0",
     "@types/jsonpath": "^0.2.0",
     "@types/node": "^14.14.16",
     "@types/underscore": "^1.10.24",
@@ -24,6 +26,7 @@
     "@apidevtools/swagger-cli": "^4.0.4",
     "change-case": "^4.1.2",
     "hygen": "^6.0.4",
+    "js-yaml": "^4.0.0",
     "jsonpath-plus": "^4.0.0",
     "object-treeify": "^1.1.31",
     "title-case": "^3.0.3",
