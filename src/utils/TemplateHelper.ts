@@ -25,7 +25,7 @@ export class Helper {
     if (arg.default) return arg.default;
     if (arg.type === "boolean") return false;
     if (arg.type === "number" || arg.type === "integer") return 0;
-    return '""';
+    return "''";
   }
 
   getParams = (params: OperationParameter[], type: "query" | "path") =>
