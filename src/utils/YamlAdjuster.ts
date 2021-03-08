@@ -50,8 +50,9 @@ export default class YamlAdjuster {
     if (!yamlOperation.requestBody) return;
 
     const jsonRequestBody: OperationRequestBody = {
+      // TODO: other MIME types
       content: {
-        "application/json": {
+        "application/x-www-form-urlencoded": {
           schema: {
             type: "object",
             properties: {},
@@ -61,7 +62,8 @@ export default class YamlAdjuster {
     };
 
     const jsonProperties =
-      jsonRequestBody.content["application/json"].schema.properties;
+      jsonRequestBody.content["application/x-www-form-urlencoded"].schema
+        .properties;
 
     for (const property in yamlOperation.requestBody) {
       jsonProperties[property] = yamlOperation.requestBody[property];

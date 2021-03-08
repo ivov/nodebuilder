@@ -95,7 +95,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		},
 	},
 	<%_ } else if (mimeType === "application/x-www-form-urlencoded") { _%>
-	<%_ const schema = requestBody.content[mimeType].schema; _%>
+	<%_ const schema = operation.requestBody.content[mimeType].schema; _%>
 	<%_ Object.keys(schema.properties).forEach((propertyName) => { _%>
 	<%_ const property = schema.properties[propertyName]; _%>
 	{
