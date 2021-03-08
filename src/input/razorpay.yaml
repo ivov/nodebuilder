@@ -10,13 +10,14 @@ mainParams:
       requestMethod: POST
       operationId: create
       requestBody:
-        name: string
-        contact: string
-        email: string
-        fail_existing: boolean
-        gstin: string
-        additionalFields:
-
+        name: string|Name of the customer to create.
+        contact: string|Contact details of the customer to create.
+        email: string|Email of the customer to create.
+        is_real: boolean|Whether the customer is real.
+        gstin: string|GSTIN of the customer.
+      queryString:
+        is_historical: true|Whether it is historical.
+        nickname: string|Nickname of customer.
     - endpoint: /customers
       requestMethod: PUT
       operationId: update

@@ -31,8 +31,7 @@ interface Operation {
     | string
     | OperationParameter[]
     | OperationRequestBody
-    | AdditionalFields
-    | undefined;
+    | AdditionalFields;
   operationId: string;
   requestMethod: string;
   endpoint: string;
@@ -155,3 +154,33 @@ type ApiMapOperation = {
 };
 
 type TreeView = string;
+
+// ----------------------------------
+//             YAML
+// ----------------------------------
+
+interface YamlMainParams {
+  [key: string]: YamlOperation[];
+}
+
+interface YamlOperation {
+  [key: string]: {
+    [key: string]: string | boolean | { type: string; description?: string };
+  };
+  queryString?: {
+    [key: string]: { type: string; description?: string };
+  };
+  requestBody?: {
+    [key: string]:
+      | string
+      | boolean
+      | { type: string; description?: string }
+      | undefined;
+  };
+  parameters?: Array<{
+    in: "query" | "path";
+    name: string;
+    description?: string;
+    schema: { type: string };
+  }>;
+}
