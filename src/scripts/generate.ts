@@ -13,7 +13,7 @@ try {
   if (source === "OpenAPI") {
     const nodegenParams = new OpenApiExtractor("lichess").run();
     new FilePrinter(nodegenParams).print({ format: "json" });
-    new Generator(source, nodegenParams.mainParams).run();
+    new Generator(nodegenParams.mainParams).run();
   } else if (source === "YAML") {
     const yamlFilePath = join("src", "input", "razorpay.yaml");
     const yamlParams = yaml.load(readFileSync(yamlFilePath, "utf-8")) as {
@@ -27,7 +27,7 @@ try {
     };
 
     new FilePrinter(nodegenParams).print({ format: "json" });
-    new Generator(source, nodegenParams.mainParams).run();
+    new Generator(nodegenParams.mainParams).run();
   }
   console.log("Successfully converted JS object into TypeScript node");
 } catch (e) {

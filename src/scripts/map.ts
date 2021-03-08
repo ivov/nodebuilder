@@ -1,52 +1,52 @@
-import { sortBy } from "underscore";
-import nodegenParams from "../input/_nodegenParams.json";
-import FilePrinter from "../utils/FilePrinter";
+// import { sortBy } from "underscore";
+// import nodegenParams from "../input/_nodegenParams.json";
+// import FilePrinter from "../utils/FilePrinter";
 
-const { mainParams } = nodegenParams as NodegenParams;
+// const { mainParams } = nodegenParams as NodegenParams;
 
-const addIrregularMarkers = false;
+// const addIrregularMarkers = false;
 
-const apiMap: ApiMap = {};
+// const apiMap: ApiMap = {};
 
-const derivenodeOperation = (requestMethod: string, endpoint: string) => {
-  const hasBracket = (endpoint: string) => endpoint.split("").includes("}");
+// const derivenodeOperation = (requestMethod: string, endpoint: string) => {
+//   const hasBracket = (endpoint: string) => endpoint.split("").includes("}");
 
-  if (requestMethod === "GET" && hasBracket(endpoint)) return "Get";
-  if (requestMethod === "GET" && !hasBracket(endpoint)) return "Get All";
-  if (requestMethod === "PUT") return "Update";
-  if (requestMethod === "DELETE") return "Delete";
-  if (requestMethod === "POST") return "Create";
+//   if (requestMethod === "GET" && hasBracket(endpoint)) return "Get";
+//   if (requestMethod === "GET" && !hasBracket(endpoint)) return "Get All";
+//   if (requestMethod === "PUT") return "Update";
+//   if (requestMethod === "DELETE") return "Delete";
+//   if (requestMethod === "POST") return "Create";
 
-  return "Unknown";
-};
+//   return "Unknown";
+// };
 
-Object.entries(mainParams).forEach(([resource, operations]) => {
-  apiMap[resource] = operations.map(({ requestMethod, endpoint }) => {
-    const result: { [key: string]: any } = {};
+// Object.entries(mainParams).forEach(([resource, operations]) => {
+//   apiMap[resource] = operations.map(({ requestMethod, endpoint }) => {
+//     const result: { [key: string]: any } = {};
 
-    if (addIrregularMarkers && /}\//.test(endpoint))
-      result["ATTENTION"] = "-".repeat(40);
+//     if (addIrregularMarkers && /}\//.test(endpoint))
+//       result["ATTENTION"] = "-".repeat(40);
 
-    result.nodeOperation = derivenodeOperation(requestMethod, endpoint);
-    result.requestMethod = requestMethod;
-    result.endpoint = endpoint;
+//     result.nodeOperation = derivenodeOperation(requestMethod, endpoint);
+//     result.requestMethod = requestMethod;
+//     result.endpoint = endpoint;
 
-    if (addIrregularMarkers && /}\//.test(endpoint))
-      result["IRREGULAR"] = "-".repeat(40);
+//     if (addIrregularMarkers && /}\//.test(endpoint))
+//       result["IRREGULAR"] = "-".repeat(40);
 
-    return result as ApiMapOperation;
-  });
-});
+//     return result as ApiMapOperation;
+//   });
+// });
 
-Object.entries(apiMap).forEach(([resource, operations]) => {
-  apiMap[resource] = sortBy(
-    operations,
-    (operation: ApiMapOperation) => operation.nodeOperation
-  );
-});
+// Object.entries(apiMap).forEach(([resource, operations]) => {
+//   apiMap[resource] = sortBy(
+//     operations,
+//     (operation: ApiMapOperation) => operation.nodeOperation
+//   );
+// });
 
-const printer = new FilePrinter(apiMap);
-printer.print({ format: "json" });
-console.log("Successfully printed API map");
+// const printer = new FilePrinter(apiMap);
+// printer.print({ format: "json" });
+// console.log("Successfully printed API map");
 
-// console.log(apiMap);
+// // console.log(apiMap);

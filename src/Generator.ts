@@ -4,7 +4,6 @@ import { join } from "path";
 
 export default class Generator {
   private mainParams: MainParams;
-  private source: GenerationSource;
 
   private inputDir = join("src", "input");
   private outputDir = join("src", "output", "descriptions");
@@ -12,8 +11,7 @@ export default class Generator {
   private resourceJson = join(this.inputDir, "_resource.json");
   private hygen = join("node_modules", "hygen", "dist", "bin.js");
 
-  constructor(source: GenerationSource, mainParams: MainParams) {
-    this.source = source;
+  constructor(mainParams: MainParams) {
     this.mainParams = mainParams;
   }
 
@@ -49,7 +47,7 @@ export default class Generator {
   }
 
   private generateRegularNodeFile() {
-    this.executeCommand(`make regularNodeFile --source=${this.source}`);
+    this.executeCommand("make regularNodeFile");
   }
 
   /**For every resource in main params, generates a resource JSON file, feeds it into

@@ -6,7 +6,7 @@ metaParams:
   nodeColor: \#ff6600
 mainParams:
   Customer:
-    - endpoint: /customers
+    - endpoint: /customers/{customerId}/order/{orderId}
       requestMethod: POST
       operationId: create
       requestBody:
@@ -16,8 +16,12 @@ mainParams:
         is_real: boolean|Whether the customer is real.
         gstin: string|GSTIN of the customer.
       queryString:
-        is_historical: true|Whether it is historical.
+        is_historical: boolean|Whether it is historical.
         nickname: string|Nickname of customer.
+      additionalFields:
+        queryString:
+          is_perfect: boolean|Whether it is perfect.
+          ideas: string|Ideas of whatever.
     - endpoint: /customers
       requestMethod: PUT
       operationId: update

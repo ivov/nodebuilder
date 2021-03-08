@@ -167,6 +167,9 @@ interface YamlOperation {
   [key: string]: {
     [key: string]: string | boolean | { type: string; description?: string };
   };
+  operationId: string;
+  requestMethod: string;
+  endpoint: string;
   queryString?: {
     [key: string]: { type: string; description?: string };
   };
@@ -177,10 +180,12 @@ interface YamlOperation {
       | { type: string; description?: string }
       | undefined;
   };
-  parameters?: Array<{
-    in: "query" | "path";
-    name: string;
-    description?: string;
-    schema: { type: string };
-  }>;
+  additionalFields?: {
+    [key: string]:
+      | YamlOperation["queryString"]
+      | YamlOperation["requestBody"]
+      | undefined;
+    queryString?: YamlOperation["queryString"];
+    requestBody?: YamlOperation["requestBody"];
+  };
 }

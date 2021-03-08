@@ -1,7 +1,7 @@
 ---
 to: src/output/<%= pascalCase(metaParams.serviceName) %>.node.ts
 ---
-<%_ const builder = new Builder(mainParams, metaParams, source); _%>
+<%_ const builder = new Builder(mainParams, metaParams); _%>
 <%_ const helper = new Helper(); _%>
 import {
 	IExecuteFunctions,
@@ -73,7 +73,7 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 		let responseData: any;
 
 		for (let i = 0; i < items.length; i++) {
-			<%_ const resourceTuples = source === 'OpenAPI' ? builder.resourceTuples : 'YAML' _%>
+
 			<%_ builder.resourceTuples.forEach(([resourceName, operationsArray]) => { %>
 			<%- builder.resourceBranch(resourceName); %>
 

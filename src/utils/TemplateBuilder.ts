@@ -1,9 +1,5 @@
 import { camelCase } from "change-case";
-import {
-  ApiCallBuilder,
-  ApiCallBuilderFromOpenAPI,
-  ApiCallBuilderFromYAML,
-} from "./ApiCallBuilder";
+import { ApiCallBuilder } from "./ApiCallBuilder";
 import { DividerBuilder } from "./DividerBuilder";
 import { BranchBuilder } from "./BranchBuilder";
 
@@ -12,26 +8,16 @@ export class Builder {
   resourceNames: string[];
   serviceApiRequest: string;
 
-  source: GenerationSource;
-
   apiCallBuilder: ApiCallBuilder;
   dividerBuilder: DividerBuilder;
   branchBuilder: BranchBuilder;
 
-  constructor(
-    mainParams: MainParams,
-    { serviceName }: MetaParams,
-    source: GenerationSource
-  ) {
+  constructor(mainParams: MainParams, { serviceName }: MetaParams) {
     this.resourceTuples = Object.entries(mainParams);
     this.resourceNames = Object.keys(mainParams);
     this.serviceApiRequest = camelCase(serviceName) + "ApiRequest";
 
-    this.apiCallBuilder =
-      source === "OpenAPI"
-        ? new ApiCallBuilderFromOpenAPI(this.serviceApiRequest)
-        : new ApiCallBuilderFromYAML(this.serviceApiRequest);
-
+    this.apiCallBuilder = new ApiCallBuilder(this.serviceApiRequest);
     this.dividerBuilder = new DividerBuilder();
     this.branchBuilder = new BranchBuilder(mainParams);
   }

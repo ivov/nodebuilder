@@ -20,38 +20,33 @@ export class ApiCallBuilder {
   }: Operation) {
     this.resetState();
 
-    if (additionalFields) {
-      this._additionalFields = additionalFields;
-    }
+    const pathParams = parameters?.filter((p) => this.isPathParam(p));
+    const qsParams = parameters?.filter((p) => this.isQsParam(p));
 
-    if (parameters?.some((param) => this.isQsParam(param))) {
-      this.hasQueryString = true;
-      this.qsDeclaration();
-    }
-
-    if (parameters) {
-      parameters.forEach((param) => {
-        if (this.isPathParam(param)) {
-          this.hasPathParam = true;
-          this.pathParam(param);
-        }
-
-        if (this.isQsParam(param)) {
-          this.qsParam(param);
-          if (additionalFields) {
-            this.additionalFields("qs");
-          }
-        }
-      });
+    if (pathParams) {
+      this.hasPathParam = true;
+      pathParams.forEach((p) => this.pathParam(p));
+      this.addNewLine(this.lines);
     }
 
     if (requestBody) {
       this.hasRequestBody = true;
-      this.requestBodyDeclaration();
-      this.requestBodyComponents(requestBody);
-      if (additionalFields) {
-        this.additionalFields("body");
-      }
+      this.requestBody(requestBody);
+    }
+
+    if (qsParams) {
+      this.hasQueryString = true;
+      this.qs(qsParams);
+    }
+
+    if (additionalFields) {
+      this._additionalFields = additionalFields;
+
+      const qsOptions = additionalFields.options.filter(
+        (o) => o.in === "query"
+      );
+
+      if (qsOptions) this.additionalFields("qs");
     }
 
     this.endpoint(endpoint);
@@ -88,37 +83,43 @@ export class ApiCallBuilder {
     this.lines.push(`const ${name} = this.getNodeParameter('${name}', i);`);
   }
 
-  qsDeclaration() {
-    this.lines.push(`const qs: IDataObject = {};`);
+  qs(qsParams: OperationParameter[]) {
+    this.lines.push("const qs: IDataObject = {");
+
+    this.lines.push(
+      ...qsParams.map(
+        (qsp) => `\t${qsp.name}: this.getNodeParameter('${qsp.name}', i),`
+      )
+    );
+
+    this.lines.push("};");
+    this.addNewLine(this.lines);
   }
 
   qsParam({ name }: OperationParameter) {
     this.lines.push(`qs.${name} = this.getNodeParameter('${name}', i);`);
   }
 
-  isPathParam = (param: OperationParameter) => {
-    return param.in === "path";
-  };
+  isPathParam = (param: OperationParameter) => param.in === "path";
 
   isQsParam = (param: OperationParameter) => param.in === "query";
 
   // ------------------ request body ------------------
 
-  requestBodyDeclaration() {
-    this.lines.push(`const body: IDataObject = {};`);
-  }
-
-  requestBodyComponents(requestBody: OperationRequestBody) {
+  requestBody(requestBody: OperationRequestBody) {
     const bodyComponents = this.getBodyComponents(requestBody);
     if (!bodyComponents) return;
 
-    const bodyComponentLines = bodyComponents.map(
-      (rbc) => `body.${rbc} = this.getNodeParameter('${rbc}', i);`
+    this.lines.push("const body: IDataObject = {");
+
+    this.lines.push(
+      ...bodyComponents.map(
+        (rbc) => `\t${rbc}: this.getNodeParameter('${rbc}', i),`
+      )
     );
 
-    this.addNewLine(bodyComponentLines);
-
-    this.lines.push(...bodyComponentLines);
+    this.lines.push("};");
+    this.addNewLine(this.lines);
   }
 
   addNewLine = (array: string[]) => (array[array.length - 1] += "\n");
@@ -157,17 +158,20 @@ export class ApiCallBuilder {
 
   // ------------------ additional fields -------------------
 
-  additionalFields(target = "qs") {
-    const afDeclarationLine = `const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;`;
-    const afLoadLines = this._additionalFields.options.map((option) => {
-      const loading = `${target}.${option.name} = additionalFields.${option.name}`;
-      const casting = `as ${this.adjustType(option.type)};`;
-      return [loading, casting].join(" ");
-    });
+  additionalFields(target: "body" | "qs") {
+    const addFieldsLine1 = `const additionalFields: IDataObject = this.getNodeParameter('additionalFields', i);\n`;
+    const addFieldsLine2 = "if (Object.keys(additionalFields).length) {";
+    const addFieldsLine3 = `\tObject.assign(${target}, additionalFields)`;
+    const addFieldsLine4 = "};";
 
-    this.addNewLine(afLoadLines);
+    this.lines.push(
+      addFieldsLine1,
+      addFieldsLine2,
+      addFieldsLine3,
+      addFieldsLine4
+    );
 
-    this.lines.push(afDeclarationLine, ...afLoadLines);
+    this.addNewLine(this.lines);
   }
 
   adjustType = (type: string) => (type === "integer" ? "number" : type);
@@ -202,18 +206,5 @@ export class ApiCallBuilder {
     const args = `(this, '${requestMethod}', endpoint, ${body}, ${qs});`;
 
     return call + args;
-  }
-}
-
-export class ApiCallBuilderFromOpenAPI extends ApiCallBuilder {}
-
-export class ApiCallBuilderFromYAML extends ApiCallBuilder {
-  endpoint(endpoint: string) {
-    const hasPathParam = (endpoint: string) => endpoint.split("").includes("{");
-    this.lines.push(
-      hasPathParam(endpoint)
-        ? this.pathParamEndpoint(endpoint)
-        : this.ordinaryEndpoint(endpoint)
-    );
   }
 }
