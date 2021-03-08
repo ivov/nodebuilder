@@ -24,6 +24,11 @@ export class ApiCallBuilder {
       this._additionalFields = additionalFields;
     }
 
+    if (parameters?.some((param) => this.isQsParam(param))) {
+      this.hasQueryString = true;
+      this.qsDeclaration();
+    }
+
     if (parameters) {
       parameters.forEach((param) => {
         if (this.isPathParam(param)) {
@@ -32,8 +37,6 @@ export class ApiCallBuilder {
         }
 
         if (this.isQsParam(param)) {
-          this.hasQueryString = true;
-          this.qsDeclaration();
           this.qsParam(param);
           if (additionalFields) {
             this.additionalFields("qs");
