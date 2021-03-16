@@ -167,9 +167,9 @@ interface YamlOperation {
   [key: string]: {
     [key: string]:
       | string
-      | boolean
       | { type: string; description?: string }
-      | YamlOperation["additionalFields"];
+      | { queryString: { type: string; description?: string } }
+      | { requestBody: { type: string; description?: string } };
   };
   operationId: string;
   requestMethod: string;
@@ -178,17 +178,9 @@ interface YamlOperation {
     [key: string]: { type: string; description?: string };
   };
   requestBody?: {
-    [key: string]:
-      | string
-      | boolean
-      | { type: string; description?: string }
-      | undefined;
+    [key: string]: { type: string; description?: string };
   };
   additionalFields?: {
-    [key: string]:
-      | YamlOperation["queryString"]
-      | YamlOperation["requestBody"]
-      | undefined;
     queryString?: YamlOperation["queryString"];
     requestBody?: YamlOperation["requestBody"];
   };
