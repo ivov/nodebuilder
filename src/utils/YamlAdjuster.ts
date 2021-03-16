@@ -15,7 +15,7 @@ export default class YamlAdjuster {
   }
 
   public run() {
-    this.adjustInputTypeAndDescription();
+    this.adjustInputParams();
     // TODO this.adjustObjectType() for `object:`
     console.log(JSON.stringify(this.inputMainParams, null, 2));
     this.prepareOutputParams();
@@ -30,7 +30,9 @@ export default class YamlAdjuster {
     });
   }
 
-  private iterateOverInputOperations(callback: Function) {
+  private iterateOverInputOperations(
+    callback: (inputOperation: YamlOperation) => void
+  ) {
     Object.keys(this.inputMainParams).forEach((resource) => {
       this.currentResource = resource;
       this.inputMainParams[resource].forEach((inputOperation) => {
@@ -39,47 +41,41 @@ export default class YamlAdjuster {
     });
   }
 
-  /**
-   * Adjust YAML-derived object by splitting by splitting string values that contain
-   * a vertical bar `|` into `type` and `description` properties.
-   */
-  private adjustInputTypeAndDescription() {
+  private adjustInputParams() {
     this.iterateOverInputOperations((inputOperation: YamlOperation) => {
       this.nestingProperties.forEach((property) => {
         if (!inputOperation[property]) return;
 
         Object.entries(inputOperation[property]).forEach(([key, value]) => {
           if (this.isTraversableObject(value)) {
-            // TODO: refactor to remove duplication ------------------
-            const traversableObject = value as object; // TODO: Type properly
-            const topLevelValue = inputOperation[property][key];
+            const nestedObject = inputOperation[property][key];
 
-            Object.entries(traversableObject).forEach(([trKey, trValue]) => {
-              if (typeof trValue === "string") {
-                if (trValue.includes("|")) {
-                  const [type, description] = trValue.split("|");
-                  // @ts-ignore
-                  topLevelValue[trKey] = { type, description };
-                } else {
-                  // @ts-ignore
-                  topLevelValue[trKey] = { type: trValue };
-                }
-              }
+            // TODO: Type properly
+            Object.keys(value as object).forEach((trKey) => {
+              this.adjustVerticalBar(value, nestedObject, trKey);
             });
-            // ---------------------------------------------------
           }
 
-          if (typeof value === "string") {
-            if (value.includes("|")) {
-              const [type, description] = value.split("|");
-              inputOperation[property][key] = { type, description };
-            } else {
-              inputOperation[property][key] = { type: value };
-            }
-          }
+          this.adjustVerticalBar(value, inputOperation[property], key);
         });
       });
     });
+  }
+
+  /**
+   * Adjust YAML-derived object by splitting by splitting string values that contain
+   * a vertical bar `|` into `type` and `description` properties.
+   */
+  // TODO: Type properly
+  private adjustVerticalBar(value: any, propertyToSet: any, key: string) {
+    if (typeof value === "string") {
+      if (value.includes("|")) {
+        const [type, description] = value.split("|");
+        propertyToSet[key] = { type, description };
+      } else {
+        propertyToSet[key] = { type: value };
+      }
+    }
   }
 
   private isTraversableObject(
