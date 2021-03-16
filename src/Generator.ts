@@ -54,30 +54,29 @@ export default class Generator {
    * the Hygen template for code generation and deletes the resource JSON file.*/
   private generateResourceDescriptions() {
     // TEMP: only first resource -----------------------------
-    const firstResourceName = Object.keys(this.mainParams)[0];
-    this.saveResourceJson(
-      firstResourceName,
-      this.mainParams[firstResourceName]
-    );
+    // const firstResourceName = Object.keys(this.mainParams)[0];
+    // this.saveResourceJson(
+    //   firstResourceName,
+    //   this.mainParams[firstResourceName]
+    // );
 
-    this.executeCommand("make resourceDescription");
+    // this.executeCommand("make resourceDescription");
 
-    const resourceNames = Object.keys(this.mainParams);
-    this.executeCommand(`make resourceIndex --resourceNames ${resourceNames}`);
-    unlinkSync(this.resourceJson);
+    // const resourceNames = Object.keys(this.mainParams);
+    // this.executeCommand(`make resourceIndex --resourceNames ${resourceNames}`);
+    // unlinkSync(this.resourceJson);
     // TEMP -------------------------------------------
 
     // FINAL VERSION: ALL RESOURCES
-    // Object.entries(this.mainParams).forEach(
-    //   ([resourceName, operationsArray]) => {
-    //     this.saveResourceJson(resourceName, operationsArray);
-    //     this.executeCommand("make generateResourceDescription");
-    //     unlinkSync(this.resourceJson);
-    //   }
-    // );
-    // this.executeCommand(
-    //   `make resourceIndex --resourceNames ${resourceNames}`
-    // );
+    const resourceNames = Object.keys(this.mainParams);
+    Object.entries(this.mainParams).forEach(
+      ([resourceName, operationsArray]) => {
+        this.saveResourceJson(resourceName, operationsArray);
+        this.executeCommand("make resourceDescription");
+        unlinkSync(this.resourceJson);
+      }
+    );
+    this.executeCommand(`make resourceIndex --resourceNames ${resourceNames}`);
   }
 
   private createInputOutputDirs() {
