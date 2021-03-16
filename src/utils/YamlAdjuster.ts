@@ -50,14 +50,19 @@ export default class YamlAdjuster {
 
         Object.entries(inputOperation[property]).forEach(([key, value]) => {
           if (this.isTraversableObject(value)) {
-            // TODO: refactor to use recusion ------------------
-            Object.entries(value as object).forEach(([key, value]) => {
-              if (typeof value === "string") {
-                if (value.includes("|")) {
-                  const [type, description] = value.split("|");
-                  inputOperation[property][key] = { type, description };
+            // TODO: refactor to remove duplication ------------------
+            const traversableObject = value as object; // TODO: Type properly
+            const topLevelValue = inputOperation[property][key];
+
+            Object.entries(traversableObject).forEach(([trKey, trValue]) => {
+              if (typeof trValue === "string") {
+                if (trValue.includes("|")) {
+                  const [type, description] = trValue.split("|");
+                  // @ts-ignore
+                  topLevelValue[trKey] = { type, description };
                 } else {
-                  inputOperation[property][key] = { type: value };
+                  // @ts-ignore
+                  topLevelValue[trKey] = { type: trValue };
                 }
               }
             });
