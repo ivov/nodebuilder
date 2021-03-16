@@ -165,7 +165,11 @@ interface YamlMainParams {
 
 interface YamlOperation {
   [key: string]: {
-    [key: string]: string | boolean | { type: string; description?: string };
+    [key: string]:
+      | string
+      | boolean
+      | { type: string; description?: string }
+      | YamlOperation["additionalFields"];
   };
   operationId: string;
   requestMethod: string;
