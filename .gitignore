@@ -8,6 +8,8 @@ src/input/*
 !src/input/lichess.json
 !src/input/razorpay.yaml
 
+output.json
+
 src/output/*
 !src/output/.gitkeep
 
