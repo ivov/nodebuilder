@@ -3,13 +3,7 @@ import { writeFileSync } from "fs";
 export default class YamlAdjuster {
   private inputMainParams: YamlMainParams;
   private outputMainParams: MainParams = {};
-  private nestingProperties = [
-    "queryString",
-    "requestBody",
-    "additionalFields",
-    "filters",
-    "updateFields",
-  ];
+  private mainFields = ["endpoint", "operationId", "requestMethod"];
   private currentResource = "";
 
   constructor(inputMainParams: YamlMainParams) {
@@ -18,10 +12,7 @@ export default class YamlAdjuster {
 
   public run() {
     this.adjustInputParams();
-    // TODO this.adjustObjectType() for `object:`
-    // TODO this.adjustObjectType() for `array:`
-    // console.log(JSON.stringify(this.inputMainParams, null, 2));
-    // @ts-ignore
+    // TODO this.adjustObjectType() for `array`
     writeFileSync(
       "output.json",
       JSON.stringify(this.inputMainParams, null, 2),
@@ -39,56 +30,46 @@ export default class YamlAdjuster {
     });
   }
 
+  private adjustInputParams() {
+    this.iterateOverInputOperations((operation: YamlOperation) => {
+      this.traverseYaml(operation);
+    });
+  }
+
   private iterateOverInputOperations(
-    callback: (inputOperation: YamlOperation) => void
+    callback: (operation: YamlOperation) => void
   ) {
     Object.keys(this.inputMainParams).forEach((resource) => {
       this.currentResource = resource;
-      this.inputMainParams[resource].forEach((inputOperation) => {
-        callback(inputOperation);
+      this.inputMainParams[resource].forEach((operation) => {
+        callback(operation);
       });
     });
   }
 
-  private adjustInputParams() {
-    this.iterateOverInputOperations((inputOperation: YamlOperation) => {
-      this.nestingProperties.forEach((property) => {
-        if (!inputOperation[property]) return;
-
-        Object.entries(inputOperation[property]).forEach(([key, value]) => {
-          if (this.isTraversableObject(value)) {
-            const nestedObject = inputOperation[property][key];
-
-            // TODO: Type properly
-            Object.keys(value as object).forEach((trKey) => {
-              this.splitAtVerticalBar(value, nestedObject, trKey);
-            });
-          }
-
-          this.splitAtVerticalBar(value, inputOperation[property], key);
-        });
-      });
-    });
-  }
-
-  /**
-   * Splitting string values that contain a vertical bar `|` into `type` and `description` properties.
-   */
-  // TODO: Type properly
-  private splitAtVerticalBar(value: any, propertyToSet: any, key: string) {
-    if (typeof value === "string") {
-      if (value.includes("|")) {
-        const [type, description] = value.split("|");
-        propertyToSet[key] = { type, description };
-      } else {
-        propertyToSet[key] = { type: value };
+  // TODO: Type arg properly
+  private traverseYaml(object: { [key: string]: any }) {
+    Object.keys(object).forEach((key) => {
+      if (this.isTraversable(object[key])) {
+        return this.traverseYaml(object[key]);
       }
-    }
+
+      if (this.mainFields.includes(key)) return;
+
+      object[key] = this.splitAtSeparator(object[key]);
+    });
   }
 
-  private isTraversableObject(
-    value: any
-  ): value is YamlOperation["additionalFields"] {
+  private splitAtSeparator(value: string) {
+    if (value.includes("|")) {
+      const [type, description] = value.split("|");
+      return { type, description };
+    }
+
+    return { type: value };
+  }
+
+  private isTraversable(value: unknown) {
     return (
       value &&
       typeof value === "object" &&

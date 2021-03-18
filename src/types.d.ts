@@ -172,6 +172,8 @@ interface YamlOperation {
       | { type: string; description?: string }
       | { queryString: { type: string; description?: string } }
       | { requestBody: { type: string; description?: string } };
+    // | { filters: { [key: string]: string }}
+    // | { updateFields: { [key: string]: string }};
   };
   operationId: string;
   requestMethod: string;
@@ -185,5 +187,11 @@ interface YamlOperation {
   additionalFields?: {
     queryString?: YamlOperation["queryString"];
     requestBody?: YamlOperation["requestBody"];
+  };
+  filters?: {
+    [key: string]: string;
+  };
+  updateFields?: {
+    [key: string]: string;
   };
 }
