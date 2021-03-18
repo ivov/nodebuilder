@@ -32,7 +32,7 @@ export default class YamlAdjuster {
 
   private adjustInputParams() {
     this.iterateOverInputOperations((operation: YamlOperation) => {
-      this.traverseYaml(operation);
+      this.traverse(operation);
     });
   }
 
@@ -48,11 +48,13 @@ export default class YamlAdjuster {
   }
 
   // TODO: Type arg properly
-  private traverseYaml(object: { [key: string]: any }) {
+  private traverse(object: { [key: string]: any }) {
     Object.keys(object).forEach((key) => {
-      if (this.isTraversable(object[key])) {
-        return this.traverseYaml(object[key]);
+      if (Array.isArray(object[key])) {
+        object[key].forEach((item: object) => this.traverse(item));
       }
+
+      if (this.isTraversable(object[key])) return this.traverse(object[key]);
 
       if (this.mainFields.includes(key)) return;
 
@@ -60,13 +62,17 @@ export default class YamlAdjuster {
     });
   }
 
-  private splitAtSeparator(value: string) {
-    if (value.includes("|")) {
-      const [type, description] = value.split("|");
-      return { type, description };
+  private splitAtSeparator(value: string | object[]) {
+    if (typeof value === "string") {
+      if (value.includes("|")) {
+        const [type, description] = value.split("|");
+        return { type, description };
+      }
+
+      return { type: value };
     }
 
-    return { type: value };
+    if (Array.isArray(value)) return value;
   }
 
   private isTraversable(value: unknown) {
