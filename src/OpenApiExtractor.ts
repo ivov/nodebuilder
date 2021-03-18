@@ -191,7 +191,9 @@ export default class OpenApiExtractor {
         : additionalFields.options.push({
             in: field.in,
             name: field.name,
-            type: field.schema.type,
+            schema: {
+              type: field.schema.type,
+            },
             default: this.getDefault(field.schema),
             description: field.description,
           });

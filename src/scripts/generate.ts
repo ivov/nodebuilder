@@ -15,7 +15,7 @@ try {
     new FilePrinter(nodegenParams).print({ format: "json" });
     new Generator(nodegenParams.mainParams).run();
   } else if (source === "YAML") {
-    const yamlFilePath = join("src", "input", "copper2.yaml");
+    const yamlFilePath = join("src", "input", "copper.yaml");
     const yamlParams = yaml.load(readFileSync(yamlFilePath, "utf-8")) as {
       mainParams: YamlMainParams;
       metaParams: MetaParams;

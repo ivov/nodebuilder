@@ -88,7 +88,9 @@ interface AdditionalFields {
   options: {
     in: "path" | "query";
     name: string;
-    type: string;
+    schema: {
+      type: string;
+    };
     default: string | boolean | number;
     description?: string;
   }[];
