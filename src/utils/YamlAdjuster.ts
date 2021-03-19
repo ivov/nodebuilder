@@ -3,7 +3,12 @@ import { writeFileSync } from "fs";
 export default class YamlAdjuster {
   private inputMainParams: YamlMainParams;
   private outputMainParams: MainParams = {};
-  private mainFields = ["endpoint", "operationId", "requestMethod"];
+  private mainFields = [
+    "endpoint",
+    "operationId",
+    "operationUrl",
+    "requestMethod",
+  ];
   private currentResource = "";
 
   constructor(inputMainParams: YamlMainParams) {
@@ -11,16 +16,24 @@ export default class YamlAdjuster {
   }
 
   public run() {
+    const printOutput = (type: string) =>
+      writeFileSync(
+        `${type}-output.json`,
+        JSON.stringify(
+          type === "intermediate"
+            ? this.inputMainParams
+            : this.outputMainParams,
+          null,
+          2
+        ),
+        "utf8"
+      ); // TEMP
+
     this.adjustInputParams();
-    // TODO this.adjustObjectType() for `array`
-    writeFileSync(
-      "output.json",
-      JSON.stringify(this.inputMainParams, null, 2),
-      "utf8"
-    );
+    printOutput("intermediate"); // TEMP
     this.prepareOutputParams();
     this.populateOutputParams();
-    // console.log(JSON.stringify(this.outputMainParams, null, 2));
+    printOutput("final"); // TEMP
     return this.outputMainParams;
   }
 
@@ -50,14 +63,23 @@ export default class YamlAdjuster {
   // TODO: Type arg properly
   private traverse(object: { [key: string]: any }) {
     Object.keys(object).forEach((key) => {
-      if (Array.isArray(object[key])) {
-        object[key].forEach((item: object) => this.traverse(item));
+      if (Array.isArray(object[key]) && object[key].length) {
+        // base case: string[]
+        if (typeof object[key][0] === "string") {
+          object[key].forEach(
+            (item: string) => (object[key] = this.splitAtSeparator(item))
+          );
+        } else {
+          // recursive case: object[]
+          object[key].forEach((item: object) => this.traverse(item));
+        }
       }
 
+      // recursive case: traversable object
       if (this.isTraversable(object[key])) return this.traverse(object[key]);
 
+      // base case: string
       if (this.mainFields.includes(key)) return;
-
       object[key] = this.splitAtSeparator(object[key]);
     });
   }
@@ -109,12 +131,15 @@ export default class YamlAdjuster {
     endpoint,
     requestMethod,
     operationId,
+    operationUrl,
   }: YamlOperation): Operation {
-    return {
+    const operation: Operation = {
       endpoint,
       requestMethod,
       operationId,
     };
+    if (operationUrl) operation.operationUrl = operationUrl;
+    return operation;
   }
 
   private getPathParams({ endpoint }: YamlOperation) {

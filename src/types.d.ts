@@ -33,6 +33,7 @@ interface Operation {
     | OperationRequestBody
     | AdditionalFields;
   operationId: string;
+  operationUrl?: string;
   requestMethod: string;
   endpoint: string;
   description?: string;
@@ -166,16 +167,17 @@ interface YamlMainParams {
 }
 
 interface YamlOperation {
-  [key: string]: {
-    [key: string]:
-      | string
-      | { type: string; description?: string }
-      | { queryString: { type: string; description?: string } }
-      | { requestBody: { type: string; description?: string } };
-    // | { filters: { [key: string]: string }}
-    // | { updateFields: { [key: string]: string }};
-  };
+  // [key: string]: {
+  //   [key: string]:
+  //     | string
+  //     | { type: string; description?: string }
+  //     | { queryString: { type: string; description?: string } }
+  //     | { requestBody: { type: string; description?: string } };
+  //   // | { filters: { [key: string]: string }}
+  //   // | { updateFields: { [key: string]: string }};
+  // };
   operationId: string;
+  operationUrl: string;
   requestMethod: string;
   endpoint: string;
   queryString?: {
