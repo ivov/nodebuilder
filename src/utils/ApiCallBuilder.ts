@@ -29,7 +29,7 @@ export class ApiCallBuilder {
       this.addNewLine(this.lines);
     }
 
-    if (requestBody) {
+    if (requestBody && !Array.isArray(requestBody)) {
       this.hasRequestBody = true;
       this.requestBody(requestBody);
     }

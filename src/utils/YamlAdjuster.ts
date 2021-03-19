@@ -107,21 +107,38 @@ export default class YamlAdjuster {
   }
 
   private populateOutputParams() {
-    this.iterateOverInputOperations((operation: YamlOperation) => {
-      const outputOperation = this.getOperation(operation);
+    this.iterateOverInputOperations((yamlOperation: YamlOperation) => {
+      const outputOperation = this.getOperation(yamlOperation);
 
-      const pathParams = this.getPathParams(operation);
-      const qsParams = this.getQsParams(operation, { required: true });
-      const requestBody = this.getRequestBody(operation, { required: true });
-      const additionalFields = this.getAdditionalFields(operation);
+      const pathParams = this.getPathParams(yamlOperation.endpoint);
+      const qsParams = this.getQsParams(yamlOperation.queryString, {
+        required: true,
+      });
+
+      const qsAddFields = this.getQsAdditionalFields(
+        yamlOperation.additionalFields
+      );
+
+      const requestBody = this.getRequestBody(yamlOperation.requestBody, {
+        required: true,
+      });
+
+      const rbAdditionalFields = this.getAddFieldsRequestbody(yamlOperation);
 
       // TODO: get and set filters
       // TODO: get and set updateFields
 
       if (pathParams) outputOperation.parameters = pathParams;
+
       if (qsParams) outputOperation.parameters = qsParams;
-      if (requestBody) outputOperation.requestBody = requestBody;
-      if (additionalFields) outputOperation.additionalFields = additionalFields;
+      if (qsAddFields) outputOperation.additionalFields = qsAddFields;
+
+      if (requestBody || rbAdditionalFields) {
+        outputOperation.requestBody = [];
+        if (requestBody) outputOperation.requestBody.push(requestBody);
+        if (rbAdditionalFields)
+          outputOperation.requestBody.push(rbAdditionalFields);
+      }
 
       this.outputMainParams[this.currentResource].push(outputOperation);
     });
@@ -142,7 +159,7 @@ export default class YamlAdjuster {
     return operation;
   }
 
-  private getPathParams({ endpoint }: YamlOperation) {
+  private getPathParams(endpoint: string) {
     if (!endpoint.match(/\{/)) return;
 
     const pathParams = endpoint.match(/(?<={)(.*?)(?=})/g);
@@ -164,7 +181,7 @@ export default class YamlAdjuster {
   }
 
   private getQsParams(
-    { queryString }: YamlOperation,
+    queryString: YamlOperation["queryString"],
     { required }: { required: boolean }
   ) {
     if (!queryString) return null;
@@ -198,13 +215,13 @@ export default class YamlAdjuster {
   }
 
   private getRequestBody(
-    { requestBody }: YamlOperation,
+    requestBody: YamlOperation["requestBody"],
     { required }: { required: boolean }
   ) {
     if (!requestBody) return null;
 
     const outputRequestBody: OperationRequestBody = {
-      // TODO: add other MIME types
+      // TODO: add other types: `multipart/form-data` and `text/plain`
       required,
       content: {
         "application/x-www-form-urlencoded": {
@@ -225,12 +242,12 @@ export default class YamlAdjuster {
     return outputRequestBody;
   }
 
-  private getAdditionalFields(operation: YamlOperation) {
-    const { additionalFields } = operation;
+  private getQsAdditionalFields(
+    additionalFields: YamlOperation["additionalFields"]
+  ) {
+    if (!additionalFields) return null;
 
-    if (!additionalFields) return;
-
-    const outputAddFields: AdditionalFields = {
+    const outputAddFieldsQs: AdditionalFields = {
       name: "Additional Fields",
       type: "collection",
       description: "",
@@ -238,23 +255,28 @@ export default class YamlAdjuster {
       options: [],
     };
 
-    const qsAddFields = additionalFields["queryString"];
+    const addFieldsQs = additionalFields["queryString"];
 
-    if (qsAddFields) {
-      Object.entries(qsAddFields).forEach(([key, value]) =>
-        outputAddFields.options.push(
+    if (addFieldsQs) {
+      Object.entries(addFieldsQs).forEach(([key, value]) =>
+        outputAddFieldsQs.options.push(
           this.openApiQsParam(key, value, { required: false })
         )
       );
     }
 
-    // TODO: additional fields for requestBody
-    // else if (rbAddFields) {
-    //   outputAdditionalFields.options.push(
-    //     this.getRequestBody(operation, { required: false })
-    //   );
-    // }
+    return outputAddFieldsQs.options.length ? outputAddFieldsQs : null;
+  }
 
-    return outputAddFields;
+  private getAddFieldsRequestbody(operation: YamlOperation) {
+    const { additionalFields } = operation;
+
+    if (!additionalFields) return null;
+
+    const addFieldsRb = additionalFields["requestBody"];
+
+    if (!addFieldsRb) return null;
+
+    return this.getRequestBody(addFieldsRb, { required: false });
   }
 }
