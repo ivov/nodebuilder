@@ -50,7 +50,7 @@ interface OperationParameter {
   description?: string;
   schema: {
     type: string;
-    default?: boolean | string | number | null;
+    default: boolean | string | number;
     example?: string | number;
     minimum?: number;
     maximum?: number;
@@ -61,6 +61,7 @@ interface OperationParameter {
 }
 
 interface OperationRequestBody {
+  name: "Standard" | "Additional Fields" | "Filter Fields" | "Update Fields"; // custom (not in OpenApi)
   content?: OperationRequestBodyContent | any; // TODO
   description?: string;
   required?: boolean;
@@ -84,7 +85,7 @@ interface Schema {
 }
 
 interface AdditionalFields {
-  name: "Additional Fields";
+  name: "Additional Fields" | "Filter Fields" | "Update Fields";
   type: "collection";
   description: "";
   default: {};
@@ -93,8 +94,8 @@ interface AdditionalFields {
     name: string;
     schema: {
       type: string;
+      default: string | boolean | number;
     };
-    default: string | boolean | number;
     description?: string;
   }[];
 }
@@ -164,6 +165,11 @@ type TreeView = string;
 //             YAML
 // ----------------------------------
 
+type YamlNodegenParams = {
+  metaParams: MetaParams;
+  mainParams: YamlMainParams;
+};
+
 interface YamlMainParams {
   [key: string]: YamlOperation[];
 }
@@ -182,20 +188,20 @@ interface YamlOperation {
   operationUrl: string;
   requestMethod: string;
   endpoint: string;
-  queryString?: {
-    [key: string]: { type: string; description?: string };
-  };
-  requestBody?: {
-    [key: string]: { type: string; description?: string };
-  };
-  additionalFields?: {
-    queryString?: YamlOperation["queryString"];
-    requestBody?: YamlOperation["requestBody"];
-  };
-  filters?: {
-    [key: string]: string;
-  };
-  updateFields?: {
-    [key: string]: string;
-  };
+  queryString?: NameTypeAndDescription;
+  requestBody?: NameTypeAndDescription;
+
+  additionalFields?: ExtraFields;
+  filterFields?: ExtraFields;
+  updateFields?: ExtraFields;
 }
+
+type ExtraFields = {
+  [key: string]: NameTypeAndDescription;
+  queryString?: NameTypeAndDescription;
+  requestBody?: NameTypeAndDescription;
+};
+
+type NameTypeAndDescription = {
+  [key: string]: { type: string; description?: string };
+};

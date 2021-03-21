@@ -53,3 +53,19 @@ export default class FilePrinter {
 function isNodegenParams(value: any): value is NodegenParams {
   return "metaParams" in value && "mainParams" in value;
 }
+
+export function printTranslation(yamlMainParams: YamlMainParams) {
+  writeFileSync(
+    "translation.json",
+    JSON.stringify(yamlMainParams, null, 2),
+    "utf8"
+  );
+}
+
+export function printStagedParams(mainParams: MainParams) {
+  writeFileSync(
+    "stagedParams.json",
+    JSON.stringify(mainParams, null, 2),
+    "utf8"
+  );
+}

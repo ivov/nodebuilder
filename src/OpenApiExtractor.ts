@@ -193,8 +193,8 @@ export default class OpenApiExtractor {
             name: field.name,
             schema: {
               type: field.schema.type,
+              default: this.getDefault(field.schema),
             },
-            default: this.getDefault(field.schema),
             description: field.description,
           });
     });

@@ -1,11 +1,8 @@
-import { readFileSync } from "fs";
-import yaml from "js-yaml";
-import { join } from "path";
-
 import OpenApiExtractor from "../OpenApiExtractor";
 import FilePrinter from "../utils/FilePrinter";
 import Generator from "../Generator";
-import YamlAdjuster from "../utils/YamlAdjuster";
+import YamlStager from "../utils/YamlStager";
+import YamlTranslator from "../utils/YamlTranslator";
 
 const source = "YAML" as GenerationSource;
 
@@ -15,16 +12,13 @@ try {
     new FilePrinter(nodegenParams).print({ format: "json" });
     new Generator(nodegenParams.mainParams).run();
   } else if (source === "YAML") {
-    const yamlFilePath = join("src", "input", "copper.yaml");
-    const yamlParams = yaml.load(readFileSync(yamlFilePath, "utf-8")) as {
-      mainParams: YamlMainParams;
-      metaParams: MetaParams;
-    };
+    const translation = new YamlTranslator().run();
+    new YamlStager(translation.mainParams).run();
 
-    const nodegenParams = {
-      metaParams: yamlParams.metaParams,
-      mainParams: new YamlAdjuster(yamlParams.mainParams).run(),
-    };
+    // const nodegenParams = {
+    //   metaParams: yamlParams.metaParams,
+    //   mainParams: new YamlAdjuster(yamlParams.mainParams).run(),
+    // };
 
     // new FilePrinter(nodegenParams).print({ format: "json" });
     // new Generator(nodegenParams.mainParams).run();
