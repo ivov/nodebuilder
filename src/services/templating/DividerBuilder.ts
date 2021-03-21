@@ -23,6 +23,8 @@ export class DividerBuilder {
    * // ----------------------------------------
    * //             user: getUser
    * // ----------------------------------------
+   *
+   * // https://api.service.com/api-docs-section
    * ```*/
   operationDivider(
     resourceName: string,
@@ -47,5 +49,22 @@ export class DividerBuilder {
     }
 
     return operationDivider.join("\n" + "\t".repeat(5));
+  }
+
+  resourceDescriptionDivider(resourceName: string, operationId: string) {
+    const OPERATION_DIVIDER_LENGTH = 40;
+
+    const title = `${resourceName}: ${operationId}`;
+    const padLengthCandidate = Math.floor(
+      (OPERATION_DIVIDER_LENGTH - title.length) / 2
+    );
+    const padLength = padLengthCandidate > 0 ? padLengthCandidate : 0;
+
+    const titleLine = "// " + " ".repeat(padLength) + title;
+    const dividerLine = "// " + "-".repeat(OPERATION_DIVIDER_LENGTH);
+
+    let resourceOperation = [dividerLine, titleLine, dividerLine];
+
+    return resourceOperation.join("\n" + "\t");
   }
 }

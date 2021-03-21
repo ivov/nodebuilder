@@ -46,6 +46,13 @@ export class Builder {
     );
   }
 
+  resourceDescriptionDivider(resourceName: string, operationId: string) {
+    return this.dividerBuilder.resourceDescriptionDivider(
+      resourceName,
+      operationId
+    );
+  }
+
   // BranchBuilder ------------------
 
   resourceBranch(resourceName: string) {
