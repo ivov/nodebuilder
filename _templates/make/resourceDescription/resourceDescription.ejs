@@ -75,27 +75,10 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	 * **********************
 	 */_%>
 	<%_ if (operation.requestBody) { _%>
-	<%_ Object.keys(operation.requestBody.content).forEach((mimeType) => { _%>
-	<%_ if (mimeType === "text/plain") { _%>
-	{
-		displayName: 'Text',
-		name: 'text',
-		description: '<%= operation.requestBody.description %>',
-		required: true,
-		default: '',
-		displayOptions: {
-			show: {
-				resource: [
-					'<%= helper.camelCase(resourceName); %>',
-				],
-				operation: [
-					'<%= helper.camelCase(operation.operationId); %>',
-				],
-			},
-		},
-	},
-	<%_ } else if (mimeType === "application/x-www-form-urlencoded") { _%>
-	<%_ const schema = operation.requestBody.content[mimeType].schema; _%>
+	<%_ operation.requestBody.forEach((rbItem) => { _%>
+	<%_ Object.keys(rbItem.content).forEach((mimeType) => { _%>
+	<%_ if (mimeType === "application/x-www-form-urlencoded") { _%>
+	<%_ const schema = rbItem.content[mimeType].schema; _%>
 	<%_ Object.keys(schema.properties).forEach((propertyName) => { _%>
 	<%_ const property = schema.properties[propertyName]; _%>
 	{
@@ -111,7 +94,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 			maxValue: <%= property.maximum %>
 		},
 		<%_ } _%>
-		required: true,
+		required: <%= rbItem.required %>,
 		default: <%- helper.getDefault(property); %>,
 		displayOptions: {
 			show: {
@@ -126,7 +109,8 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	},
 	<%_ }); _%> <%#_ end properties loop _%>
 	<%_ } _%> <%#_ end mimeType if _%>
-	<%_ }); _%> <%#_ end mimeTypeObj loop _%>
+	<%_ }); _%> <%#_ end mimeType loop _%>
+	<%_ }); _%> <%#_ end rbItem loop _%>
 	<%_ } _%> <%#_ end requestBody if _%>
 	<%_/**
 	 * **********************

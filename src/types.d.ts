@@ -59,7 +59,7 @@ interface OperationParameter {
 }
 
 interface OperationRequestBody {
-  name: "Standard" | "Additional Fields" | "Filter Fields" | "Update Fields"; // custom (not in OpenApi)
+  name: "Standard" | "Additional Fields" | "Filter Fields" | "Update Fields"; // custom-added
   content?: OperationRequestBodyContent | any; // TODO
   description?: string;
   required?: boolean;

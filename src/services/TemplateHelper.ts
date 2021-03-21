@@ -35,7 +35,7 @@ export class Helper {
 
   pascalCase = (str: string) => pascalCase(str);
 
-  titleCase = (str: string) => titleCase(str.replace(".", " "));
+  titleCase = (str: string) => titleCase(str.replace(/[._]/, " "));
 
   toTemplateLiteral = (endpoint: string) => endpoint.replace(/{/g, "${");
 }
