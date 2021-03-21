@@ -32,7 +32,9 @@ export class BranchBuilder {
     return isFirst ? branch : prefix + branch;
   }
 
-  resourceError(resourceName: string) {
+  resourceError(resourceName: string, { enabled }: { enabled: boolean }) {
+    if (!enabled) return "\t}\n";
+
     const isLast = this.isLast(resourceName, this.resourceNames);
     const resourceError = `
     \t} else {
@@ -42,7 +44,13 @@ export class BranchBuilder {
     return isLast ? resourceError : null;
   }
 
-  operationError(resourceName: string, operation: Operation) {
+  operationError(
+    resourceName: string,
+    operation: Operation,
+    { enabled }: { enabled: boolean }
+  ) {
+    if (!enabled) return null;
+
     const isLast = this.isLast(operation, this.mainParams[resourceName]);
     const operationError = `
     \t\t} else {

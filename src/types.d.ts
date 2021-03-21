@@ -38,9 +38,7 @@ interface Operation {
   endpoint: string;
   description?: string;
   parameters?: OperationParameter[];
-  requestBody?: OperationRequestBody | OperationRequestBody[];
-  // ^ TODO: ideally OperationRequestBody[] to accommodate required and non-required request body params
-  // therefore, OpenApiExtractor needs to be refactored to use OperationRequestBody[]
+  requestBody?: OperationRequestBody[];
   additionalFields?: AdditionalFields;
 }
 

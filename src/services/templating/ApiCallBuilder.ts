@@ -1,9 +1,12 @@
+import { camelCase } from "change-case";
+
 export class ApiCallBuilder {
   serviceApiRequest: string;
   lines: string[];
   hasPathParam = false;
   hasQueryString = false;
   hasRequestBody = false;
+  hasStandardRequestBody = false;
   _additionalFields: AdditionalFields;
 
   constructor(serviceApiRequest: string) {
@@ -14,7 +17,7 @@ export class ApiCallBuilder {
   run({
     parameters,
     additionalFields,
-    requestBody,
+    requestBody: requestBodyArray,
     requestMethod,
     endpoint,
   }: Operation) {
@@ -23,18 +26,18 @@ export class ApiCallBuilder {
     const pathParams = parameters?.filter((p) => this.isPathParam(p));
     const qsParams = parameters?.filter((p) => this.isQsParam(p));
 
-    if (pathParams) {
+    if (pathParams?.length) {
       this.hasPathParam = true;
       pathParams.forEach((p) => this.pathParam(p));
       this.addNewLine(this.lines);
     }
 
-    if (requestBody && !Array.isArray(requestBody)) {
+    if (requestBodyArray?.length) {
       this.hasRequestBody = true;
-      this.requestBody(requestBody);
+      this.requestBody(requestBodyArray);
     }
 
-    if (qsParams) {
+    if (qsParams?.length) {
       this.hasQueryString = true;
       this.qs(qsParams);
     }
@@ -66,6 +69,7 @@ export class ApiCallBuilder {
     this.hasPathParam = false;
     this.hasQueryString = false;
     this.hasRequestBody = false;
+    this.hasStandardRequestBody = false;
   }
 
   indentLines() {
@@ -106,29 +110,59 @@ export class ApiCallBuilder {
 
   // ------------------ request body ------------------
 
-  requestBody(requestBody: OperationRequestBody) {
-    const bodyComponents = this.getBodyComponents(requestBody);
-    if (!bodyComponents) return;
+  requestBody(rbArray: OperationRequestBody[]) {
+    rbArray.forEach((rbItem) => {
+      if (rbItem.name === "Standard") {
+        this.hasStandardRequestBody = true;
 
-    this.lines.push("const body: IDataObject = {");
+        const rbItemNames = this.getRequestBodyItemNames(rbItem);
 
-    this.lines.push(
-      ...bodyComponents.map(
-        (rbc) => `\t${rbc}: this.getNodeParameter('${rbc}', i),`
-      )
-    );
+        if (!rbItemNames) return;
 
-    this.lines.push("};");
-    this.addNewLine(this.lines);
+        this.lines.push("const body: IDataObject = {");
+
+        this.lines.push(
+          ...rbItemNames.map(
+            (rbc) => `\t${rbc}: this.getNodeParameter('${rbc}', i),`
+          )
+        );
+
+        this.lines.push("};");
+        this.addNewLine(this.lines);
+      } else if (
+        rbItem.name === "Additional Fields" ||
+        rbItem.name === "Filter Fields" ||
+        rbItem.name === "Update Fields"
+      ) {
+        if (!this.hasStandardRequestBody) {
+          this.lines.push("const body: IDataObject = {};");
+        }
+
+        const rbItemName = camelCase(rbItem.name);
+
+        const rbItemNames = this.getRequestBodyItemNames(rbItem);
+
+        if (!rbItemNames) return;
+
+        this.lines.push(
+          `const ${rbItemName} = this.getNodeParameter('${rbItemName}', i);`
+        );
+        this.addNewLine(this.lines);
+        this.lines.push(`if (Object.keys(${rbItemName}).length) {`);
+        this.lines.push(`\tObject.assign(body, ${rbItemName});`);
+        this.lines.push("}");
+        this.addNewLine(this.lines);
+      }
+    });
   }
 
   addNewLine = (array: string[]) => (array[array.length - 1] += "\n");
 
   // TODO: temp implementation
-  getBodyComponents(requestBody: OperationRequestBody) {
-    const textPlainContent = requestBody.content["text/plain"];
+  getRequestBodyItemNames(requestBodyItem: OperationRequestBody) {
+    const textPlainContent = requestBodyItem.content["text/plain"];
     const formUrlEncoded =
-      requestBody.content["application/x-www-form-urlencoded"];
+      requestBodyItem.content["application/x-www-form-urlencoded"];
 
     if (textPlainContent) return null; // TODO
 
@@ -199,11 +233,18 @@ export class ApiCallBuilder {
     requestMethod: string,
     { hasRequestBody, hasQueryString }: CallLineOptionalArgs = {}
   ) {
-    const body = hasRequestBody ? "body" : "{}";
-    const qs = hasQueryString ? "qs" : "{}";
-
     const call = `responseData = await ${this.serviceApiRequest}.call`;
-    const args = `(this, '${requestMethod}', endpoint, ${body}, ${qs});`;
+    let args = `(this, '${requestMethod}', endpoint`;
+
+    if (this.hasRequestBody && this.hasQueryString) {
+      args += `, body, qs);`;
+    } else if (this.hasRequestBody && !this.hasQueryString) {
+      args += `, body);`;
+    } else if (!this.hasRequestBody && this.hasQueryString) {
+      args += `, {}, qs);`;
+    } else if (!this.hasRequestBody && !this.hasQueryString) {
+      args += `);`;
+    }
 
     return call + args;
   }

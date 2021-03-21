@@ -24,7 +24,11 @@ export class DividerBuilder {
    * //             user: getUser
    * // ----------------------------------------
    * ```*/
-  operationDivider(resourceName: string, operationId: string) {
+  operationDivider(
+    resourceName: string,
+    operationId: string,
+    operationUrl: string
+  ) {
     const OPERATION_DIVIDER_LENGTH = 40;
 
     const title = `${resourceName}: ${operationId}`;
@@ -36,6 +40,12 @@ export class DividerBuilder {
     const titleLine = "// " + " ".repeat(padLength) + title;
     const dividerLine = "// " + "-".repeat(OPERATION_DIVIDER_LENGTH);
 
-    return [dividerLine, titleLine, dividerLine].join("\n" + "\t".repeat(5));
+    let operationDivider = [dividerLine, titleLine, dividerLine];
+
+    if (operationUrl) {
+      operationDivider.push("\n" + "\t".repeat(5) + "// " + operationUrl);
+    }
+
+    return operationDivider.join("\n" + "\t".repeat(5));
   }
 }

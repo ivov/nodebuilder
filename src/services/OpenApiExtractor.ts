@@ -100,7 +100,7 @@ export default class OpenApiExtractor {
 
     if (params.length) operation.parameters = params;
     if (addFields.options.length) operation.additionalFields = addFields;
-    if (requestBody) operation.requestBody = requestBody;
+    if (requestBody) operation.requestBody![0] = requestBody; // TEMP: Revisit because now it is an array
 
     return operation;
   }

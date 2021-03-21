@@ -1,7 +1,7 @@
 import { camelCase } from "change-case";
-import { ApiCallBuilder } from "./ApiCallBuilder";
-import { DividerBuilder } from "./DividerBuilder";
-import { BranchBuilder } from "./BranchBuilder";
+import { ApiCallBuilder } from "./templating/ApiCallBuilder";
+import { DividerBuilder } from "./templating/DividerBuilder";
+import { BranchBuilder } from "./templating/BranchBuilder";
 
 export class Builder {
   resourceTuples: ResourceTuples;
@@ -34,8 +34,16 @@ export class Builder {
     return this.dividerBuilder.resourceDivider(resourceName);
   }
 
-  operationDivider(resourceName: string, operationId: string) {
-    return this.dividerBuilder.operationDivider(resourceName, operationId);
+  operationDivider(
+    resourceName: string,
+    operationId: string,
+    operationUrl: string
+  ) {
+    return this.dividerBuilder.operationDivider(
+      resourceName,
+      operationId,
+      operationUrl
+    );
   }
 
   // BranchBuilder ------------------
@@ -48,11 +56,18 @@ export class Builder {
     return this.branchBuilder.operationBranch(resourceName, operation);
   }
 
-  resourceError(resourceName: string) {
-    return this.branchBuilder.resourceError(resourceName);
+  resourceError(
+    resourceName: string,
+    options: { enabled: boolean } = { enabled: false }
+  ) {
+    return this.branchBuilder.resourceError(resourceName, options);
   }
 
-  operationError(resourceName: string, operation: Operation) {
-    return this.branchBuilder.operationError(resourceName, operation);
+  operationError(
+    resourceName: string,
+    operation: Operation,
+    options: { enabled: boolean } = { enabled: false }
+  ) {
+    return this.branchBuilder.operationError(resourceName, operation, options);
   }
 }

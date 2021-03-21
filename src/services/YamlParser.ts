@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
-import { printTranslation } from "./FilePrinter";
+import { printTranslation } from "../utils/FilePrinter";
 
 /**
 Translates a YAML API mapping into a JSON API mapping, adjusting strings with `|`.
@@ -33,7 +33,7 @@ To:
     // ...
  ```
 */
-export default class YamlTranslator {
+export default class YamlParser {
   private yamlMainParams: YamlMainParams;
   private unsplittableFields = [
     "endpoint",

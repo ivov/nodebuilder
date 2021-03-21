@@ -1,7 +1,7 @@
 import json from "../input/lichess.json";
 
 import TreeRenderer from "../utils/TreeRenderer";
-import OpenApiExtractor from "../OpenApiExtractor";
+import OpenApiExtractor from "../services/OpenApiExtractor";
 import FilePrinter from "../utils/FilePrinter";
 
 try {

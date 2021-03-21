@@ -1,8 +1,8 @@
-import OpenApiExtractor from "../OpenApiExtractor";
+import Generator from "../services/TypeScriptGenerator";
+import OpenApiExtractor from "../services/OpenApiExtractor";
+import YamlParser from "../services/YamlParser";
+import YamlStager from "../services/YamlStager";
 import FilePrinter from "../utils/FilePrinter";
-import Generator from "../Generator";
-import YamlStager from "../utils/YamlStager";
-import YamlTranslator from "../utils/YamlTranslator";
 
 const source = "YAML" as GenerationSource;
 
@@ -12,16 +12,10 @@ try {
     new FilePrinter(nodegenParams).print({ format: "json" });
     new Generator(nodegenParams.mainParams).run();
   } else if (source === "YAML") {
-    const translation = new YamlTranslator().run();
-    new YamlStager(translation.mainParams).run();
-
-    // const nodegenParams = {
-    //   metaParams: yamlParams.metaParams,
-    //   mainParams: new YamlAdjuster(yamlParams.mainParams).run(),
-    // };
-
-    // new FilePrinter(nodegenParams).print({ format: "json" });
-    // new Generator(nodegenParams.mainParams).run();
+    const translation = new YamlParser().run();
+    const nodegenParams = new YamlStager(translation).run();
+    new FilePrinter(nodegenParams).print({ format: "json" });
+    new Generator(nodegenParams.mainParams).run();
   }
   console.log("Successfully converted JS object into TypeScript node");
 } catch (e) {

@@ -1,23 +1,32 @@
-import OpenApiCreator from "./OpenApiCreator";
-import { printStagedParams } from "./FilePrinter";
+import { ThisExpression } from "ts-morph";
+import { printStagedParams } from "../utils/FilePrinter";
 
 /**
- * Stages output params for consumption by nodegen templates, based on a YAML-to-JSON translation as input.
+ * Responsible for staging output params for consumption by nodegen templates,
+ * based on a YAML-to-JSON translation as input.
  */
 export default class YamlStager {
+  private inputMainParams: YamlMainParams;
+  private outputMetaParams: MetaParams;
   private outputMainParams: MainParams = {};
   private currentResource = "";
   private outputOperation: Operation;
 
-  constructor(private inputMainParams: YamlMainParams) {}
+  constructor(yamlNodegenParams: YamlNodegenParams) {
+    this.inputMainParams = yamlNodegenParams.mainParams;
+    this.outputMetaParams = yamlNodegenParams.metaParams;
+  }
 
-  public run() {
+  public run(): NodegenParams {
     this.initializeOutputParams();
     this.populateOutputParams();
 
     printStagedParams(this.outputMainParams); // TEMP
 
-    return this.outputMainParams;
+    return {
+      mainParams: this.outputMainParams,
+      metaParams: this.outputMetaParams,
+    };
   }
 
   private initializeOutputParams() {
@@ -89,7 +98,7 @@ export default class YamlStager {
       //      populate request body
       // ----------------------------------
 
-      const outputRequestBody = OpenApiCreator.requestBody(requestBody, {
+      const outputRequestBody = this.stageRequestBody(requestBody, {
         required: true,
         name: "Standard",
       });
@@ -130,7 +139,7 @@ export default class YamlStager {
 
     if (!pathParams) return null;
 
-    return pathParams.map(OpenApiCreator.pathParam);
+    return pathParams.map(this.stagePathParam);
   }
 
   private qsParams(
@@ -140,7 +149,7 @@ export default class YamlStager {
     if (!queryString) return null;
 
     return Object.entries(queryString).map(([key, value]) =>
-      OpenApiCreator.qsParam(key, value, { required })
+      this.stageQsParam(key, value, { required })
     );
   }
 
@@ -166,9 +175,7 @@ export default class YamlStager {
     };
 
     Object.entries(qsExtraFields).forEach(([key, value]) =>
-      output.options.push(
-        OpenApiCreator.qsParam(key, value, { required: false })
-      )
+      output.options.push(this.stageQsParam(key, value, { required: false }))
     );
 
     return output.options.length ? output : null;
@@ -182,7 +189,7 @@ export default class YamlStager {
       name: "Additional Fields" | "Filter Fields" | "Update Fields";
     }
   ) {
-    const rbExtraFields = OpenApiCreator.requestBody(extraFields?.requestBody, {
+    const rbExtraFields = this.stageRequestBody(extraFields?.requestBody, {
       required: false,
       name,
     });
@@ -193,5 +200,84 @@ export default class YamlStager {
         ...rbExtraFields
       );
     }
+  }
+
+  private stagePathParam(pathParam: string) {
+    return {
+      in: "path" as const,
+      name: pathParam,
+      schema: {
+        type: "string",
+        default: "",
+      },
+      required: true,
+    };
+  }
+
+  private stageQsParam(
+    key: string,
+    value: { type: string; description?: string }, // TODO: Type properly
+    { required }: { required: boolean }
+  ) {
+    const output: OperationParameter = {
+      in: "query" as const,
+      name: key,
+      required,
+      schema: {
+        type: value.type,
+        default: this.getDefault(value.type),
+      },
+    };
+
+    if (value.description) {
+      output.description = value.description;
+    }
+
+    return output;
+  }
+
+  public stageRequestBody(
+    requestBody: YamlOperation["requestBody"],
+    {
+      required,
+      name,
+    }: {
+      required: boolean;
+      name:
+        | "Standard"
+        | "Additional Fields"
+        | "Filter Fields"
+        | "Update Fields";
+    }
+  ) {
+    if (!requestBody) return null;
+
+    const outputRequestBody: OperationRequestBody = {
+      // TODO: add other types: `multipart/form-data` and `text/plain`
+      name,
+      required,
+      content: {
+        "application/x-www-form-urlencoded": {
+          schema: {
+            type: "object",
+            properties: {},
+          },
+        },
+      },
+    };
+
+    Object.entries(requestBody).forEach(([key, value]) => {
+      outputRequestBody.content[
+        "application/x-www-form-urlencoded"
+      ].schema.properties[key] = value;
+    });
+
+    return [outputRequestBody];
+  }
+
+  private getDefault(type: string) {
+    if (type === "boolean") return false;
+    if (type === "number") return 0;
+    return "";
   }
 }
