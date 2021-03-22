@@ -214,7 +214,11 @@ export default class YamlStager {
 
     let description = `ID of the ${this.currentResource} to `;
 
-    if (operationId === "create" || operationId === "update") {
+    if (
+      operationId === "create" ||
+      operationId === "update" ||
+      operationId === "delete"
+    ) {
       output.description = description + operationId + ".";
     } else if (operationId === "get") {
       output.description = description + "retrieve.";
