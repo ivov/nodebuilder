@@ -1,4 +1,3 @@
-import { ThisExpression } from "ts-morph";
 import { printStagedParams } from "../utils/FilePrinter";
 
 /**

@@ -78,12 +78,12 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	 */_%>
 	<%_ if (operation.requestBody) { _%>
 	<%_ operation.requestBody.forEach((rbItem) => { _%>
+	<%_ if (rbItem.required) { _%>
 	<%_ Object.keys(rbItem.content).forEach((mimeType) => { _%>
 	<%_ if (mimeType === "application/x-www-form-urlencoded") { _%>
 	<%_ const schema = rbItem.content[mimeType].schema; _%>
 	<%_ Object.keys(schema.properties).forEach((propertyName) => { _%>
 	<%_ const property = schema.properties[propertyName]; _%>
-	<%_ if (rbItem.required) { _%>
 	{
 		displayName: '<%= helper.titleCase(propertyName); %>',
 		name: '<%= helper.camelCase(propertyName); %>',
@@ -110,6 +110,9 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 			},
 		},
 	},
+	<%_ }); _%> <%#_ end properties loop _%>
+	<%_ } _%> <%#_ end mimeType if _%>
+	<%_ }); _%> <%#_ end mimeType loop _%>
 	<%_ } else if (!rbItem.required) { _%>
 	{
 		displayName: '<%= rbItem.name %>',
@@ -127,13 +130,25 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 			},
 		},
 		options: [
-			// ...
+			<%_ Object.keys(rbItem.content).forEach((mimeType) => { _%>
+			<%_ if (mimeType === "application/x-www-form-urlencoded") { _%>
+			<%_ const schema = rbItem.content[mimeType].schema; _%>
+			<%_ Object.entries(schema.properties).forEach(([key, value]) => { _%>
+			{
+				displayName: '<%= helper.titleCase(key); %>',
+				name: '<%= key %>',
+				type: '<%= helper.adjustType(value.type); %>',
+				default: <%- value.default || "''"; %>,
+				<%_ if (value.description) { _%>
+				description: '<%- helper.escape(value.description) %>',
+				<%_ } _%>
+			},
+			<%_ }); _%> <%#_ end properties loop _%>
+			<%_ } _%> <%#_ end mimeType if _%>
+			<%_ }); _%> <%#_ end mimeType loop _%>
 		]
 	},
 	<%_ } _%> <%#_ end rbItem.required if _%>
-	<%_ }); _%> <%#_ end properties loop _%>
-	<%_ } _%> <%#_ end mimeType if _%>
-	<%_ }); _%> <%#_ end mimeType loop _%>
 	<%_ }); _%> <%#_ end rbItem loop _%>
 	<%_ } _%> <%#_ end requestBody if _%>
 	<%_/**

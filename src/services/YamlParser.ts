@@ -125,10 +125,18 @@ export default class YamlParser {
     if (typeof value === "string") {
       if (value.includes("|")) {
         const [type, description] = value.split("|");
-        return { type, description };
+        return { type, description, default: this.getDefault(value) };
       }
 
-      return { type: value };
+      return { type: value, default: this.getDefault(value) };
     }
+  }
+
+  // TODO: Type properly
+  private getDefault(arg: any) {
+    if (arg.default) return arg.default;
+    if (arg.type === "boolean") return false;
+    if (arg.type === "number") return 0;
+    return "";
   }
 }
