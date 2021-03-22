@@ -44,7 +44,7 @@ export default class YamlParser {
 
   public run() {
     const yamlParams = this.jsonifyYaml();
-    this.yamlMainParams = yamlParams.mainParams;
+    this.yamlMainParams = this.sortKeys(yamlParams.mainParams);
 
     this.iterateOverOperations((operation: YamlOperation) =>
       this.traverseToAdjust(operation)
@@ -64,6 +64,27 @@ export default class YamlParser {
     return yaml.load(
       fs.readFileSync(yamlFilePath, "utf-8")
     ) as YamlNodegenParams;
+  }
+
+  // TODO: type properly
+  private sortKeys(value: any): any {
+    if (!value || typeof value !== "object") return value;
+
+    if (Array.isArray(value)) {
+      const newArr = value.map((item) => this.sortKeys(item));
+      newArr.sort();
+      return newArr;
+    }
+
+    const sorted: { [key: string]: string } = {};
+
+    Object.keys(value)
+      .sort()
+      .forEach((key) => {
+        sorted[key] = this.sortKeys(value[key]);
+      });
+
+    return sorted;
   }
 
   private iterateOverOperations(callback: (operation: YamlOperation) => void) {
