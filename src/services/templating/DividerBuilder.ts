@@ -1,4 +1,6 @@
 export class DividerBuilder {
+  isFirstOperation = true;
+
   /**  Build a comment divider for a resource:
    * ```
    * // **********************************************************************
@@ -31,27 +33,27 @@ export class DividerBuilder {
     operationId: string,
     operationUrl: string
   ) {
-    const OPERATION_DIVIDER_LENGTH = 40;
-
-    const title = `${resourceName}: ${operationId}`;
-    const padLengthCandidate = Math.floor(
-      (OPERATION_DIVIDER_LENGTH - title.length) / 2
-    );
-    const padLength = padLengthCandidate > 0 ? padLengthCandidate : 0;
-
-    const titleLine = "// " + " ".repeat(padLength) + title;
-    const dividerLine = "// " + "-".repeat(OPERATION_DIVIDER_LENGTH);
-
-    let operationDivider = [dividerLine, titleLine, dividerLine];
+    const operationDividerLines = this.dividerLines(resourceName, operationId);
 
     if (operationUrl) {
-      operationDivider.push("\n" + "\t".repeat(5) + "// " + operationUrl);
+      operationDividerLines.push("\n" + "\t".repeat(5) + "// " + operationUrl);
     }
 
-    return operationDivider.join("\n" + "\t".repeat(5));
+    return operationDividerLines.join("\n" + "\t".repeat(5));
   }
 
   resourceDescriptionDivider(resourceName: string, operationId: string) {
+    const divider = this.dividerLines(resourceName, operationId).join("\n\t");
+
+    if (this.isFirstOperation) {
+      this.isFirstOperation = false;
+      return divider;
+    }
+
+    return "\n\t" + divider;
+  }
+
+  dividerLines(resourceName: string, operationId: string) {
     const OPERATION_DIVIDER_LENGTH = 40;
 
     const title = `${resourceName}: ${operationId}`;
@@ -63,8 +65,6 @@ export class DividerBuilder {
     const titleLine = "// " + " ".repeat(padLength) + title;
     const dividerLine = "// " + "-".repeat(OPERATION_DIVIDER_LENGTH);
 
-    let resourceOperation = [dividerLine, titleLine, dividerLine];
-
-    return resourceOperation.join("\n" + "\t");
+    return [dividerLine, titleLine, dividerLine];
   }
 }

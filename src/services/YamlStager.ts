@@ -59,7 +59,7 @@ export default class YamlStager {
       //       populate path params
       // ----------------------------------
 
-      const outputPathParams = this.pathParams(endpoint);
+      const outputPathParams = this.pathParams(inputOperation);
       if (outputPathParams) this.outputOperation.parameters = outputPathParams;
 
       // ----------------------------------
@@ -131,14 +131,14 @@ export default class YamlStager {
     if (operationUrl) this.outputOperation.operationUrl = operationUrl;
   }
 
-  private pathParams(endpoint: string) {
-    if (!endpoint.match(/\{/)) return null;
+  private pathParams(inputOperation: YamlOperation) {
+    if (!inputOperation.endpoint.match(/\{/)) return null;
 
-    const pathParams = endpoint.match(/(?<={)(.*?)(?=})/g);
+    const pathParams = inputOperation.endpoint.match(/(?<={)(.*?)(?=})/g);
 
     if (!pathParams) return null;
 
-    return pathParams.map(this.stagePathParam);
+    return pathParams.map((pp) => this.stagePathParam(pp, inputOperation));
   }
 
   private qsParams(
@@ -201,8 +201,8 @@ export default class YamlStager {
     }
   }
 
-  private stagePathParam(pathParam: string) {
-    return {
+  private stagePathParam(pathParam: string, { operationId }: YamlOperation) {
+    const output: OperationParameter = {
       in: "path" as const,
       name: pathParam,
       schema: {
@@ -211,6 +211,16 @@ export default class YamlStager {
       },
       required: true,
     };
+
+    let description = `ID of the ${this.currentResource} to `;
+
+    if (operationId === "create" || operationId === "update") {
+      output.description = description + operationId + ".";
+    } else if (operationId === "get") {
+      output.description = description + "retrieve.";
+    }
+
+    return output;
   }
 
   private stageQsParam(
