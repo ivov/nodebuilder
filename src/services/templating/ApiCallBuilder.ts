@@ -145,7 +145,7 @@ export class ApiCallBuilder {
         if (!rbItemNames) return;
 
         this.lines.push(
-          `const ${rbItemName} = this.getNodeParameter('${rbItemName}', i);`
+          `const ${rbItemName} = this.getNodeParameter('${rbItemName}', i) as IDataObject;`
         );
         this.addNewLine(this.lines);
         this.lines.push(`if (Object.keys(${rbItemName}).length) {`);
