@@ -8,6 +8,7 @@ export class ApiCallBuilder {
   hasRequestBody = false;
   hasStandardRequestBody = false;
   isGetAll = false;
+  hasLongEndpoint = false;
   _additionalFields: AdditionalFields;
 
   constructor(serviceApiRequest: string) {
@@ -26,6 +27,7 @@ export class ApiCallBuilder {
     this.resetState();
 
     this.isGetAll = operationId === "getAll";
+    this.hasLongEndpoint = endpoint.length > 20;
 
     const pathParams = parameters?.filter((p) => this.isPathParam(p));
     const qsParams = parameters?.filter((p) => this.isQsParam(p));
@@ -56,9 +58,9 @@ export class ApiCallBuilder {
       if (qsOptions) this.additionalFields("qs");
     }
 
-    this.endpoint(endpoint);
+    if (this.hasLongEndpoint) this.endpoint(endpoint);
 
-    this.lines.push(this.callLine(requestMethod));
+    this.lines.push(this.callLine(requestMethod, endpoint));
 
     return this.indentLines();
   }
@@ -70,6 +72,7 @@ export class ApiCallBuilder {
     this.hasRequestBody = false;
     this.hasStandardRequestBody = false;
     this.isGetAll = false;
+    this.hasLongEndpoint = false;
   }
 
   indentLines() {
@@ -148,9 +151,11 @@ export class ApiCallBuilder {
           `const ${rbItemName} = this.getNodeParameter('${rbItemName}', i) as IDataObject;`
         );
         this.addNewLine(this.lines);
+
         this.lines.push(`if (Object.keys(${rbItemName}).length) {`);
         this.lines.push(`\tObject.assign(body, ${rbItemName});`);
         this.lines.push("}");
+
         this.addNewLine(this.lines);
       }
     });
@@ -229,10 +234,14 @@ export class ApiCallBuilder {
 
   // ------------------ call ------------------------
 
-  callLine(requestMethod: string) {
+  callLine(requestMethod: string, endpoint = "") {
+    const endpointInsert = this.hasLongEndpoint
+      ? "endpoint"
+      : `\`${this.toTemplateLiteral(endpoint)}\``;
+
     let call = this.isGetAll
-      ? `responseData = await handleListing.call(this, i, '${requestMethod}', endpoint`
-      : `responseData = await ${this.serviceApiRequest}.call(this, '${requestMethod}', endpoint`;
+      ? `responseData = await handleListing.call(this, i, '${requestMethod}', ${endpointInsert}`
+      : `responseData = await ${this.serviceApiRequest}.call(this, '${requestMethod}', ${endpointInsert}`;
 
     if (this.hasRequestBody && this.hasQueryString) {
       call += ", body, qs);";
