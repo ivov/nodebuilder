@@ -33,9 +33,11 @@ export class BranchBuilder {
   }
 
   resourceError(resourceName: string, { enabled }: { enabled: boolean }) {
-    if (!enabled) return "\t}\n";
-
     const isLast = this.isLast(resourceName, this.resourceNames);
+
+    if (isLast && !enabled) return "\t}\n\n\t\t\t}"; // close operation and resource
+    if (!enabled) return "\t}\n"; // close operation
+
     const resourceError = `
     \t} else {
     \t\tthrow new Error(\`Unknown resource: \${resource}\`);
@@ -49,6 +51,7 @@ export class BranchBuilder {
     operation: Operation,
     { enabled }: { enabled: boolean }
   ) {
+    // if (!enabled) return "\t}\n";
     if (!enabled) return null;
 
     const isLast = this.isLast(operation, this.mainParams[resourceName]);
