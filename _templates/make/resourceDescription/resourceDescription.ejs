@@ -40,24 +40,24 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%= builder.resourceDescriptionDivider(helper.camelCase(resourceName), operation.operationId); %>
 	<%_/**
 	 * **********************
-	 * PATH & QS PARAMS
+	 * PATH PARAMS & QS PARAMS
 	 * **********************
 	 */_%>
 	<%_ if (operation.parameters) { _%>
-	<%_ operation.parameters.forEach(parameter => { _%>
+	<%_ operation.parameters.forEach(param => { _%>
 	{
-		displayName: '<%= helper.titleCase(parameter.name); %>',
-		name: '<%= helper.camelCase(parameter.name); %>',
-		description: '<%= parameter.description; %>',
-		type: '<%= helper.adjustType(parameter.schema.type); %>',
-		<%_ if (helper.hasMinMax(parameter.schema)) { _%>
+		displayName: '<%= helper.titleCase(param.name); %>',
+		name: '<%= helper.camelCase(param.name); %>',
+		description: '<%= param.description; %>',
+		type: '<%= helper.adjustType(param.schema.type); %>',
+		<%_ if (helper.hasMinMax(param.schema)) { _%>
 		typeOptions: {
-			minValue: <%= parameter.schema.minimum %>,
-			maxValue: <%= parameter.schema.maximum %>
+			minValue: <%= param.schema.minimum %>,
+			maxValue: <%= param.schema.maximum %>
 		},
 		<%_ } _%>
 		required: true,
-		default: <%- helper.getDefault(parameter.schema); %>,
+		default: <%- helper.getDefault(param.schema); %>,
 		displayOptions: {
 			show: {
 				resource: [
@@ -81,24 +81,23 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ if (rbItem.required) { _%>
 	<%_ Object.keys(rbItem.content).forEach((mimeType) => { _%>
 	<%_ if (mimeType === "application/x-www-form-urlencoded") { _%>
-	<%_ const schema = rbItem.content[mimeType].schema; _%>
-	<%_ Object.keys(schema.properties).forEach((propertyName) => { _%>
-	<%_ const property = schema.properties[propertyName]; _%>
+	<%_ const properties = rbItem.content[mimeType].schema.properties; _%>
+	<%_ Object.entries(properties).forEach(([property, value]) => { _%>
 	{
-		displayName: '<%= helper.titleCase(propertyName); %>',
-		name: '<%= helper.camelCase(propertyName); %>',
-		<%_ if (property.description) { _%>
-		description: '<%- helper.escape(property.description) %>',
+		displayName: '<%= helper.titleCase(property); %>',
+		name: '<%= helper.camelCase(property); %>',
+		<%_ if (value.description) { _%>
+		description: '<%- helper.escape(value.description) %>',
 		<%_ } _%>
-		type: '<%= helper.adjustType(property.type); %>',
-		<%_ if (helper.hasMinMax(property)) { _%>
+		type: '<%= helper.adjustType(value.type); %>',
+		<%_ if (helper.hasMinMax(value)) { _%>
 		typeOptions: {
-			minValue: <%= property.minimum %>,
-			maxValue: <%= property.maximum %>
+			minValue: <%= value.minimum %>,
+			maxValue: <%= value.maximum %>
 		},
 		<%_ } _%>
 		required: true,
-		default: <%- helper.getDefault(property); %>,
+		default: <%- helper.getDefault(value); %>,
 		displayOptions: {
 			show: {
 				resource: [
@@ -151,5 +150,48 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ } _%> <%#_ end rbItem.required if _%>
 	<%_ }); _%> <%#_ end rbItem loop _%>
 	<%_ } _%> <%#_ end requestBody if _%>
+	<%_ if (operation.operationId === "getAll") { _%>
+	{
+		displayName: 'Return All',
+		name: 'returnAll',
+		type: 'boolean',
+		default: false,
+		description: 'Return all results.',
+		displayOptions: {
+			show: {
+				resource: [
+				'<%= helper.camelCase(resourceName); %>',
+				],
+				operation: [
+				'<%= helper.camelCase(operation.operationId); %>',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Limit',
+		name: 'limit',
+		type: 'number',
+		default: 5,
+		description: 'The number of results to return.',
+		typeOptions: {
+			minValue: 1,
+			maxValue: 1000,
+		},
+		displayOptions: {
+			show: {
+				resource: [
+				'<%= helper.camelCase(resourceName); %>',
+				],
+				operation: [
+				'<%= helper.camelCase(operation.operationId); %>',
+				],
+				returnAll: [
+					false,
+				],
+			},
+		},
+	},
+<%_ } _%> <%#_ end getAll if _%>
 <%_ }); _%> <%#_ end operations loop _%>
 ] as INodeProperties[];
