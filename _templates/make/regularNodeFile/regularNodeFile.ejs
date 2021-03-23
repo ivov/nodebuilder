@@ -8,10 +8,10 @@ import {
 } from 'n8n-core';
 
 import {
+	IDataObject,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-	IDataObject,
 } from 'n8n-workflow';
 
 import {
@@ -20,8 +20,8 @@ import {
 
 import {
 <%_ builder.resourceNames.forEach((resourceName) => { _%>
-	<%= helper.camelCase(resourceName) %>Operations,
 	<%= helper.camelCase(resourceName) %>Fields,
+	<%= helper.camelCase(resourceName) %>Operations,
 <%_ }); _%>
 } from './descriptions';
 
@@ -70,7 +70,7 @@ export class <%= helper.pascalCase(metaParams.serviceName); %> implements INodeT
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
 
-		let responseData: any;
+		let responseData;
 
 		for (let i = 0; i < items.length; i++) {
 			<%_ builder.resourceTuples.forEach(([resourceName, operationsArray]) => { %>
