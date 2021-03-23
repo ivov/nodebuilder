@@ -40,7 +40,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%= builder.resourceDescriptionDivider(helper.camelCase(resourceName), operation.operationId); %>
 	<%_/**
 	 * **********************
-	 * PARAMETERS
+	 * PATH & QS PARAMS
 	 * **********************
 	 */_%>
 	<%_ if (operation.parameters) { _%>
@@ -73,7 +73,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ } _%> <%#_ end parameters if _%>
 	<%_/**
 	 * **********************
-	 * REQUEST BODY
+	 * REQUEST BODY ITEMS
 	 * **********************
 	 */_%>
 	<%_ if (operation.requestBody) { _%>
@@ -151,41 +151,5 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ } _%> <%#_ end rbItem.required if _%>
 	<%_ }); _%> <%#_ end rbItem loop _%>
 	<%_ } _%> <%#_ end requestBody if _%>
-	<%_/**
-	 * **********************
-	 * ADDITIONAL FIELDS
-	 * **********************
-	 * TODO DELETE THIS LATER
-	 */_%>
-	<%_ if (operation.additionalFields) { _%>
-	{
-		displayName: 'Additional Fields',
-		name: 'additionalFields',
-		type: 'collection',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: [
-					'<%= helper.camelCase(resourceName); %>',
-				],
-				operation: [
-					'<%= helper.camelCase(operation.operationId); %>',
-				],
-			},
-		},
-		options: [
-		<%_ operation.additionalFields.options.forEach(option => { _%>
-			{
-				name: '<%= option.name %>',
-				<%_ if (option.description) { _%>
-				description: '<%- helper.escape(option.description) %>',
-				<%_ } _%>
-				type: '<%= helper.adjustType(option.type); %>',
-				default: <%- helper.getDefault(option); %>,
-			},
-		<%_ }); _%> <%#_ end options loop _%>
-		]
-	},
-	<%_ } _%> <%#_ end additionalFields if _%>
 <%_ }); _%> <%#_ end operations loop _%>
 ] as INodeProperties[];
