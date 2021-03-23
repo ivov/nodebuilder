@@ -7,6 +7,7 @@ export class ApiCallBuilder {
   hasQueryString = false;
   hasRequestBody = false;
   hasStandardRequestBody = false;
+  isGetAll = false;
   _additionalFields: AdditionalFields;
 
   constructor(serviceApiRequest: string) {
@@ -15,6 +16,7 @@ export class ApiCallBuilder {
   }
 
   run({
+    operationId,
     parameters,
     additionalFields,
     requestBody: requestBodyArray,
@@ -22,6 +24,8 @@ export class ApiCallBuilder {
     endpoint,
   }: Operation) {
     this.resetState();
+
+    this.isGetAll = operationId === "getAll";
 
     const pathParams = parameters?.filter((p) => this.isPathParam(p));
     const qsParams = parameters?.filter((p) => this.isQsParam(p));
@@ -54,12 +58,7 @@ export class ApiCallBuilder {
 
     this.endpoint(endpoint);
 
-    this.lines.push(
-      this.callLine(requestMethod, {
-        hasQueryString: this.hasQueryString,
-        hasRequestBody: this.hasRequestBody,
-      })
-    );
+    this.lines.push(this.callLine(requestMethod));
 
     return this.indentLines();
   }
@@ -70,6 +69,7 @@ export class ApiCallBuilder {
     this.hasQueryString = false;
     this.hasRequestBody = false;
     this.hasStandardRequestBody = false;
+    this.isGetAll = false;
   }
 
   indentLines() {
@@ -229,23 +229,21 @@ export class ApiCallBuilder {
 
   // ------------------ call ------------------------
 
-  callLine(
-    requestMethod: string,
-    { hasRequestBody, hasQueryString }: CallLineOptionalArgs = {}
-  ) {
-    const call = `responseData = await ${this.serviceApiRequest}.call`;
-    let args = `(this, '${requestMethod}', endpoint`;
+  callLine(requestMethod: string) {
+    let call = this.isGetAll
+      ? `responseData = await handleListing.call(this, i, '${requestMethod}', endpoint`
+      : `responseData = await ${this.serviceApiRequest}.call(this, '${requestMethod}', endpoint`;
 
     if (this.hasRequestBody && this.hasQueryString) {
-      args += `, body, qs);`;
+      call += ", body, qs);";
     } else if (this.hasRequestBody && !this.hasQueryString) {
-      args += `, body);`;
+      call += ", body);";
     } else if (!this.hasRequestBody && this.hasQueryString) {
-      args += `, {}, qs);`;
+      call += ", {}, qs);";
     } else if (!this.hasRequestBody && !this.hasQueryString) {
-      args += `);`;
+      call += ");";
     }
 
-    return call + args;
+    return call;
   }
 }

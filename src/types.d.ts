@@ -133,15 +133,6 @@ declare module "object-treeify" {
 }
 
 // ----------------------------------
-//             Builder
-// ----------------------------------
-
-type CallLineOptionalArgs = {
-  hasQueryString?: boolean;
-  hasRequestBody?: boolean;
-};
-
-// ----------------------------------
 //            Printer
 // ----------------------------------
 

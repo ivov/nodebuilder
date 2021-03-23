@@ -2,6 +2,7 @@ import { camelCase } from "change-case";
 import { ApiCallBuilder } from "./templating/ApiCallBuilder";
 import { DividerBuilder } from "./templating/DividerBuilder";
 import { BranchBuilder } from "./templating/BranchBuilder";
+import { ImportsBuilder } from "./templating/ImportsBuilder";
 
 export class Builder {
   resourceTuples: ResourceTuples;
@@ -11,6 +12,7 @@ export class Builder {
   apiCallBuilder: ApiCallBuilder;
   dividerBuilder: DividerBuilder;
   branchBuilder: BranchBuilder;
+  importsBuilder: ImportsBuilder;
 
   constructor(mainParams: MainParams, { serviceName }: MetaParams) {
     this.resourceTuples = Object.entries(mainParams);
@@ -18,6 +20,10 @@ export class Builder {
     this.serviceApiRequest = camelCase(serviceName) + "ApiRequest";
 
     this.apiCallBuilder = new ApiCallBuilder(this.serviceApiRequest);
+    this.importsBuilder = new ImportsBuilder(
+      this.serviceApiRequest,
+      mainParams
+    );
     this.dividerBuilder = new DividerBuilder();
     this.branchBuilder = new BranchBuilder(mainParams);
   }
@@ -26,6 +32,12 @@ export class Builder {
 
   apiCall(operation: Operation) {
     return this.apiCallBuilder.run(operation);
+  }
+
+  // GenericFunctionsImportsBuilder ---
+
+  genericFunctionsImports() {
+    return this.importsBuilder.genericFunctionsImports();
   }
 
   // DividerBuilder ------------------
