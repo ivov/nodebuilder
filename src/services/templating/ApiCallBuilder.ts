@@ -235,9 +235,13 @@ export class ApiCallBuilder {
   // ------------------ call ------------------------
 
   callLine(requestMethod: string, endpoint = "") {
+    const hasBracket = endpoint.split("").includes("}");
+
     const endpointInsert = this.hasLongEndpoint
       ? "endpoint"
-      : `\`${this.toTemplateLiteral(endpoint)}\``;
+      : hasBracket
+      ? `\`${this.toTemplateLiteral(endpoint)}\``
+      : `'${endpoint}'`;
 
     let call = this.isGetAll
       ? `responseData = await handleListing.call(this, i, '${requestMethod}', ${endpointInsert}`
