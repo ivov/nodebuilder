@@ -145,7 +145,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 			<%_ }); _%> <%#_ end properties loop _%>
 			<%_ } _%> <%#_ end mimeType if _%>
 			<%_ }); _%> <%#_ end mimeType loop _%>
-		]
+		],
 	},
 	<%_ } _%> <%#_ end rbItem.required if _%>
 	<%_ }); _%> <%#_ end rbItem loop _%>
@@ -160,10 +160,10 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		displayOptions: {
 			show: {
 				resource: [
-				'<%= helper.camelCase(resourceName); %>',
+					'<%= helper.camelCase(resourceName); %>',
 				],
 				operation: [
-				'<%= helper.camelCase(operation.operationId); %>',
+					'<%= helper.camelCase(operation.operationId); %>',
 				],
 			},
 		},
