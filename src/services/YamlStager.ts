@@ -48,11 +48,10 @@ export default class YamlStager {
 
       const {
         endpoint,
-        queryString,
+        requiredFields,
         additionalFields: addFields,
         filters,
         updateFields,
-        requestBody,
       } = inputOperation;
 
       // ----------------------------------
@@ -66,7 +65,9 @@ export default class YamlStager {
       //       populate qs params
       // ----------------------------------
 
-      const outputQsParams = this.qsParams(queryString, { required: true });
+      const outputQsParams = this.qsParams(requiredFields?.queryString, {
+        required: true,
+      });
       if (outputQsParams) this.outputOperation.parameters = outputQsParams;
 
       // ----------------------------------
@@ -97,12 +98,15 @@ export default class YamlStager {
       //      populate request body
       // ----------------------------------
 
-      const outputRequestBody = this.stageRequestBody(requestBody, {
-        required: true,
-        name: "Standard",
-      });
+      const outputRequestBody = this.stageRequestBody(
+        requiredFields?.requestBody,
+        {
+          required: true,
+          name: "Standard",
+        }
+      );
 
-      this.outputOperation.requestBody = outputRequestBody || [];
+      this.outputOperation.requestBody = outputRequestBody ?? [];
 
       // ----------------------------------
       //      populate rb extra fields
@@ -142,7 +146,7 @@ export default class YamlStager {
   }
 
   private qsParams(
-    queryString: YamlOperation["queryString"],
+    queryString: NameTypeAndDescription | undefined,
     { required }: { required: boolean }
   ) {
     if (!queryString) return null;
@@ -250,7 +254,7 @@ export default class YamlStager {
   }
 
   public stageRequestBody(
-    requestBody: YamlOperation["requestBody"],
+    requestBody: NameTypeAndDescription | undefined,
     {
       required,
       name,
@@ -275,10 +279,10 @@ export default class YamlStager {
       },
     };
 
+    const formUrlEncoded = "application/x-www-form-urlencoded";
+
     Object.entries(requestBody).forEach(([key, value]) => {
-      outputRequestBody.content[
-        "application/x-www-form-urlencoded"
-      ].schema.properties[key] = value;
+      outputRequestBody.content[formUrlEncoded].schema.properties[key] = value;
     });
 
     return [outputRequestBody];

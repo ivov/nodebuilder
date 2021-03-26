@@ -82,6 +82,7 @@ interface Schema {
   };
 }
 
+// TODO: rename to `ExtraFields`?
 interface AdditionalFields {
   name: "Additional Fields" | "Filters" | "Update Fields";
   type: "collection";
@@ -177,9 +178,10 @@ interface YamlOperation {
   operationUrl: string;
   requestMethod: string;
   endpoint: string;
-  queryString?: NameTypeAndDescription;
-  requestBody?: NameTypeAndDescription;
-
+  requiredFields: {
+    queryString?: NameTypeAndDescription;
+    requestBody?: NameTypeAndDescription;
+  };
   additionalFields?: ExtraFields;
   filters?: ExtraFields;
   updateFields?: ExtraFields;
@@ -192,5 +194,5 @@ type ExtraFields = {
 };
 
 type NameTypeAndDescription = {
-  [key: string]: { type: string; description?: string };
+  [name: string]: { type: string; description?: string };
 };
