@@ -134,7 +134,7 @@ export class ApiCallBuilder {
         this.addNewLine(this.lines);
       } else if (
         rbItem.name === "Additional Fields" ||
-        rbItem.name === "Filter Fields" ||
+        rbItem.name === "Filters" ||
         rbItem.name === "Update Fields"
       ) {
         if (!this.hasStandardRequestBody) {

@@ -117,6 +117,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		displayName: '<%= rbItem.name %>',
 		name: '<%= helper.camelCase(rbItem.name) %>',
 		type: 'collection',
+		placeholder: '<%= helper.getPlaceholder(rbItem.name); %>',
 		default: {},
 		displayOptions: {
 			show: {

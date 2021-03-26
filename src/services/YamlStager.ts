@@ -50,7 +50,7 @@ export default class YamlStager {
         endpoint,
         queryString,
         additionalFields: addFields,
-        filterFields,
+        filters,
         updateFields,
         requestBody,
       } = inputOperation;
@@ -80,11 +80,11 @@ export default class YamlStager {
       if (outputQsAddFields)
         this.outputOperation.additionalFields = outputQsAddFields;
 
-      const outputQsFilters = this.qsExtraFields(filterFields, {
-        name: "Filter Fields",
+      const outputQsFilters = this.qsExtraFields(filters, {
+        name: "Filters",
       });
 
-      if (outputQsFilters) this.outputOperation.filterFields = outputQsFilters;
+      if (outputQsFilters) this.outputOperation.filters = outputQsFilters;
 
       const outputQsUpdateFields = this.qsExtraFields(updateFields, {
         name: "Update Fields",
@@ -109,7 +109,7 @@ export default class YamlStager {
       // ----------------------------------
 
       this.rbExtraFields(addFields, { name: "Additional Fields" });
-      this.rbExtraFields(filterFields, { name: "Filter Fields" });
+      this.rbExtraFields(filters, { name: "Filters" });
       this.rbExtraFields(updateFields, { name: "Update Fields" });
 
       this.outputMainParams[this.currentResource].push(this.outputOperation);
@@ -157,7 +157,7 @@ export default class YamlStager {
     {
       name,
     }: {
-      name: "Additional Fields" | "Filter Fields" | "Update Fields";
+      name: "Additional Fields" | "Filters" | "Update Fields";
     }
   ) {
     if (!extraFields) return null;
@@ -185,7 +185,7 @@ export default class YamlStager {
     {
       name,
     }: {
-      name: "Additional Fields" | "Filter Fields" | "Update Fields";
+      name: "Additional Fields" | "Filters" | "Update Fields";
     }
   ) {
     const rbExtraFields = this.stageRequestBody(extraFields?.requestBody, {
@@ -256,11 +256,7 @@ export default class YamlStager {
       name,
     }: {
       required: boolean;
-      name:
-        | "Standard"
-        | "Additional Fields"
-        | "Filter Fields"
-        | "Update Fields";
+      name: "Standard" | "Additional Fields" | "Filters" | "Update Fields";
     }
   ) {
     if (!requestBody) return null;

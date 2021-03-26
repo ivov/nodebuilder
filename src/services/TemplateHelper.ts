@@ -39,4 +39,9 @@ export class Helper {
     titleCase(str.replace(/[._]/g, " ").replace("Id", " ID"));
 
   toTemplateLiteral = (endpoint: string) => endpoint.replace(/{/g, "${");
+
+  getPlaceholder = (property: string) => {
+    if (property === "Filters") return "Add Filter";
+    return "Add Field";
+  };
 }

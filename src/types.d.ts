@@ -59,7 +59,7 @@ interface OperationParameter {
 }
 
 interface OperationRequestBody {
-  name: "Standard" | "Additional Fields" | "Filter Fields" | "Update Fields"; // custom-added
+  name: "Standard" | "Additional Fields" | "Filters" | "Update Fields"; // custom-added
   content?: OperationRequestBodyContent | any; // TODO
   description?: string;
   required?: boolean;
@@ -83,7 +83,7 @@ interface Schema {
 }
 
 interface AdditionalFields {
-  name: "Additional Fields" | "Filter Fields" | "Update Fields";
+  name: "Additional Fields" | "Filters" | "Update Fields";
   type: "collection";
   description: "";
   default: {};
@@ -181,7 +181,7 @@ interface YamlOperation {
   requestBody?: NameTypeAndDescription;
 
   additionalFields?: ExtraFields;
-  filterFields?: ExtraFields;
+  filters?: ExtraFields;
   updateFields?: ExtraFields;
 }
 
