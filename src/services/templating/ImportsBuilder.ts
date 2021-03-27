@@ -1,4 +1,4 @@
-export class ImportsBuilder {
+export default class ImportsBuilder {
   serviceApiRequest: string;
   hasGetAll = false;
 

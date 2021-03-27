@@ -1,6 +1,6 @@
 import { camelCase } from "change-case";
 
-export class ApiCallBuilder {
+export default class ApiCallBuilder {
   serviceApiRequest: string;
   lines: string[];
   hasPathParam = false;

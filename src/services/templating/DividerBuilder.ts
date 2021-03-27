@@ -1,4 +1,4 @@
-export class DividerBuilder {
+export default class DividerBuilder {
   isFirstOperation = true;
 
   /**  Build a comment divider for a resource:

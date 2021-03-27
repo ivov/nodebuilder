@@ -4,36 +4,37 @@ import yaml from "js-yaml";
 import { printTranslation } from "../utils/FilePrinter";
 
 /**
-Translates a YAML API mapping into a JSON API mapping, adjusting strings with `|`.
-
-From:
- ```yaml
- Company:
-    - endpoint: /companies
-      operationId: create
-      requestMethod: POST
-      requestBody:
-        name: string|Name of the company to create.
-      # ...
-```
-
-To:
-```json
-"Company": [
-  {
-    "endpoint": "/companies",
-    "operationId": "create",
-    "requestMethod": "POST",
-    "requestBody": {
-      "name": {
-        "type": "string",
-        "description": "Name of the company to create."
-      }
-    },
-    // ...
- ```
-*/
+ * Translates a YAML API mapping into a JSON API mapping, adjusting strings with `|`.
+ *
+ * From:
+ * ```yaml
+ * Company:
+ *   - endpoint: /companies
+ *     operationId: create
+ *     requestMethod: POST
+ *     requestBody:
+ *       name: string|Name of the company to create.
+ *     # ...
+ * ```
+ *
+ * To:
+ * ```json
+ * "Company": [
+ *   {
+ *     "endpoint": "/companies",
+ *     "operationId": "create",
+ *     "requestMethod": "POST",
+ *     "requestBody": {
+ *     "name": {
+ *        "type": "string",
+ *        "description": "Name of the company to create."
+ *      }
+ *   },
+ *   // ...
+ * ```
+ */
 export default class YamlParser {
+  private yamlFile: string;
   private yamlMainParams: YamlMainParams;
   private unsplittableFields = [
     "endpoint",
@@ -41,6 +42,10 @@ export default class YamlParser {
     "operationUrl",
     "requestMethod",
   ];
+
+  constructor(yamlFile: string) {
+    this.yamlFile = yamlFile;
+  }
 
   public run() {
     const yamlParams = this.jsonifyYaml();
@@ -59,11 +64,10 @@ export default class YamlParser {
   }
 
   private jsonifyYaml() {
-    const yamlFilePath = path.join("src", "input", "copper.yaml"); // TEMP
+    const yamlFilePath = path.join("src", "input", this.yamlFile + ".yaml");
+    const yamlFileContent = fs.readFileSync(yamlFilePath, "utf-8");
 
-    return yaml.load(
-      fs.readFileSync(yamlFilePath, "utf-8")
-    ) as YamlNodegenParams;
+    return yaml.load(yamlFileContent) as YamlNodegenParams;
   }
 
   // TODO: type properly
@@ -136,21 +140,19 @@ export default class YamlParser {
       value &&
       typeof value === "object" &&
       !Array.isArray(value) &&
-      !!Object.keys(value).length
+      !!Object.keys(value).length // TODO: Avoid `!!`
     );
   }
 
   private adjustAtSeparator(value: string | object[]) {
     if (Array.isArray(value)) return value;
 
-    if (typeof value === "string") {
-      if (value.includes("|")) {
-        const [type, description] = value.split("|");
-        return { type, description, default: this.getDefault(value) };
-      }
-
-      return { type: value, default: this.getDefault(value) };
+    if (value.includes("|")) {
+      const [type, description] = value.split("|");
+      return { type, description, default: this.getDefault(value) };
     }
+
+    return { type: value, default: this.getDefault(value) };
   }
 
   // TODO: Type properly

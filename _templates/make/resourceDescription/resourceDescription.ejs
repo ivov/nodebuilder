@@ -7,7 +7,7 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export const <%= helper.camelCase(resourceName) %>Operations = [
+export const <%= resourceName %>Operations = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -15,29 +15,21 @@ export const <%= helper.camelCase(resourceName) %>Operations = [
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= helper.camelCase(resourceName) %>',
+					'<%= resourceName %>',
 				],
 			},
 		},
 		options: [
-			<%_ operationsArray.forEach(operation => { _%>
-			{
-				name: '<%= helper.capitalCase(operation.operationId) %>',
-				value: '<%= helper.camelCase(operation.operationId) %>',
-				<%_ if (operation.description) { _%>
-				description: '<%- helper.escape(operation.description) %>',
-				<%_ } _%>
-			},
-			<%_ }); _%>
+			<%- builder.operationsOptions(operationsArray); %>
 		],
-		default: '<%= helper.camelCase(operationsArray[0].operationId) %>',
+		default: '<%= operationsArray[0].operationId %>',
 		description: 'Operation to perform',
 	},
 ] as INodeProperties[];
 
-export const <%= helper.camelCase(resourceName) %>Fields = [
+export const <%= resourceName %>Fields = [
 	<%_ operationsArray.forEach(operation => { _%>
-	<%= builder.resourceDescriptionDivider(helper.camelCase(resourceName), operation.operationId); %>
+	<%= builder.resourceDescriptionDivider(resourceName, operation.operationId); %>
 	<%_/**
 	 * **********************
 	 * PATH PARAMS & QS PARAMS
@@ -61,10 +53,10 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= helper.camelCase(resourceName); %>',
+					'<%= resourceName %>',
 				],
 				operation: [
-					'<%= helper.camelCase(operation.operationId); %>',
+					'<%= operation.operationId; %>',
 				],
 			},
 		},
@@ -101,10 +93,10 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= helper.camelCase(resourceName); %>',
+					'<%= resourceName; %>',
 				],
 				operation: [
-					'<%= helper.camelCase(operation.operationId); %>',
+					'<%= operation.operationId; %>',
 				],
 			},
 		},
@@ -122,10 +114,10 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		displayOptions: {
 			show: {
 				resource: [
-					'<%= helper.camelCase(resourceName); %>',
+					'<%= resourceName; %>',
 				],
 				operation: [
-					'<%= helper.camelCase(operation.operationId); %>',
+					'<%= operation.operationId; %>',
 				],
 			},
 		},
@@ -151,48 +143,6 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ } _%> <%#_ end rbItem.required if _%>
 	<%_ }); _%> <%#_ end rbItem loop _%>
 	<%_ } _%> <%#_ end requestBody if _%>
-	<%_ if (operation.operationId === "getAll") { _%>
-	{
-		displayName: 'Return All',
-		name: 'returnAll',
-		type: 'boolean',
-		default: false,
-		description: 'Return all results.',
-		displayOptions: {
-			show: {
-				resource: [
-					'<%= helper.camelCase(resourceName); %>',
-				],
-				operation: [
-					'<%= helper.camelCase(operation.operationId); %>',
-				],
-			},
-		},
-	},
-	{
-		displayName: 'Limit',
-		name: 'limit',
-		type: 'number',
-		default: 5,
-		description: 'The number of results to return.',
-		typeOptions: {
-			minValue: 1,
-			maxValue: 1000,
-		},
-		displayOptions: {
-			show: {
-				resource: [
-					'<%= helper.camelCase(resourceName); %>',
-				],
-				operation: [
-					'<%= helper.camelCase(operation.operationId); %>',
-				],
-				returnAll: [
-					false,
-				],
-			},
-		},
-	},
-<%_ } _%> <%#_ end getAll if _%>
+	<%_ builder.getAllAdditions(resourceName, operation.operationId); _%>
 <%_ }); _%> <%#_ end operations loop _%>
 ] as INodeProperties[];

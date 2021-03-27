@@ -1,6 +1,6 @@
 import { camelCase } from "change-case";
 
-export class BranchBuilder {
+export default class BranchBuilder {
   mainParams: MainParams;
   resourceTuples: ResourceTuples;
   resourceNames: string[];
