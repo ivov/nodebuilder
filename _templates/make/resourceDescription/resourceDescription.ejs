@@ -126,6 +126,10 @@ export const <%= resourceName %>Fields = [
 			<%_ if (mimeType === "application/x-www-form-urlencoded") { _%>
 			<%_ const schema = rbItem.content[mimeType].schema; _%>
 			<%_ Object.entries(schema.properties).forEach(([key, value]) => { _%>
+			<%_ if (value.type === 'string' || value.type === 'number') { _%>
+				<%_/**
+				* non-nested field inside extraFields
+				*/_%>
 			{
 				displayName: '<%= helper.titleCase(key); %>',
 				name: '<%= key %>',
@@ -135,6 +139,86 @@ export const <%= resourceName %>Fields = [
 				description: '<%- helper.escape(value.description) %>',
 				<%_ } _%>
 			},
+			<%_ } else if (Array.isArray(value) && value.length > 1) { _%>
+				<%_/**
+				* options (dropdown) inside extraFields
+				*/_%>
+			{
+				displayName: '<%= helper.titleCase(key); %>',
+				name: '<%= key %>',
+				type: 'options',
+				default: '<%= Object.keys(value[0])[0] %>',
+				options: [
+					<%_ value.forEach(suboption => { _%>
+					<%_ Object.keys(suboption).forEach(subKey => { _%>
+					{
+						name: '<%= helper.titleCase(subKey) %>',
+						value: '<%= subKey %>',
+					},
+					<%_ }); _%>
+					<%_ }); _%>
+				],
+			},
+			<%_ } else if (Array.isArray(value) && value.length === 1) { _%>
+				<%_/**
+				* fixedCollection with multipleValues inside extraFields
+				*/_%>
+			{
+				displayName: '<%= helper.titleCase(key); %>',
+				name: '<%= key %>',
+				type: 'fixedCollection',
+				default: {},
+				placeholder: 'Add <%= helper.titleCase(key + " Field") %>',
+				typeOptions: {
+					multipleValues: true,
+				},
+				options: [
+					{
+						displayName: '<%= helper.titleCase(key + " Fields") %>',
+						name: '<%= helper.addFieldsSuffix(key) %>',
+						values: [
+						<%_ value.forEach(i => { _%>
+						<%_ Object.keys(i).forEach(subKey => { _%>
+							{
+								displayName: '<%= helper.titleCase(subKey) %>',
+								name: '<%= subKey %>',
+								type: 'string',
+								default: '',
+							},
+						<%_ }); _%>
+						<%_ }); _%>
+						],
+					},
+				],
+			},
+			<%_ } else if (!value.type && !Array.isArray(value)) { _%>
+				<%_/**
+				* fixedCollection without multipleValues inside extraFields
+				*/_%>
+			{
+				displayName: '<%= helper.titleCase(key); %>',
+				name: '<%= key %>',
+				type: 'fixedCollection',
+				default: {},
+				placeholder: 'Add <%= helper.titleCase(key + " Field") %>',
+				options: [
+					{
+						displayName: '<%= helper.titleCase(key + " Fields") %>',
+						name: '<%= helper.addFieldsSuffix(key) %>',
+						values: [
+						<%_ Object.keys(value).forEach(subKey => { _%>
+							{
+								displayName: '<%= helper.titleCase(subKey) %>',
+								name: '<%= subKey %>',
+								type: 'string',
+								default: '',
+							},
+						<%_ }); _%>
+						],
+					},
+				],
+			},
+			<%_ } _%>
 			<%_ }); _%> <%#_ end properties loop _%>
 			<%_ } _%> <%#_ end mimeType if _%>
 			<%_ }); _%> <%#_ end mimeType loop _%>

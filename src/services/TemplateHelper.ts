@@ -44,4 +44,7 @@ export class Helper {
     if (property === "Filters") return "Add Filter";
     return "Add Field";
   };
+
+  addFieldsSuffix = (key: string) =>
+    key.split("").includes("_") ? key + "_fields" : key + "Fields";
 }
