@@ -76,6 +76,13 @@ export default class YamlParser {
 
     if (Array.isArray(value)) {
       const newArr = value.map((item) => this.sortKeys(item));
+
+      // sort keys for dropdown options
+      if (newArr.every((i) => Object.keys(i).length === 1)) {
+        const orderedKeys = value.map((i) => Object.keys(i)[0]).sort();
+        return orderedKeys.map((key) => newArr.find((i) => i[key]));
+      }
+
       newArr.sort();
       return newArr;
     }
