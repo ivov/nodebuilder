@@ -4,9 +4,10 @@ import path from "path";
 import fs from "fs";
 import { titleCase } from "title-case";
 import { inputDir, openApiInputDir, swagger } from "../config";
+import { camelCase } from "change-case";
 
 export default class OpenApiParser {
-  private readonly json: any; // TODO
+  private readonly json: any;
   private readonly serviceName: string;
   private currentEndpoint: string;
 
@@ -82,19 +83,46 @@ export default class OpenApiParser {
   private processDescription() {
     return this.extract("description")
       .replace(/\n/g, " ")
-      .replace(/\s\s/g, " ")
+      .replace(/\s+/g, " ")
       .replace(/'/g, "\\'")
       .trim();
   }
 
   private processRequestBody() {
     const requestBody = this.extract("requestBody");
-    if (requestBody?.content["text/plain"]) {
-      requestBody.textPlainProperty = requestBody.description
-        ?.split(" ")[0]
-        .toLowerCase();
+
+    if (!requestBody) return null;
+
+    const urlEncoded = requestBody.content["application/x-www-form-urlencoded"];
+
+    if (urlEncoded) {
+      this.sanitizeProperties(urlEncoded);
     }
-    return requestBody;
+
+    if (requestBody.content["text/plain"]) {
+      this.setTextPlainProperty(requestBody);
+    }
+
+    return { name: "Standard", ...requestBody } as const;
+  }
+
+  // TODO: Type properly
+  private setTextPlainProperty(requestBody: any) {
+    requestBody.textPlainProperty =
+      requestBody.description?.split(" ")[0].toLowerCase() ??
+      "UNNAMED TEXT PLAIN PROPERTY";
+  }
+
+  // TODO: Type properly
+  private sanitizeProperties(urlEncoded: any) {
+    const properties = Object.keys(urlEncoded.schema.properties);
+    properties.forEach((property) => {
+      const sanitizedProperty = camelCase(property.replace(".", " "));
+
+      urlEncoded.schema.properties[sanitizedProperty] =
+        urlEncoded.schema.properties[property];
+      delete urlEncoded.schema.properties[property];
+    });
   }
 
   private createOperation(requestMethod: string) {
@@ -105,13 +133,11 @@ export default class OpenApiParser {
       description: this.processDescription(),
     };
 
-    const [params, addFields] = this.processParams();
+    const parameters = this.processParameters();
     const requestBody = this.processRequestBody();
 
-    if (params.length) operation.parameters = params;
-    if (addFields.options.length) operation.additionalFields = addFields;
-    if (requestBody)
-      operation.requestBody = [{ name: "Standard", ...requestBody }];
+    if (parameters.length) operation.parameters = parameters;
+    if (requestBody) operation.requestBody = [requestBody];
 
     return operation;
   }
@@ -120,13 +146,12 @@ export default class OpenApiParser {
     return this.extract("operationId") ?? this.getFallbackId(requestMethod);
   }
 
-  /**Process the path and query string params for the current endpoint.*/
-  private processParams() {
-    const allParams = this.extract("parameters");
-    return this.classifyParams(allParams);
+  private processParameters() {
+    return this.extract("parameters").map((field) =>
+      field.required ? field : { ...field, required: false }
+    );
   }
 
-  /**Return a fallback operation ID if missing in the spec.*/
   private getFallbackId(requestMethod: string) {
     const hasBracket = this.currentEndpoint.split("").includes("}");
 
@@ -136,7 +161,7 @@ export default class OpenApiParser {
     if (requestMethod === "delete") return "delete";
     if (requestMethod === "post") return "create";
 
-    return "unnamed";
+    return "UNNAMED";
   }
 
   /**Extract the keys and values from the OpenAPI JSON based on the current endpoint.
@@ -180,43 +205,5 @@ export default class OpenApiParser {
     if (key === "tags") return `*.${key}.*`;
     if (key === "requestMethods") return `*~`;
     return `*.${key}`;
-  }
-
-  /**Classify operation parameters as required and non-required.*/
-  private classifyParams(
-    parameters: OperationParameter[]
-  ): [OperationParameter[], AdditionalFields] {
-    const requiredParams: OperationParameter[] = [];
-
-    const additionalFields: AdditionalFields = {
-      name: "Additional Fields",
-      type: "collection",
-      description: "",
-      default: {},
-      options: [],
-    };
-
-    parameters.forEach((field) => {
-      field.required
-        ? requiredParams.push(field)
-        : additionalFields.options.push({
-            in: field.in,
-            name: field.name,
-            schema: {
-              type: field.schema.type,
-              default: this.getDefaultFromSchema(field.schema),
-            },
-            description: field.description,
-          });
-    });
-
-    return [requiredParams, additionalFields];
-  }
-
-  private getDefaultFromSchema(schema: OperationParameter["schema"]) {
-    if (schema.default) return schema.default;
-    if (schema.type === "boolean") return false;
-    if (schema.type === "number") return 0;
-    return "";
   }
 }

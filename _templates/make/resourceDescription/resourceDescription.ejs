@@ -50,7 +50,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 			maxValue: <%= param.schema.maximum %>
 		},
 		<%_ } _%>
-		required: true,
+		required: <%= param.required %>,
 		default: <%- helper.getDefault(param.schema); %>,
 		displayOptions: {
 			show: {
