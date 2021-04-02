@@ -5,6 +5,8 @@ export default class BranchBuilder {
   resourceTuples: ResourceTuples;
   resourceNames: string[];
 
+  isFirstResource = true;
+
   constructor(mainParams: MainParams) {
     this.mainParams = mainParams;
     this.resourceTuples = Object.entries(this.mainParams);
@@ -18,10 +20,13 @@ export default class BranchBuilder {
 
   resourceBranch(resourceName: string) {
     const branch = `if (resource === '${camelCase(resourceName)}') {`;
-    const prefix = "} else ";
-    const isFirst = this.isFirst(resourceName, this.resourceNames);
 
-    return isFirst ? branch : prefix + branch;
+    if (this.isFirstResource) {
+      this.isFirstResource = false;
+      return branch;
+    }
+
+    return "} else " + branch;
   }
 
   operationBranch(resourceName: string, operation: Operation) {

@@ -2,7 +2,7 @@
 //         Node generation
 // ----------------------------------
 
-type GenerationSource = "OpenAPI" | "YAML";
+type InputFileFormat = "OpenAPI" | "YAML";
 
 type AuthType = "OAuth2" | "ApiKey" | "None";
 

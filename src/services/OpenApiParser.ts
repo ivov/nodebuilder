@@ -3,11 +3,9 @@ import { JSONPath as jsonQuery } from "jsonpath-plus";
 import { join } from "path";
 import { readFileSync } from "fs";
 import { titleCase } from "title-case";
+import { inputDir, openApiInputDir, swagger } from "../config";
 
-/**
- * Extracts params from an OpenAPI JSON file for use in node generation.
- */
-export default class OpenApiExtractor {
+export default class OpenApiParser {
   private readonly json: any; // TODO
   private readonly serviceName: string;
   private currentEndpoint: string;
@@ -31,16 +29,9 @@ export default class OpenApiExtractor {
 
   /**Replace `$ref` with its referenced value and parse the resulting JSON.*/
   private parseSpec(serviceName: string) {
-    const source = join("src", "input", serviceName + ".json");
-    const dest = join("src", "input", "_deref.json");
+    const source = join(openApiInputDir, serviceName + ".json");
+    const dest = join(inputDir, "_deref.json");
     const args = `--dereference ${source} --outfile ${dest}`;
-    const swagger = join(
-      "node_modules",
-      "@apidevtools",
-      "swagger-cli",
-      "bin",
-      "swagger-cli.js"
-    );
 
     execSync(`node ${swagger} bundle ${args}`);
 
@@ -100,7 +91,7 @@ export default class OpenApiExtractor {
 
     if (params.length) operation.parameters = params;
     if (addFields.options.length) operation.additionalFields = addFields;
-    if (requestBody) operation.requestBody![0] = requestBody; // TEMP: Revisit because now it is an array
+    if (requestBody) operation.requestBody = [requestBody];
 
     return operation;
   }
@@ -193,7 +184,7 @@ export default class OpenApiExtractor {
             name: field.name,
             schema: {
               type: field.schema.type,
-              default: this.getDefault(field.schema),
+              default: this.getDefaultFromSchema(field.schema),
             },
             description: field.description,
           });
@@ -202,9 +193,10 @@ export default class OpenApiExtractor {
     return [requiredParams, additionalFields];
   }
 
-  private getDefault(schema: OperationParameter["schema"]) {
+  private getDefaultFromSchema(schema: OperationParameter["schema"]) {
     if (schema.default) return schema.default;
     if (schema.type === "boolean") return false;
+    if (schema.type === "number") return 0;
     return "";
   }
 }

@@ -1,17 +1,11 @@
-import json from "../input/lichess.json";
+import json from "../input/openApi/lichess.json";
 
 import TreeRenderer from "../utils/TreeRenderer";
-import OpenApiExtractor from "../services/OpenApiExtractor";
+import OpenApiParser from "../services/OpenApiParser";
 import FilePrinter from "../utils/FilePrinter";
 
-try {
-  const extractor = new OpenApiExtractor("lichess");
-  const nodegenParams = extractor.run();
-  const treeViewer = new TreeRenderer(nodegenParams.mainParams, json);
-  const treeview = treeViewer.run();
-  const printer = new FilePrinter(treeview);
-  printer.print({ format: "txt" });
-  console.log("Successfully rendered OpenAPI JSON as treeview");
-} catch (e) {
-  throw new Error("Failed to render OpenAPI JSON as treeview");
-}
+const nodegenParams = new OpenApiParser("lichess").run();
+const treeViewer = new TreeRenderer(nodegenParams.mainParams, json);
+const treeview = treeViewer.run();
+const printer = new FilePrinter(treeview);
+printer.print({ format: "txt" });

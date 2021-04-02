@@ -1,32 +1,25 @@
+import { descriptionsOutputDir, hygen, inputDir, outputDir } from "../config";
 import { execSync } from "child_process";
-import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "fs";
+import fs from "fs";
 import { join } from "path";
 
 export default class Generator {
   private mainParams: MainParams;
-
-  private inputDir = join("src", "input");
-  private outputDir = join("src", "output", "descriptions");
-
-  private resourceJson = join(this.inputDir, "_resource.json");
-  private hygen = join("node_modules", "hygen", "dist", "bin.js");
+  private resourceJson = join(inputDir, "_resource.json");
 
   constructor(mainParams: MainParams) {
     this.mainParams = mainParams;
   }
 
-  /**Generates all node functionality files:
+  /**Generate all node functionality files:
    * - `*.node.ts`,
    * - one `*Description.ts` per resource,
-   * - `GenericFunctions.ts`, and
-   * - `*.credentials.ts` if needed.*/
+   * - `GenericFunctions.ts`, and ← TODO
+   * - `*.credentials.ts` if needed. ← TODO*/
   public run() {
-    this.createInputOutputDirs();
+    this.validateDirs();
 
-    // TEMP condition - TODO: implement resource descriptions for YAML source
-    // if (this.source === "OpenAPI") {
     this.generateResourceDescriptions();
-    // }
 
     this.generateRegularNodeFile();
 
@@ -39,7 +32,7 @@ export default class Generator {
 
   private executeCommand(command: string) {
     try {
-      execSync(`env HYGEN_OVERWRITE=1 node ${this.hygen} ${command}`);
+      execSync(`env HYGEN_OVERWRITE=1 node ${hygen} ${command}`);
     } catch (error) {
       console.log(error.stdout.toString());
       console.log(error.message);
@@ -50,7 +43,7 @@ export default class Generator {
     this.executeCommand("make regularNodeFile");
   }
 
-  /**For every resource in main params, generates a resource JSON file, feeds it into
+  /**For every resource in main params, generate a resource JSON file, feeds it into
    * the Hygen template for code generation and deletes the resource JSON file.*/
   private generateResourceDescriptions() {
     // TEMP: only first resource -----------------------------
@@ -73,20 +66,20 @@ export default class Generator {
       ([resourceName, operationsArray]) => {
         this.saveResourceJson(resourceName, operationsArray);
         this.executeCommand("make resourceDescription");
-        unlinkSync(this.resourceJson);
+        fs.unlinkSync(this.resourceJson);
       }
     );
     this.executeCommand(`make resourceIndex --resourceNames ${resourceNames}`);
   }
 
-  private createInputOutputDirs() {
-    [this.inputDir, this.outputDir].forEach((dir) => {
-      if (!existsSync(dir)) mkdirSync(dir);
+  private validateDirs() {
+    [inputDir, outputDir, descriptionsOutputDir].forEach((dir) => {
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir);
     });
   }
 
   private saveResourceJson(resourceName: string, operationsArray: Resource) {
-    writeFileSync(
+    fs.writeFileSync(
       this.resourceJson,
       JSON.stringify({ resourceName, operationsArray }, null, 2),
       "utf8"

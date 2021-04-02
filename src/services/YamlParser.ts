@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
-import { printTranslation } from "../utils/FilePrinter";
+import YamlStager from "./YamlStager";
 
 /**
- * Translates a YAML API mapping into a JSON API mapping, adjusting strings with `|`.
+ * Translates a YAML API mapping into a JSON API mapping, also adjusting vertical bar strings.
  *
  * From:
  * ```yaml
@@ -48,23 +48,23 @@ export default class YamlParser {
   }
 
   public run() {
-    const yamlParams = this.jsonifyYaml();
-    this.yamlMainParams = this.sortKeys(yamlParams.mainParams);
+    const { metaParams, mainParams } = this.jsonifyYaml();
+    this.yamlMainParams = this.sortKeys(mainParams);
 
     this.iterateOverOperations((operation: YamlOperation) =>
       this.traverseToAdjust(operation)
     );
 
-    printTranslation(this.yamlMainParams); // TEMP
+    // printTranslation(this.yamlMainParams);
 
-    return {
+    return new YamlStager({
       mainParams: this.yamlMainParams,
-      metaParams: yamlParams.metaParams,
-    };
+      metaParams: metaParams,
+    }).run();
   }
 
   private jsonifyYaml() {
-    const yamlFilePath = path.join("src", "input", this.yamlFile + ".yaml");
+    const yamlFilePath = path.join("src", "input", "yaml", this.yamlFile);
     const yamlFileContent = fs.readFileSync(yamlFilePath, "utf-8");
 
     return yaml.load(yamlFileContent) as YamlNodegenParams;
@@ -156,17 +156,16 @@ export default class YamlParser {
 
     if (value.includes("|")) {
       const [type, description] = value.split("|");
-      return { type, description, default: this.getDefault(value) };
+      return { type, description, default: this.getDefaultFromString(type) };
     }
 
-    return { type: value, default: this.getDefault(value) };
+    return { type: value, default: this.getDefaultFromString(value) };
   }
 
-  // TODO: Type properly
-  private getDefault(arg: any) {
-    if (arg.default) return arg.default;
-    if (arg.type === "boolean") return false;
-    if (arg.type === "number") return 0;
+  private getDefaultFromString(type: string) {
+    if (type === "string") return "";
+    if (type === "boolean") return false;
+    if (type === "number") return 0;
     return "";
   }
 }

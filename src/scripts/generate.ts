@@ -1,30 +1,22 @@
 import Generator from "../services/TypeScriptGenerator";
-import OpenApiExtractor from "../services/OpenApiExtractor";
+import OpenApiParser from "../services/OpenApiParser";
 import YamlParser from "../services/YamlParser";
-import YamlStager from "../services/YamlStager";
 import FilePrinter from "../utils/FilePrinter";
+import Prompter from "../services/Prompter";
 
-const source = "YAML" as GenerationSource; // TEMP
+(async () => {
+  const prompter = new Prompter();
+  const sourceType = await prompter.askForSourceType();
 
-try {
-  source === "OpenAPI"
-    ? generateFromOpenAPI("lichess")
-    : generateFromYaml("copper");
+  let nodegenParams: NodegenParams;
+  if (sourceType === "YAML") {
+    const yamlFile = await prompter.askForYamlFile();
+    nodegenParams = new YamlParser(yamlFile).run();
+  } else {
+    const openApiFile = await prompter.askForOpenApiFile();
+    nodegenParams = new OpenApiParser(openApiFile).run();
+  }
 
-  console.log("Successfully converted JS object into TypeScript node");
-} catch (e) {
-  console.log(e);
-}
-
-function generateFromOpenAPI(file: string) {
-  const nodegenParams = new OpenApiExtractor(file).run();
   new FilePrinter(nodegenParams).print({ format: "json" });
   new Generator(nodegenParams.mainParams).run();
-}
-
-function generateFromYaml(file: string) {
-  const translation = new YamlParser(file).run();
-  const nodegenParams = new YamlStager(translation).run();
-  new FilePrinter(nodegenParams).print({ format: "json" });
-  new Generator(nodegenParams.mainParams).run();
-}
+})();

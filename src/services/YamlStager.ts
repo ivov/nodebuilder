@@ -1,5 +1,3 @@
-import { printStagedParams } from "../utils/FilePrinter";
-
 /**
  * Responsible for staging output params for consumption by nodegen templates,
  * based on a YAML-to-JSON translation as input.
@@ -20,7 +18,7 @@ export default class YamlStager {
     this.initializeOutputParams();
     this.populateOutputParams();
 
-    printStagedParams(this.outputMainParams); // TEMP
+    // printStagedParams(this.outputMainParams); // TEMP
 
     return {
       mainParams: this.outputMainParams,
@@ -242,7 +240,7 @@ export default class YamlStager {
       required,
       schema: {
         type: value.type,
-        default: this.getDefault(value.type),
+        default: value.type,
       },
     };
 
@@ -286,11 +284,5 @@ export default class YamlStager {
     });
 
     return [outputRequestBody];
-  }
-
-  private getDefault(type: string) {
-    if (type === "boolean") return false;
-    if (type === "number") return 0;
-    return "";
   }
 }

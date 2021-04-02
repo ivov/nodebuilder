@@ -1,18 +1,17 @@
-/node_modules
-/dist
-.todo
-notes.txt
+node_modules
+dist
 
 src/input/*
-!src/input/.gitkeep
-!src/input/lichess.json
-!src/input/razorpay.yaml
+src/input/openApi/*
+!src/input/openApi/
+!src/input/openApi/.gitkeep
 
-translation.json
-stagedParams.json
+src/input/yaml/*
+!src/input/yaml/
+!src/input/yaml/.gitkeep
 
 src/output/*
 !src/output/.gitkeep
 
-/*.txt
-/*.xlsx
+*.todo
+*.txt

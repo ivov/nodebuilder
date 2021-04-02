@@ -11,11 +11,6 @@
 	},
 	"files.exclude": {
 		"node_modules": true,
-		"src/input/.gitkeep": true,
-		"src/output/.gitkeep": true,
-		".gitignore": true,
-		".prettierignore": true,
-		".prettierrc": true
 	},
 	"typescript.tsdk": "node_modules\\typescript\\lib",
 }
