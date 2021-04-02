@@ -7,7 +7,7 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export const <%= resourceName %>Operations = [
+export const <%= helper.camelCase(resourceName) %>Operations = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -27,7 +27,7 @@ export const <%= resourceName %>Operations = [
 	},
 ] as INodeProperties[];
 
-export const <%= resourceName %>Fields = [
+export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ operationsArray.forEach(operation => { _%>
 	<%= builder.resourceDescriptionDivider(resourceName, operation.operationId); %>
 	<%_/**

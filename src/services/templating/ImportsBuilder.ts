@@ -24,6 +24,6 @@ export default class ImportsBuilder {
           .sort()
           .map((imported) => "\t" + imported + ",")
           .join("\n")
-      : this.serviceApiRequest + ",";
+      : "\t" + this.serviceApiRequest + ",";
   }
 }

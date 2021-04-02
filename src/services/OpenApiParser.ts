@@ -11,7 +11,7 @@ export default class OpenApiParser {
   private currentEndpoint: string;
 
   constructor(serviceName: string) {
-    this.serviceName = serviceName;
+    this.serviceName = serviceName.replace(".json", "");
     this.json = this.parseSpec(serviceName);
   }
 
@@ -29,11 +29,12 @@ export default class OpenApiParser {
 
   /**Replace `$ref` with its referenced value and parse the resulting JSON.*/
   private parseSpec(serviceName: string) {
-    const source = join(openApiInputDir, serviceName + ".json");
+    const source = join(openApiInputDir, serviceName);
     const dest = join(inputDir, "_deref.json");
-    const args = `--dereference ${source} --outfile ${dest}`;
 
-    execSync(`node ${swagger} bundle ${args}`);
+    execSync(
+      `node ${swagger} bundle --dereference ${source} --outfile ${dest}`
+    );
 
     return JSON.parse(readFileSync(dest).toString());
   }
@@ -78,12 +79,20 @@ export default class OpenApiParser {
     return [...new Set(resources)];
   }
 
+  private processDescription() {
+    return this.extract("description")
+      .replace(/\n/g, " ")
+      .replace(/\s\s/g, " ")
+      .replace(/'/g, "\\'")
+      .trim();
+  }
+
   private createOperation(requestMethod: string) {
     const operation: Operation = {
       endpoint: this.currentEndpoint,
       requestMethod: requestMethod.toUpperCase(),
       operationId: this.processOperationId(requestMethod),
-      description: this.extract("description"),
+      description: this.processDescription(),
     };
 
     const [params, addFields] = this.processParams();
@@ -91,7 +100,8 @@ export default class OpenApiParser {
 
     if (params.length) operation.parameters = params;
     if (addFields.options.length) operation.additionalFields = addFields;
-    if (requestBody) operation.requestBody = [requestBody];
+    if (requestBody)
+      operation.requestBody = [{ name: "Standard", ...requestBody }];
 
     return operation;
   }

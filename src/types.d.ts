@@ -59,7 +59,7 @@ interface OperationParameter {
 }
 
 interface OperationRequestBody {
-  name: "Standard" | "Additional Fields" | "Filters" | "Update Fields"; // custom-added
+  name?: "Standard" | "Additional Fields" | "Filters" | "Update Fields"; // optional until added
   content?: OperationRequestBodyContent | any; // TODO
   description?: string;
   required?: boolean;

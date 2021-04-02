@@ -1,6 +1,6 @@
 ---
 to: src/output/descriptions/index.ts
 ---
-<%_ resourceNames.split(",").forEach(resourceName => { _%>
+<%_ resourceNames.forEach(resourceName => { _%>
 export * from './<%= resourceName %>Description';
 <%_ }); _%>
