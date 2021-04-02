@@ -94,27 +94,26 @@ export default class OpenApiParser {
     if (!requestBody) return null;
 
     const urlEncoded = requestBody.content["application/x-www-form-urlencoded"];
+    const textPlain = requestBody.content["text/plain"];
 
     if (urlEncoded) {
       this.sanitizeProperties(urlEncoded);
     }
 
-    if (requestBody.content["text/plain"]) {
+    if (textPlain) {
       this.setTextPlainProperty(requestBody);
     }
 
-    return { name: "Standard", ...requestBody } as const;
+    return [{ name: "Standard", ...requestBody } as const];
   }
 
-  // TODO: Type properly
-  private setTextPlainProperty(requestBody: any) {
+  private setTextPlainProperty(requestBody: OperationRequestBody) {
     requestBody.textPlainProperty =
       requestBody.description?.split(" ")[0].toLowerCase() ??
       "UNNAMED TEXT PLAIN PROPERTY";
   }
 
-  // TODO: Type properly
-  private sanitizeProperties(urlEncoded: any) {
+  private sanitizeProperties(urlEncoded: { schema: Schema }) {
     const properties = Object.keys(urlEncoded.schema.properties);
     properties.forEach((property) => {
       const sanitizedProperty = camelCase(property.replace(".", " "));
@@ -137,7 +136,7 @@ export default class OpenApiParser {
     const requestBody = this.processRequestBody();
 
     if (parameters.length) operation.parameters = parameters;
-    if (requestBody) operation.requestBody = [requestBody];
+    if (requestBody?.length) operation.requestBody = requestBody;
 
     return operation;
   }

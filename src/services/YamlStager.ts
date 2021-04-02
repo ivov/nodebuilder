@@ -263,10 +263,10 @@ export default class YamlStager {
     if (!requestBody) return null;
 
     const outputRequestBody: OperationRequestBody = {
-      // TODO: add other types: `multipart/form-data` and `text/plain`
       name,
       required,
       content: {
+        // TODO: add also `multipart/form-data` and `text/plain`
         "application/x-www-form-urlencoded": {
           schema: {
             type: "object",
@@ -279,7 +279,11 @@ export default class YamlStager {
     const formUrlEncoded = "application/x-www-form-urlencoded";
 
     Object.entries(requestBody).forEach(([key, value]) => {
-      outputRequestBody.content[formUrlEncoded].schema.properties[key] = value;
+      const properties =
+        outputRequestBody.content[formUrlEncoded]?.schema.properties;
+      if (properties) {
+        properties[key] = value;
+      }
     });
 
     return [outputRequestBody];

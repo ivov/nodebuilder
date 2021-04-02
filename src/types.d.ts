@@ -43,7 +43,7 @@ interface Operation {
 }
 
 interface OperationParameter {
-  in: "path" | "query";
+  in: "path" | "query" | "header";
   name: string;
   description?: string;
   schema: {
@@ -60,16 +60,16 @@ interface OperationParameter {
 
 interface OperationRequestBody {
   name?: "Standard" | "Additional Fields" | "Filters" | "Update Fields"; // optional until added
-  content?: OperationRequestBodyContent | any; // TODO
+  content: OperationRequestBodyContent;
   description?: string;
   required?: boolean;
-  textPlainProperty?: string; // custom-added for text/plain request body items
+  textPlainProperty?: string;
 }
 
 interface OperationRequestBodyContent {
   [key: string]: { schema: Schema };
-  "application/x-www-form-urlencoded": { schema: Schema };
-  "text/plain": { schema: Schema };
+  "application/x-www-form-urlencoded"?: { schema: Schema };
+  "text/plain"?: { schema: Schema };
 }
 
 interface Schema {
@@ -78,7 +78,7 @@ interface Schema {
   properties: {
     [key: string]: {
       type: string;
-      description: string;
+      description?: string;
     };
   };
 }
@@ -166,15 +166,6 @@ interface YamlMainParams {
 }
 
 interface YamlOperation {
-  // [key: string]: {
-  //   [key: string]:
-  //     | string
-  //     | { type: string; description?: string }
-  //     | { queryString: { type: string; description?: string } }
-  //     | { requestBody: { type: string; description?: string } };
-  //   // | { filters: { [key: string]: string }}
-  //   // | { updateFields: { [key: string]: string }};
-  // };
   operationId: string;
   operationUrl: string;
   requestMethod: string;
