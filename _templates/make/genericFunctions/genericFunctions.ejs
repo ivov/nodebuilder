@@ -1,0 +1,94 @@
+---
+to: src/output/GenericFunctions.ts
+---
+<%_ const helper = new Helper(); _%>
+import {
+	IExecuteFunctions,
+	IHookFunctions,
+} from 'n8n-core';
+
+import {
+	IDataObject,
+	NodeApiError,
+	NodeOperationError,
+} from 'n8n-workflow';
+
+import {
+	OptionsWithUri,
+} from 'request';
+
+export async function <%= helper.camelCase(metaParams.serviceName); %>ApiRequest(
+	this: IExecuteFunctions | IHookFunctions,
+	method: string,
+	endpoint: string,
+	body: IDataObject = {},
+	qs: IDataObject = {},
+	uri?: string,
+	headers?: IDataObject,
+) {
+
+	const options: OptionsWithUri = {
+		headers: {},
+		body,
+		method,
+		qs,
+		uri: uri || `<%= metaParams.apiUrl; %>${endpoint}`,
+		json: true,
+	};
+
+	try {
+		<%_ if (metaParams.authType !== "None") { _%>
+
+		const credentials = this.getCredentials('<%= helper.getCredentialsString(metaParams.serviceName, metaParams.authType); %>');
+
+		if (credentials === undefined) {
+			throw new NodeOperationError(this.getNode(), 'No credentials got returned!');
+		}
+		<%_ } _%>
+
+		if (Object.keys(headers).length !== 0) {
+			options.headers = Object.assign({}, options.headers, headers);
+		}
+
+		if (!Object.keys(body).length) {
+			delete options.body;
+		}
+
+		if (!Object.keys(qs).length) {
+			delete options.qs;
+		}
+
+		<%_ if (metaParams.authType === "OAuth2") { _%>
+		return await this.helpers.requestOAuth2.call(this, '<%= helper.getCredentialsString(metaParams.serviceName, metaParams.authType); %>', options);
+		<%_ } else { _%>
+		return await this.helpers.request!(options);
+		<%_ } _%>
+
+	} catch (error) {
+		throw new NodeApiError(this.getNode(), error);
+	}
+}
+
+export async function <%= helper.camelCase(metaParams.serviceName); %>ApiRequestAllItems(
+	this: IHookFunctions | IExecuteFunctions,
+	propertyName: string,
+	method: string,
+	endpoint: string,
+	body: IDataObject,
+	qs: IDataObject,
+) {
+
+	const returnData: IDataObject[] = [];
+	let responseData: any;
+
+	do {
+		responseData = await <%= helper.camelCase(metaParams.serviceName); %>ApiRequest.call(this, method, endpoint, body, qs);
+		// TODO: Get next page using `responseData` or `qs`
+		returnData.push(...responseData[propertyName]);
+
+	} while (
+		// TODO: Add condition for total not yet reached
+	);
+
+	return returnData;
+}

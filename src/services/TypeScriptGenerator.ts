@@ -23,7 +23,7 @@ export default class Generator {
 
     this.generateRegularNodeFile();
 
-    // this.generateGenericFunctionsFile();
+    this.generateGenericFunctionsFile();
 
     // if (this.metaParams.authType !== "None") {
     //   this.generateCredentialsFile();
@@ -41,6 +41,10 @@ export default class Generator {
 
   private generateRegularNodeFile() {
     this.executeCommand("make regularNodeFile");
+  }
+
+  private generateGenericFunctionsFile() {
+    this.executeCommand("make genericFunctions");
   }
 
   /**For every resource in main params, generate a resource JSON file, feeds it into

@@ -10,6 +10,9 @@ export class Helper {
 
   escape = (str: string) => str.replace(/(\r)?\n/g, "<br>").replace(/'/g, "’");
 
+  getCredentialsString = (name: string, auth: AuthType) =>
+    this.camelCase(name) + (auth === "OAuth2" ? "OAuth2" : "") + "Api";
+
   getDefault(arg: any) {
     if (arg.default && arg.type === "string") return `'${arg.default}'`;
 

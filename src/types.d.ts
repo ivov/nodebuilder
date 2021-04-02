@@ -4,7 +4,7 @@
 
 type InputFileFormat = "OpenAPI" | "YAML";
 
-type AuthType = "OAuth2" | "ApiKey" | "None";
+type AuthType = "None" | "ApiKey" | "OAuth2";
 
 type NodegenParams = {
   metaParams: MetaParams;
@@ -13,7 +13,7 @@ type NodegenParams = {
 
 type MetaParams = {
   serviceName: string;
-  authType: keyof typeof AuthType;
+  authType: AuthType;
   nodeColor: string;
   apiUrl: string;
 };
