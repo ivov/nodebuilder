@@ -27,3 +27,10 @@ import Prompter from "../services/Prompter";
   new FilePrinter(nodegenParams).print({ format: "json" });
   new Generator(nodegenParams.mainParams).run();
 })();
+
+// (async () => {
+//   const nodegenParams = new YamlParser("copper.yaml").run();
+
+//   new FilePrinter(nodegenParams).print({ format: "json" });
+//   new Generator(nodegenParams.mainParams).run();
+// })();

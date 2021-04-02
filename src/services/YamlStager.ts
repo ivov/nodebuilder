@@ -45,7 +45,6 @@ export default class YamlStager {
       this.initializeOutputOperation(inputOperation);
 
       const {
-        endpoint,
         requiredFields,
         additionalFields: addFields,
         filters,

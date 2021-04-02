@@ -63,6 +63,7 @@ interface OperationRequestBody {
   content?: OperationRequestBodyContent | any; // TODO
   description?: string;
   required?: boolean;
+  textPlainProperty?: string; // custom-added for text/plain request body items
 }
 
 interface OperationRequestBodyContent {
@@ -89,7 +90,7 @@ interface AdditionalFields {
   description: "";
   default: {};
   options: {
-    in: "path" | "query";
+    in: "path" | "query" | "header";
     name: string;
     schema: {
       type: string;

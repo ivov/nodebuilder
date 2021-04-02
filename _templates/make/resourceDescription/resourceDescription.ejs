@@ -29,7 +29,9 @@ export const <%= helper.camelCase(resourceName) %>Operations = [
 
 export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ operationsArray.forEach(operation => { _%>
+	<%_ if (operation.requestBody || operation.parameters || operation.additionalFields) { _%>
 	<%= builder.resourceDescriptionDivider(resourceName, operation.operationId); %>
+	<%_ } _%>
 	<%_/**
 	 * **********************
 	 * PATH PARAMS & QS PARAMS
@@ -79,7 +81,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		displayName: '<%= helper.titleCase(property); %>',
 		name: '<%= helper.camelCase(property); %>',
 		<%_ if (value.description) { _%>
-		description: '<%- helper.escape(value.description) %>',
+		description: '<%- helper.escape(value.description); %>',
 		<%_ } _%>
 		type: '<%= helper.adjustType(value.type); %>',
 		<%_ if (helper.hasMinMax(value)) { _%>
@@ -102,6 +104,27 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		},
 	},
 	<%_ }); _%> <%#_ end properties loop _%>
+	<%_ } else if (mimeType === "text/plain") { _%>
+	{
+		displayName: '<%= helper.titleCase(rbItem.textPlainProperty); %>',
+		name: '<%= helper.camelCase(rbItem.textPlainProperty); %>',
+		<%_ if (rbItem.description) { _%>
+		description: '<%- helper.escape(rbItem.description); %>',
+		<%_ } _%>
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: {
+				resource: [
+					'<%= resourceName; %>',
+				],
+				operation: [
+					'<%= operation.operationId; %>',
+				],
+			},
+		},
+	},
 	<%_ } _%> <%#_ end mimeType if _%>
 	<%_ }); _%> <%#_ end mimeType loop _%>
 	<%_ } else if (!rbItem.required) { _%>

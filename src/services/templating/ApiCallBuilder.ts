@@ -55,6 +55,7 @@ export default class ApiCallBuilder {
         (o) => o.in === "query"
       );
 
+      if (!this.hasQueryString) this.lines.push("const qs: IDataObject = {};");
       if (qsOptions) this.additionalFields("qs");
     }
 
@@ -120,6 +121,13 @@ export default class ApiCallBuilder {
 
         const rbItemNames = this.getRequestBodyItemNames(rbItem);
 
+        if (rbItemNames === "text/plain") {
+          this.lines.push(
+            `const body = this.getNodeParameter('${rbItem.textPlainProperty}', i) as string;`
+          );
+          return;
+        }
+
         if (!rbItemNames) return;
 
         this.lines.push("const body: IDataObject = {");
@@ -165,15 +173,17 @@ export default class ApiCallBuilder {
 
   // TODO: temp implementation
   getRequestBodyItemNames(requestBodyItem: OperationRequestBody) {
-    const textPlainContent = requestBodyItem.content["text/plain"];
     const formUrlEncoded =
       requestBodyItem.content["application/x-www-form-urlencoded"];
-
-    if (textPlainContent) return null; // TODO
 
     if (formUrlEncoded) {
       return Object.keys(formUrlEncoded.schema.properties);
     }
+
+    const textPlainContent = requestBodyItem.content["text/plain"];
+
+    // TEMP
+    if (textPlainContent) return "text/plain";
 
     return null;
 

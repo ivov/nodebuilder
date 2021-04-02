@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import { JSONPath as jsonQuery } from "jsonpath-plus";
-import { join } from "path";
-import { readFileSync } from "fs";
+import path from "path";
+import fs from "fs";
 import { titleCase } from "title-case";
 import { inputDir, openApiInputDir, swagger } from "../config";
 
@@ -29,14 +29,14 @@ export default class OpenApiParser {
 
   /**Replace `$ref` with its referenced value and parse the resulting JSON.*/
   private parseSpec(serviceName: string) {
-    const source = join(openApiInputDir, serviceName);
-    const dest = join(inputDir, "_deref.json");
+    const source = path.join(openApiInputDir, serviceName);
+    const target = path.join(inputDir, "_deref.json");
 
     execSync(
-      `node ${swagger} bundle --dereference ${source} --outfile ${dest}`
+      `node ${swagger} bundle --dereference ${source} --outfile ${target}`
     );
 
-    return JSON.parse(readFileSync(dest).toString());
+    return JSON.parse(fs.readFileSync(target).toString());
   }
 
   private getApiUrl() {
@@ -87,6 +87,16 @@ export default class OpenApiParser {
       .trim();
   }
 
+  private processRequestBody() {
+    const requestBody = this.extract("requestBody");
+    if (requestBody?.content["text/plain"]) {
+      requestBody.textPlainProperty = requestBody.description
+        ?.split(" ")[0]
+        .toLowerCase();
+    }
+    return requestBody;
+  }
+
   private createOperation(requestMethod: string) {
     const operation: Operation = {
       endpoint: this.currentEndpoint,
@@ -96,7 +106,7 @@ export default class OpenApiParser {
     };
 
     const [params, addFields] = this.processParams();
-    const requestBody = this.extract("requestBody");
+    const requestBody = this.processRequestBody();
 
     if (params.length) operation.parameters = params;
     if (addFields.options.length) operation.additionalFields = addFields;
