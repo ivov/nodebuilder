@@ -9,9 +9,11 @@ src/input/openApi/*
 src/input/yaml/*
 !src/input/yaml/
 !src/input/yaml/.gitkeep
+!src/input/yaml/copper.yaml
 
 src/output/*
 !src/output/.gitkeep
+!src/input/openApi/lichess.json
 
 *.todo
 *.txt

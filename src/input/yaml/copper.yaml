@@ -1,0 +1,299 @@
+---
+metaParams:
+  apiUrl: https://api.prosperworks.com/developer_api/v1/
+  authType: OAuth2
+  serviceName: Copper
+  nodeColor: \#ff2564
+mainParams:
+
+  company:
+    - endpoint: /companies
+      operationId: create
+      operationUrl: https://developer.copper.com/companies/create-a-new-company.html
+      requestMethod: POST
+      requiredFields:
+        requestBody:
+          name: string|Name of the company to create.
+      additionalFields:
+        requestBody:
+          email_domain: string
+          details: string|Description of the company to create.
+          address:
+            street: string
+            city: string
+            state: string
+            postal_code: string
+            country: string
+          phone_numbers:
+            - number: string
+              category: string
+    - endpoint: /companies/{companyId}
+      operationId: delete
+      operationUrl: https://developer.copper.com/companies/delete-a-company.html
+      requestMethod: DELETE
+    - endpoint: /companies/{companyId}
+      operationId: get
+      operationUrl: https://developer.copper.com/companies/fetch-a-company-by-id.html
+      requestMethod: GET
+    - endpoint: /companies/search
+      operationId: getAll
+      requestMethod: POST
+      operationUrl: https://developer.copper.com/companies/list-companies-search.html
+      filters:
+        requestBody:
+          name: string|Name of the company to filter by.
+          country: string|Country of the company to filter by.
+    - endpoint: /companies/{companyId}
+      operationId: update
+      operationUrl: https://developer.copper.com/companies/update-a-company.html
+      requestMethod: PUT
+      updateFields:
+        requestBody:
+          name: string|Name to set for the company.
+          address:
+            street: string
+            city: string
+            state: string
+            postal_code: string
+            country: string
+          details: string|Description to set for the company.
+          phone_numbers:
+            - number: string
+              category: string
+
+  lead:
+    - endpoint: /leads
+      operationId: create
+      operationUrl: https://developer.copper.com/leads/create-a-new-lead.html
+      requestMethod: POST
+      requiredFields:
+        requestBody:
+          name: string|Name of the lead to create.
+      additionalFields:
+        requestBody:
+          address:
+            street: string
+            city: string
+            state: string
+            postal_code: string
+            country: string
+          email:
+            email: string
+            category: string
+          phone_numbers:
+            - number: string
+              category: string
+    - endpoint: /leads/{leadId}
+      operationId: delete
+      operationUrl: https://developer.copper.com/leads/delete-a-lead.html
+      requestMethod: DELETE
+    - endpoint: /leads/{leadId}
+      operationId: get
+      operationUrl: https://developer.copper.com/leads/fetch-a-lead-by-id.html
+      requestMethod: GET
+    - endpoint: /leads/search
+      operationId: getAll
+      requestMethod: POST
+      filters:
+        requestBody:
+          name: string|Name of the lead to filter by.
+          country: string|Name of the country to filter by.
+    - endpoint: /leads/{leadId}
+      operationId: update
+      operationUrl: https://developer.copper.com/leads/update-a-lead.html
+      requestMethod: PUT
+      updateFields:
+        requestBody:
+          name: string|Name to set for the lead.
+          address:
+            street: string
+            city: string
+            state: string
+            postal_code: string
+            country: string
+          email:
+            email: string
+            category: string
+          phone_numbers:
+            - number: string
+              category: string
+          details: string|Description to set for the lead.
+
+  opportunity:
+    - endpoint: /opportunities
+      operationId: create
+      operationUrl: https://developer.copper.com/opportunities/create-a-new-opportunity.html
+      requestMethod: POST
+      requiredFields:
+        requestBody:
+          name: string|Name of the opportunity to create.
+      additionalFields:
+        requestBody:
+          primary_contact_id: string|ID of the person who is the primary contact for this opportunity.
+          customer_source_id: string|ID of the primary company associated with this opportunity.
+    - endpoint: /opportunities/{opportunityId}
+      operationId: delete
+      operationUrl: https://developer.copper.com/opportunities/delete-an-opportunity.html
+      requestMethod: DELETE
+    - endpoint: /opportunities/{opportunityId}
+      operationId: get
+      operationUrl: https://developer.copper.com/opportunities/fetch-an-opportunity-by-id.html
+      requestMethod: GET
+    - endpoint: /opportunities/search
+      operationId: getAll
+      operationUrl: https://developer.copper.com/opportunities/list-opportunities-search.html
+      requestMethod: POST
+      filters:
+        requestBody:
+          customer_source_ids: string|Comma-separated IDs of the customer sources to filter by.
+          company_ids: string|Comma-separated IDs of the primary companies to filter by.
+    - endpoint: /opportunities/{opportunityId}
+      operationId: update
+      operationUrl: https://developer.copper.com/opportunities/update-an-opportunity.html
+      requestMethod: PUT
+      updateFields:
+        requestBody:
+          name: string|Name to set for the opportunity.
+          primary_contact_id: string|ID of the primary company associated with this opportunity.
+          customer_source_id: string|ID of the customer source that generated this opportunity.
+
+  person:
+    - endpoint: /people
+      operationId: create
+      operationUrl: https://developer.copper.com/people/create-a-new-person.html
+      requestMethod: POST
+      requiredFields:
+        requestBody:
+          name: string|Name of the person to create.
+      additionalFields:
+        requestBody:
+          emails: string|Comma-separated list of emails to set for the person.
+          phone_numbers:
+            - number: string
+              category: string
+          address:
+            street: string
+            city: string
+            state: string
+            postal_code: string
+            country: string
+          email_domain: string
+          details: string|Description of the person to create.
+    - endpoint: /people/{personId}
+      operationId: delete
+      operationUrl: https://developer.copper.com/people/delete-a-person.html
+      requestMethod: DELETE
+    - endpoint: /people/{personId}
+      operationId: get
+      operationUrl: https://developer.copper.com/people/fetch-a-person-by-id.html
+      requestMethod: GET
+    - endpoint: /people/search
+      operationId: getAll
+      requestMethod: POST
+      filters:
+        requestBody:
+          name: string|Name of the person to filter by.
+    - endpoint: /people/{personId}
+      operationId: update
+      operationUrl: https://developer.copper.com/people/update-a-person.html
+      requestMethod: PUT
+      updateFields:
+        requestBody:
+          name: string|Name to set for the person.
+          emails: string|Comma-separated list of emails to set for the person.
+          phone_numbers:
+            - number: string
+              category: string
+          address:
+            street: string
+            city: string
+            state: string
+            postal_code: string
+            country: string
+          email_domain: string
+          details: string|Description to set for the person.
+
+  project:
+    - endpoint: /projects
+      operationId: create
+      requestMethod: POST
+      requiredFields:
+        requestBody:
+          name: string|Name of the project to create.
+      additionalFields:
+        requestBody:
+          status:
+            - Open: string|Project with open status.
+            - Completed: string|Project with closed status.
+          details: string|Description of the project to create.
+          assignee_id: string|ID of the user who will own the project to create.
+    - endpoint: /projects/{projectId}
+      operationId: delete
+      operationUrl: https://developer.copper.com/projects/delete-a-project.html
+      requestMethod: DELETE
+    - endpoint: /projects/{projectId}
+      operationId: get
+      operationUrl: https://developer.copper.com/projects/fetch-a-project-by-id.html
+      requestMethod: GET
+    - endpoint: /projects/search
+      operationId: getAll
+      operationUrl: https://developer.copper.com/projects/list-projects-search.html
+      requestMethod: POST
+      filters:
+        requestBody:
+          name: string|Name of the project to filter by.
+    - endpoint: /projects/{projectId}
+      operationId: update
+      operationUrl: https://developer.copper.com/projects/update-a-project.html
+      requestMethod: PUT
+      updateFields:
+        requestBody:
+          name: string|Name to set for the project.
+          status:
+            - Open: string|Project with open status.
+            - Completed: string|Project with closed status.
+          details: string|Description to set for the project.
+          assignee_id: string|ID of the user who will own the project.
+
+  task:
+    - endpoint: /tasks
+      operationId: create
+      operationUrl: https://developer.copper.com/tasks/create-a-new-task.html
+      requestMethod: POST
+      requiredFields:
+        requestBody:
+          name: string
+      additionalFields:
+        requestBody:
+          assignee_id: string|ID of the user who will own the task to create.
+          priority: string|Priority of the task to create.
+          status:
+            - Open: string|Project with open status.
+            - Completed: string|Project with closed status.
+          details: string|Description of the task to create.
+    - endpoint: /tasks/{taskId}
+      operationId: delete
+      operationUrl: https://developer.copper.com/tasks/delete-a-task.html
+      requestMethod: DELETE
+    - endpoint: /tasks/{taskId}
+      operationId: get
+      operationUrl: https://developer.copper.com/tasks/fetch-a-task-by-id.html
+      requestMethod: GET
+    - endpoint: /tasks/search
+      operationId: getAll
+      operationUrl: https://developer.copper.com/tasks/list-tasks-search.html
+      requestMethod: POST
+      filters:
+        requestBody:
+          assignee_ids: string|Comma-separated IDs of assignee IDs to filter by.
+          project_ids: string|Comma-separated IDs of project IDs to filter by.
+    - endpoint: /tasks/{taskId}
+      operationId: update
+      operationUrl: https://developer.copper.com/tasks/update-a-task.html
+      requestMethod: PUT
+      updateFields:
+        requestBody:
+          name: string|Name to set for the task.
+          assignee_id: string|ID of the user who will own the task.
+          priority: string|Priority to set for the task.
+          details: string|Description to set for the task.
