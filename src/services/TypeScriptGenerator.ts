@@ -1,11 +1,12 @@
-import { descriptionsOutputDir, hygen, inputDir, outputDir } from "../config";
 import { execSync } from "child_process";
 import fs from "fs";
-import { join } from "path";
+import path from "path";
+
+import { descriptionsOutputDir, hygen, inputDir, outputDir } from "../config";
 
 export default class Generator {
   private mainParams: MainParams;
-  private resourceJson = join(inputDir, "_resource.json");
+  private resourceJson = path.join(inputDir, "_resource.json");
 
   constructor(mainParams: MainParams) {
     this.mainParams = mainParams;

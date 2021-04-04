@@ -1,14 +1,16 @@
-import { writeFileSync } from "fs";
-import { join, resolve } from "path";
 import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
+
 import { Project } from "ts-morph";
+
+import { inputDir } from "../config";
 
 /**Converts nodegen params into TypeScript or JSON, or treeview into TXT.*/
 export default class FilePrinter {
-  private readonly basePath = resolve("./", "src", "input");
-  private readonly nodegenPath = join(this.basePath, "_nodegenParams");
-  private readonly treeviewPath = join(this.basePath, "_treeview");
-  private readonly apiMapPath = join(this.basePath, "_apiMap");
+  private readonly nodegenPath = path.join(inputDir, "_nodegenParams");
+  private readonly treeviewPath = path.join(inputDir, "_treeview");
+  private readonly apiMapPath = path.join(inputDir, "_apiMap");
 
   constructor(private readonly printable: NodegenParams | TreeView | ApiMap) {}
 
@@ -24,9 +26,9 @@ export default class FilePrinter {
 
   private printJson() {
     if (isNodegenParams(this.printable)) {
-      writeFileSync(this.nodegenPath + ".json", this.getJson(), "utf8");
+      fs.writeFileSync(this.nodegenPath + ".json", this.getJson(), "utf8");
     } else {
-      writeFileSync(this.apiMapPath + ".json", this.getJson(), "utf8");
+      fs.writeFileSync(this.apiMapPath + ".json", this.getJson(), "utf8");
     }
   }
 
@@ -46,7 +48,7 @@ export default class FilePrinter {
     if (typeof this.printable !== "string") {
       throw new Error("This method is only allowed for printing a treeview.");
     }
-    writeFileSync(this.treeviewPath + ".txt", this.printable, "utf8");
+    fs.writeFileSync(this.treeviewPath + ".txt", this.printable, "utf8");
   }
 }
 
@@ -54,8 +56,9 @@ function isNodegenParams(value: any): value is NodegenParams {
   return "metaParams" in value && "mainParams" in value;
 }
 
-export function printTranslation(yamlMainParams: YamlMainParams) {
-  writeFileSync(
+export function printTranslation(yamlMainParams: YamlMainPreparams) {
+  console.log(yamlMainParams);
+  fs.writeFileSync(
     "translation.json",
     JSON.stringify(yamlMainParams, null, 2),
     "utf8"
@@ -63,7 +66,7 @@ export function printTranslation(yamlMainParams: YamlMainParams) {
 }
 
 export function printStagedParams(mainParams: MainParams) {
-  writeFileSync(
+  fs.writeFileSync(
     "stagedParams.json",
     JSON.stringify(mainParams, null, 2),
     "utf8"

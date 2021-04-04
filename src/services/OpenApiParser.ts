@@ -1,13 +1,15 @@
 import { execSync } from "child_process";
-import { JSONPath as jsonQuery } from "jsonpath-plus";
 import path from "path";
 import fs from "fs";
+
+import { JSONPath as jsonQuery } from "jsonpath-plus";
 import { titleCase } from "title-case";
-import { inputDir, openApiInputDir, swagger } from "../config";
 import { camelCase } from "change-case";
 
+import { inputDir, openApiInputDir, swagger } from "../config";
+
 export default class OpenApiParser {
-  private readonly json: any;
+  private readonly json: JsonObject & { paths: object };
   private readonly serviceName: string;
   private currentEndpoint: string;
 
@@ -108,9 +110,9 @@ export default class OpenApiParser {
   }
 
   private setTextPlainProperty(requestBody: OperationRequestBody) {
-    requestBody.textPlainProperty =
-      requestBody.description?.split(" ")[0].toLowerCase() ??
-      "UNNAMED TEXT PLAIN PROPERTY";
+    requestBody.textPlainProperty = requestBody.description
+      ?.split(" ")[0]
+      .toLowerCase();
   }
 
   private sanitizeProperties(urlEncoded: { schema: Schema }) {

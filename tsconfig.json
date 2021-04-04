@@ -11,7 +11,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strictPropertyInitialization": false,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "plugins": [
+			{ "transform": "typescript-is/lib/transform-inline/transformer" }
+		]
   },
   "exclude": [
     "src/input",

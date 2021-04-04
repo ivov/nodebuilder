@@ -1,8 +1,10 @@
-import { inputDir, openApiInputDir, yamlInputDir } from "../config";
 import fs from "fs";
 import path from "path";
 import { promisify } from "util";
+
 import inquirer from "inquirer";
+
+import { inputDir, openApiInputDir, yamlInputDir } from "../config";
 
 const readDir = promisify(fs.readdir);
 
@@ -19,7 +21,7 @@ export default class Prompter {
 
   public async askForSourceType() {
     const { sourceType } = await inquirer.prompt<{
-      sourceType: InputFileFormat;
+      sourceType: "OpenAPI" | "YAML";
     }>([
       {
         name: "sourceType",

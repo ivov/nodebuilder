@@ -1,15 +1,15 @@
 /**
- * Responsible for staging output params for consumption by nodegen templates,
- * based on a YAML-to-JSON translation as input.
+ * Responsible for "staging" nodegen params (from a YAML source file)
+ * so that they are ready for consumption by nodegen templates.
  */
 export default class YamlStager {
-  private inputMainParams: YamlMainParams;
+  private inputMainParams: YamlMainPreparams;
   private outputMetaParams: MetaParams;
   private outputMainParams: MainParams = {};
   private currentResource = "";
   private outputOperation: Operation;
 
-  constructor(yamlNodegenParams: YamlNodegenParams) {
+  constructor(yamlNodegenParams: YamlPreparams) {
     this.inputMainParams = yamlNodegenParams.mainParams;
     this.outputMetaParams = yamlNodegenParams.metaParams;
   }
@@ -17,8 +17,6 @@ export default class YamlStager {
   public run(): NodegenParams {
     this.initializeOutputParams();
     this.populateOutputParams();
-
-    // printStagedParams(this.outputMainParams); // TEMP
 
     return {
       mainParams: this.outputMainParams,
@@ -143,7 +141,7 @@ export default class YamlStager {
   }
 
   private qsParams(
-    queryString: NameTypeAndDescription | undefined,
+    queryString: YamlFieldsContent | undefined,
     { required }: { required: boolean }
   ) {
     if (!queryString) return null;
@@ -154,7 +152,7 @@ export default class YamlStager {
   }
 
   private qsExtraFields(
-    extraFields: ExtraFields | undefined,
+    extraFields: YamlFields | undefined,
     {
       name,
     }: {
@@ -182,7 +180,7 @@ export default class YamlStager {
   }
 
   private rbExtraFields(
-    extraFields: ExtraFields | undefined,
+    extraFields: YamlFields | undefined,
     {
       name,
     }: {
@@ -230,7 +228,7 @@ export default class YamlStager {
 
   private stageQsParam(
     key: string,
-    value: { type: string; description?: string }, // TODO: Type properly
+    value: TypeAndDescription,
     { required }: { required: boolean }
   ) {
     const output: OperationParameter = {
@@ -251,7 +249,7 @@ export default class YamlStager {
   }
 
   public stageRequestBody(
-    requestBody: NameTypeAndDescription | undefined,
+    requestBody: YamlFieldsContent | undefined,
     {
       required,
       name,

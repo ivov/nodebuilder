@@ -9,7 +9,6 @@ export default class ApiCallBuilder {
   hasStandardRequestBody = false;
   isGetAll = false;
   hasLongEndpoint = false;
-  _additionalFields: AdditionalFields;
 
   constructor(serviceApiRequest: string) {
     this.serviceApiRequest = serviceApiRequest;
@@ -20,7 +19,7 @@ export default class ApiCallBuilder {
     operationId,
     parameters,
     additionalFields,
-    requestBody: requestBodyArray,
+    requestBody,
     requestMethod,
     endpoint,
   }: Operation) {
@@ -32,15 +31,15 @@ export default class ApiCallBuilder {
     const pathParams = parameters?.filter((p) => this.isPathParam(p));
     const qsParams = parameters?.filter((p) => this.isQsParam(p));
 
+    if (requestBody?.length) {
+      this.hasRequestBody = true;
+      this.requestBody(requestBody);
+    }
+
     if (pathParams?.length) {
       this.hasPathParam = true;
       pathParams.forEach((p) => this.pathParam(p));
       this.addNewLine(this.lines);
-    }
-
-    if (requestBodyArray?.length) {
-      this.hasRequestBody = true;
-      this.requestBody(requestBodyArray);
     }
 
     if (qsParams?.length) {
@@ -49,11 +48,7 @@ export default class ApiCallBuilder {
     }
 
     if (additionalFields) {
-      this._additionalFields = additionalFields;
-
-      const qsOptions = additionalFields.options.filter(
-        (o) => o.in === "query"
-      );
+      const qsOptions = additionalFields.options.filter(this.isQsParam);
 
       if (!this.hasQueryString) this.lines.push("const qs: IDataObject = {};");
       if (qsOptions) this.additionalFields("qs");
@@ -171,7 +166,6 @@ export default class ApiCallBuilder {
 
   addNewLine = (array: string[]) => (array[array.length - 1] += "\n");
 
-  // TODO: temp implementation
   getRequestBodyItemNames(requestBodyItem: OperationRequestBody) {
     const formUrlEncoded =
       requestBodyItem.content["application/x-www-form-urlencoded"];
@@ -182,42 +176,19 @@ export default class ApiCallBuilder {
 
     const textPlainContent = requestBodyItem.content["text/plain"];
 
-    // TEMP
     if (textPlainContent) return "text/plain";
 
     return null;
-
-    // const urlEncoded = "application/x-www-form-urlencoded";
-
-    // const urlEncodedProps = [requestBody]
-    //   .filter((c) => c.content[urlEncoded])
-    //   .map((c) => c.content[urlEncoded].schema.properties)
-    //   .map((c) => Object.keys(c))
-    //   .flat();
-
-    // if (urlEncodedProps.length) return urlEncodedProps;
-
-    // const textPlain = "text/plain";
-    // const textPlainProps = [requestBody]
-    //   .filter((c) => c.content[textPlain])
-    //   .map((_) => "text");
-
-    // return textPlainProps;
   }
 
   // ------------------ additional fields -------------------
 
   additionalFields(target: "body" | "qs") {
-    const addFieldsLine1 = `const additionalFields: IDataObject = this.getNodeParameter('additionalFields', i);\n`;
-    const addFieldsLine2 = "if (Object.keys(additionalFields).length) {";
-    const addFieldsLine3 = `\tObject.assign(${target}, additionalFields)`;
-    const addFieldsLine4 = "};";
-
     this.lines.push(
-      addFieldsLine1,
-      addFieldsLine2,
-      addFieldsLine3,
-      addFieldsLine4
+      `const additionalFields: IDataObject = this.getNodeParameter('additionalFields', i);\n`,
+      "if (Object.keys(additionalFields).length) {",
+      `\tObject.assign(${target}, additionalFields)`,
+      "};"
     );
 
     this.addNewLine(this.lines);

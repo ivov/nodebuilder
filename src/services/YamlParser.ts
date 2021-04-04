@@ -1,10 +1,15 @@
 import fs from "fs";
 import path from "path";
+
 import yaml from "js-yaml";
+import { assertType } from "typescript-is";
+
 import YamlStager from "./YamlStager";
+import { yamlInputDir } from "../config";
 
 /**
- * Translates a YAML API mapping into a JSON API mapping, also adjusting vertical bar strings.
+ * Responsible for parsing a YAML API description into a JSON API mapping,
+ * also adjusting vertical bar strings into key-value pairs.
  *
  * From:
  * ```yaml
@@ -34,40 +39,42 @@ import YamlStager from "./YamlStager";
  * ```
  */
 export default class YamlParser {
-  private yamlFile: string;
-  private yamlMainParams: YamlMainParams;
+  private yamlInputFile: string;
+  private yamlMainPreparams: YamlMainPreparams;
   private unsplittableFields = [
     "endpoint",
     "operationId",
-    "operationUrl",
     "requestMethod",
+    "operationUrl",
   ];
 
-  constructor(yamlFile: string) {
-    this.yamlFile = yamlFile;
+  constructor(yamlInputFile: string) {
+    this.yamlInputFile = yamlInputFile;
   }
 
   public run() {
     const { metaParams, mainParams } = this.jsonifyYaml();
-    this.yamlMainParams = this.sortKeys(mainParams);
+
+    this.yamlMainPreparams = this.sortKeys(mainParams);
 
     this.iterateOverOperations((operation: YamlOperation) =>
       this.traverseToAdjust(operation)
     );
 
-    // printTranslation(this.yamlMainParams);
-
     return new YamlStager({
-      mainParams: this.yamlMainParams,
+      mainParams: this.yamlMainPreparams,
       metaParams: metaParams,
     }).run();
   }
 
   private jsonifyYaml() {
-    const yamlFilePath = path.join("src", "input", "yaml", this.yamlFile);
+    const yamlFilePath = path.join(yamlInputDir, this.yamlInputFile);
     const yamlFileContent = fs.readFileSync(yamlFilePath, "utf-8");
+    const jsonifiedYaml = yaml.load(yamlFileContent);
 
-    return yaml.load(yamlFileContent) as YamlNodegenParams;
+    assertType<YamlInput>(jsonifiedYaml);
+
+    return jsonifiedYaml as YamlPreparams;
   }
 
   // TODO: type properly
@@ -83,8 +90,7 @@ export default class YamlParser {
         return orderedKeys.map((key) => newArr.find((i) => i[key]));
       }
 
-      newArr.sort();
-      return newArr;
+      return newArr.sort();
     }
 
     const sorted: { [key: string]: string } = {};
@@ -99,43 +105,32 @@ export default class YamlParser {
   }
 
   private iterateOverOperations(callback: (operation: YamlOperation) => void) {
-    Object.keys(this.yamlMainParams).forEach((resource) => {
-      const operationsPerResource = this.yamlMainParams[resource];
+    Object.keys(this.yamlMainPreparams).forEach((resource) => {
+      const operationsPerResource = this.yamlMainPreparams[resource];
       operationsPerResource.forEach((operation) => callback(operation));
     });
   }
 
   /**
-   * Traverse the JSON object to find and adjust strings with a vertical bar.
+   * Traverse the parsed JSON object to find and adjust strings with a vertical bar.
    * TODO: Type arg properly
    */
   private traverseToAdjust(object: { [key: string]: any }) {
     Object.keys(object).forEach((key) => {
       if (Array.isArray(object[key]) && object[key].length) {
-        // ----------------------------------
-        //        base case: string[]
-        // ----------------------------------
         if (typeof object[key][0] === "string") {
           object[key].forEach((item: string) => {
             object[key] = this.adjustAtSeparator(item);
           });
         } else {
-          // ----------------------------------
-          //      recursive case: object[]
-          // ----------------------------------
           object[key].forEach((item: object) => this.traverseToAdjust(item));
         }
       }
 
-      // ----------------------------------
-      //      recursive case: object
-      // ----------------------------------
       if (this.isTraversable(object[key])) {
         return this.traverseToAdjust(object[key]);
       }
-      // ----------------------------------
-      //        base case: string
-      // ----------------------------------
+
       if (this.unsplittableFields.includes(key)) return;
 
       object[key] = this.adjustAtSeparator(object[key]);
@@ -147,7 +142,7 @@ export default class YamlParser {
       value &&
       typeof value === "object" &&
       !Array.isArray(value) &&
-      !!Object.keys(value).length // TODO: Avoid `!!`
+      !!Object.keys(value).length
     );
   }
 
@@ -166,6 +161,7 @@ export default class YamlParser {
     if (type === "string") return "";
     if (type === "boolean") return false;
     if (type === "number") return 0;
+
     return "";
   }
 }

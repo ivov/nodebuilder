@@ -1,5 +1,4 @@
 import { camelCase, capitalCase } from "change-case";
-import { titleCase } from "title-case";
 
 export default class ResourceBuilder {
   lines: string[] = [];
