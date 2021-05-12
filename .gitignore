@@ -17,3 +17,5 @@ src/output/*
 
 *.todo
 *.txt
+
+.DS_store
