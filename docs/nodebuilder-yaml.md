@@ -76,7 +76,7 @@ Inside `queryString` or `requestBody`, each key must specify a node property and
 ```yaml
 updateFields:
   requestBody:
-    is_active: boolean|Whethe the company's record is active.
+    is_active: boolean|Whether the company's record is active.
     address:
       street: string
       city: string
