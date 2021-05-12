@@ -6,6 +6,7 @@
   "scripts": {
     "setup": "ttsc",
     "generate": "node dist/scripts/generate.js",
+    "devgen": "ttsc && node dist/scripts/generate.js",
     "render": "node dist/scripts/render.js",
     "map": "node dist/scripts/map.js",
     "clear": "node dist/scripts/clear.js"

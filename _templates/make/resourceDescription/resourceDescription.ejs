@@ -250,6 +250,6 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ } _%> <%#_ end rbItem.required if _%>
 	<%_ }); _%> <%#_ end rbItem loop _%>
 	<%_ } _%> <%#_ end requestBody if _%>
-	<%_ builder.getAllAdditions(resourceName, operation.operationId); _%>
+	<%- builder.getAllAdditions(resourceName, operation.operationId); _%>
 <%_ }); _%> <%#_ end operations loop _%>
 ] as INodeProperties[];

@@ -28,14 +28,6 @@ export default class ResourceBuilder {
     this.lines.push("\t".repeat(tabs) + line);
   }
 
-  private adjustCodeToTemplate(property: string) {
-    return property
-      .trimLeft()
-      .replace(/^[ ]{2}/gm, "")
-      .replace(/[ ]{2}/gm, "\t")
-      .trimRight();
-  }
-
   public getAllAdditions(resourceName: string, operationId: string) {
     if (operationId !== "getAll") return null;
 
@@ -75,11 +67,10 @@ export default class ResourceBuilder {
       displayName: 'Limit',
       name: 'limit',
       type: 'number',
-      default: 5,
+      default: 50,
       description: 'The number of results to return.',
       typeOptions: {
         minValue: 1,
-        maxValue: 1000,
       },
       displayOptions: {
         show: {
@@ -98,6 +89,14 @@ export default class ResourceBuilder {
     `;
 
     return this.adjustCodeToTemplate(limit);
+  }
+
+  private adjustCodeToTemplate(property: string) {
+    return property
+      .trimLeft()
+      .replace(/^[ ]{2}/gm, "")
+      .replace(/[ ]{2}/gm, "\t")
+      .trimRight();
   }
 
   private hasMinMax = (arg: any) => arg.minimum && arg.maximum;
