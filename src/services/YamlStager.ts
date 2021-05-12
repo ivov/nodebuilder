@@ -54,7 +54,9 @@ export default class YamlStager {
       // ----------------------------------
 
       const outputPathParams = this.pathParams(inputOperation);
-      if (outputPathParams) this.outputOperation.parameters = outputPathParams;
+
+      if (outputPathParams)
+        this.outputOperation.parameters = outputPathParams;
 
       // ----------------------------------
       //       populate qs params
@@ -63,7 +65,9 @@ export default class YamlStager {
       const outputQsParams = this.qsParams(requiredFields?.queryString, {
         required: true,
       });
-      if (outputQsParams) this.outputOperation.parameters = outputQsParams;
+
+      if (outputQsParams)
+        this.outputOperation.parameters = outputQsParams;
 
       // ----------------------------------
       //     populate qs extra params
@@ -80,7 +84,11 @@ export default class YamlStager {
         name: "Filters",
       });
 
-      if (outputQsFilters) this.outputOperation.filters = outputQsFilters;
+      if (this.outputOperation.parameters && outputQsFilters)
+        this.outputOperation.parameters.push(...outputQsFilters.options);
+
+      if (!this.outputOperation.parameters && outputQsFilters)
+        this.outputOperation.parameters = outputQsFilters.options;
 
       const outputQsUpdateFields = this.qsExtraFields(updateFields, {
         name: "Update Fields",
@@ -127,7 +135,8 @@ export default class YamlStager {
       operationId,
     };
 
-    if (operationUrl) this.outputOperation.operationUrl = operationUrl;
+    if (operationUrl)
+      this.outputOperation.operationUrl = operationUrl;
   }
 
   private pathParams(inputOperation: YamlOperation) {

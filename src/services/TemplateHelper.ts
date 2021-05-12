@@ -2,7 +2,11 @@ import { camelCase, capitalCase, pascalCase } from "change-case";
 import { titleCase } from "title-case";
 
 export class Helper {
-  adjustType = (type: string) => (type === "integer" ? "number" : type);
+  adjustType = (type: string, name: string) => {
+    if (type === 'integer') return "number";
+    if (name.toLowerCase().includes('date')) return "dateTime";
+    return type;
+  };
 
   camelCase = (str: string) => camelCase(str);
 
@@ -14,7 +18,9 @@ export class Helper {
     this.camelCase(name) + (auth === "OAuth2" ? "OAuth2" : "") + "Api";
 
   getDefault(arg: any) {
-    if (arg.default && arg.type === "string") return `'${arg.default}'`;
+    if (arg.type === 'dateTime') return "''";
+
+    if (arg.default && arg.type === "string") return `'${arg.default}'`; // ?
 
     // edge case: number type with string default (third-party error)
     if (
@@ -28,6 +34,7 @@ export class Helper {
     if (arg.default) return arg.default;
     if (arg.type === "boolean") return false;
     if (arg.type === "number" || arg.type === "integer") return 0;
+
     return "''";
   }
 

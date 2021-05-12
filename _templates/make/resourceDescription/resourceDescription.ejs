@@ -43,14 +43,16 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		displayName: '<%= helper.titleCase(param.name); %>',
 		name: '<%= helper.camelCase(param.name); %>',
 		description: '<%= param.description; %>',
-		type: '<%= helper.adjustType(param.schema.type); %>',
+		type: '<%= helper.adjustType(param.schema.type, param.name); %>',
 		<%_ if (helper.hasMinMax(param.schema)) { _%>
 		typeOptions: {
 			minValue: <%= param.schema.minimum %>,
 			maxValue: <%= param.schema.maximum %>
 		},
 		<%_ } _%>
-		required: <%= param.required %>,
+		<%_ if (param.required) { _%>
+		required: true,
+		<%_ } _%>
 		default: <%- helper.getDefault(param.schema); %>,
 		displayOptions: {
 			show: {
@@ -83,7 +85,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		<%_ if (value.description) { _%>
 		description: '<%- helper.escape(value.description); %>',
 		<%_ } _%>
-		type: '<%= helper.adjustType(value.type); %>',
+		type: '<%= helper.adjustType(value.type, property); %>',
 		<%_ if (helper.hasMinMax(value)) { _%>
 		typeOptions: {
 			minValue: <%= value.minimum %>,
@@ -156,8 +158,8 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 			{
 				displayName: '<%= helper.titleCase(key); %>',
 				name: '<%= key %>',
-				type: '<%= helper.adjustType(value.type); %>',
-				default: <%- value.default || "''"; %>,
+				type: '<%= helper.adjustType(value.type, key); %>',
+				default: <%- helper.getDefault(value); %>,
 				<%_ if (value.description) { _%>
 				description: '<%- helper.escape(value.description) %>',
 				<%_ } _%>
@@ -250,6 +252,8 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ } _%> <%#_ end rbItem.required if _%>
 	<%_ }); _%> <%#_ end rbItem loop _%>
 	<%_ } _%> <%#_ end requestBody if _%>
-	<%- builder.getAllAdditions(resourceName, operation.operationId); _%>
+	<%_ if (operation.operationId === 'getAll') { _%>
+	<%- builder.getAllAdditions(resourceName, operation.operationId); %>
+	<%_ } _%>
 <%_ }); _%> <%#_ end operations loop _%>
 ] as INodeProperties[];

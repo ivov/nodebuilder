@@ -29,8 +29,6 @@ export default class ResourceBuilder {
   }
 
   public getAllAdditions(resourceName: string, operationId: string) {
-    if (operationId !== "getAll") return null;
-
     return [
       this.returnAll(resourceName, operationId),
       this.limit(resourceName, operationId),
