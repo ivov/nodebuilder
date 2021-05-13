@@ -250,6 +250,11 @@ export default class YamlStager {
       },
     };
 
+    if (value.type === 'options') {
+      output.schema.default = value.enumItems![0]; // TODO: Remove non-null assertion operator
+      output.schema.enumItems = value.enumItems;
+    }
+
     if (value.description) {
       output.description = value.description;
     }

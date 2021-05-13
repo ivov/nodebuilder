@@ -149,6 +149,13 @@ export default class YamlParser {
   private adjustAtSeparator(value: string | object[]) {
     if (Array.isArray(value)) return value;
 
+    // for now, vertical separator is REQUIRED for enum
+    if (value.startsWith("enum|")) {
+      const [_, description] = value.split("|");
+      const items = description.split("-").map((item) => item.trim())
+      return { type: 'options', description: items[0], enumItems: items.slice(1), default: items[1] };
+    };
+
     if (value.includes("|")) {
       const [type, description] = value.split("|");
       return { type, description, default: this.getDefaultFromString(type) };

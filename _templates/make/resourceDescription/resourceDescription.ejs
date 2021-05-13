@@ -53,6 +53,16 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		<%_ if (param.required) { _%>
 		required: true,
 		<%_ } _%>
+		<%_ if (param.schema.type === 'options') { _%>
+		options: [
+			<%_ param.schema.enumItems.forEach(option => { _%>
+			{
+				name: '<%= helper.titleCase(option) %>',
+				value: '<%= option %>',
+			},
+			<%_ }); _%>
+		],
+		<%_ } _%>
 		default: <%- helper.getDefault(param.schema); %>,
 		displayOptions: {
 			show: {
@@ -94,6 +104,16 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		<%_ } _%>
 		required: true,
 		default: <%- helper.getDefault(value); %>,
+		<%_ if (value.type === 'options') { _%>
+		options: [
+			<%_ value.enumItems.forEach(option => { _%>
+			{
+				name: '<%= helper.titleCase(option) %>',
+				value: '<%= option %>',
+			},
+			<%_ }); _%>
+		],
+		<%_ } _%>
 		displayOptions: {
 			show: {
 				resource: [
@@ -164,9 +184,25 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 				description: '<%- helper.escape(value.description) %>',
 				<%_ } _%>
 			},
+			<%_ } else if (value.type === 'options') { _%>
+			{
+				displayName: '<%= helper.titleCase(key); %>',
+				name: '<%= key %>',
+				type: 'options',
+				default: '<%= value.default %>',
+				options: [
+					<%_ value.enumItems.forEach(option => { _%>
+					{
+						name: '<%= helper.titleCase(option) %>',
+						value: '<%= option %>',
+					},
+					<%_ }); _%>
+				],
+			},
 			<%_ } else if (Array.isArray(value) && value.length > 1) { _%>
 				<%_/**
 				* options (dropdown) inside extraFields
+				* TODO: Is this branch working or is this now covered by the previous branch?
 				*/_%>
 			{
 				displayName: '<%= helper.titleCase(key); %>',

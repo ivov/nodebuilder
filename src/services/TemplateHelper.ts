@@ -20,6 +20,8 @@ export class Helper {
   getDefault(arg: any) {
     if (arg.type === 'dateTime') return "''";
 
+    if (arg.type === 'options') return `'${arg.enumItems[0]}'`;
+
     if (arg.default && arg.type === "string") return `'${arg.default}'`; // ?
 
     // edge case: number type with string default (third-party error)

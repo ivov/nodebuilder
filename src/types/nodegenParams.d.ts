@@ -51,6 +51,7 @@ type OperationParameter = {
     example?: string | number;
     minimum?: number;
     maximum?: number;
+    enumItems?: string[]; // from YAML mapping
   };
   required?: boolean;
   example?: string;
@@ -79,6 +80,7 @@ type Schema = {
 type TypeAndDescription = {
   type: string;
   description?: string;
+  enumItems?: string[];
 };
 
 type AdditionalFields = {

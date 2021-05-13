@@ -21,15 +21,19 @@ import Prompter from "../services/Prompter";
   new Generator(nodegenParams.mainParams).run();
 })();
 
-// (async () => {
-//   const nodegenParams = new OpenApiParser("lichess.json").run();
-
-//   new FilePrinter(nodegenParams).print({ format: "json" });
-//   new Generator(nodegenParams.mainParams).run();
-// })();
+// for quick testing
 
 // (async () => {
-//   const nodegenParams = new YamlParser("copper.yaml").run();
+//   const prompter = new Prompter();
+//   const sourceType = "YAML";
+
+//   let nodegenParams: NodegenParams;
+//   if (sourceType === "YAML") {
+//     nodegenParams = new YamlParser("zoho.yaml").run();
+//   } else {
+//     const openApiFile = await prompter.askForOpenApiFile();
+//     nodegenParams = new OpenApiParser(openApiFile).run();
+//   }
 
 //   new FilePrinter(nodegenParams).print({ format: "json" });
 //   new Generator(nodegenParams.mainParams).run();
