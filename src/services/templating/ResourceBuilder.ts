@@ -4,6 +4,8 @@ export default class ResourceBuilder {
   lines: string[] = [];
 
   public operationsOptions(operations: Operation[]) {
+    operations.sort((a, b) => a.operationId.localeCompare(b.operationId));
+
     operations.forEach(({ operationId, description }, index) => {
       this.createLine("{", { tabs: !index ? 0 : 3 });
 
@@ -19,7 +21,7 @@ export default class ResourceBuilder {
     return this.lines.join("\n");
   }
 
-  private createLine(line: string, { tabs }: { tabs: number } = { tabs: 0 }) {
+  private createLine(line: string, { tabs } = { tabs: 0 }) {
     if (!tabs) {
       this.lines.push(line);
       return;
