@@ -52,8 +52,14 @@ export default class ApiCallBuilder {
     if (additionalFields) {
       const qsOptions = additionalFields.options.filter(this.isQsParam);
 
-      if (!this.hasQueryString) this.lines.push("const qs = {} as IDataObject;");
-      if (qsOptions) this.additionalFields("qs");
+      if (!this.hasQueryString) {
+        this.lines.push("const qs = {} as IDataObject;");
+      }
+
+      if (qsOptions.length) {
+        this.hasQueryString = true;
+        this.additionalFields("qs");
+      }
     }
 
     if (this.hasLongEndpoint) this.endpoint(endpoint);
