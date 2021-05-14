@@ -50,7 +50,7 @@ export default class ApiCallBuilder {
     if (additionalFields) {
       const qsOptions = additionalFields.options.filter(this.isQsParam);
 
-      if (!this.hasQueryString) this.lines.push("const qs: IDataObject = {};");
+      if (!this.hasQueryString) this.lines.push("const qs = {} as IDataObject;");
       if (qsOptions) this.additionalFields("qs");
     }
 
@@ -125,7 +125,7 @@ export default class ApiCallBuilder {
 
         if (!rbItemNames) return;
 
-        this.lines.push("const body: IDataObject = {");
+        this.lines.push("const body = {");
 
         this.lines.push(
           ...rbItemNames.map(
@@ -133,7 +133,7 @@ export default class ApiCallBuilder {
           )
         );
 
-        this.lines.push("};");
+        this.lines.push("} as IDataObject;");
         this.addNewLine(this.lines);
       } else if (
         rbItem.name === "Additional Fields" ||
@@ -141,7 +141,7 @@ export default class ApiCallBuilder {
         rbItem.name === "Update Fields"
       ) {
         if (!this.hasStandardRequestBody) {
-          this.lines.push("const body: IDataObject = {};");
+          this.lines.push("const body = {} as IDataObject;");
         }
 
         const rbItemName = camelCase(rbItem.name);
@@ -185,10 +185,10 @@ export default class ApiCallBuilder {
 
   additionalFields(target: "body" | "qs") {
     this.lines.push(
-      `const additionalFields: IDataObject = this.getNodeParameter('additionalFields', i);\n`,
+      `const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;\n`,
       "if (Object.keys(additionalFields).length) {",
-      `\tObject.assign(${target}, additionalFields)`,
-      "};"
+      `\tObject.assign(${target}, additionalFields);`,
+      "}"
     );
 
     this.addNewLine(this.lines);
@@ -221,8 +221,8 @@ export default class ApiCallBuilder {
     const endpointInsert = this.hasLongEndpoint
       ? "endpoint"
       : hasBracket
-      ? `\`${this.toTemplateLiteral(endpoint)}\``
-      : `'${endpoint}'`;
+        ? `\`${this.toTemplateLiteral(endpoint)}\``
+        : `'${endpoint}'`;
 
     let call = this.isGetAll
       ? `responseData = await handleListing.call(this, i, '${requestMethod}', ${endpointInsert}`
