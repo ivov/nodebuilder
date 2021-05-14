@@ -42,7 +42,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	{
 		displayName: '<%= helper.titleCase(param.name); %>',
 		name: '<%= helper.camelCase(param.name); %>',
-		description: '<%= param.description; %>',
+		description: '<%- param.description; %>',
 		type: '<%= helper.adjustType(param.schema.type, param.name); %>',
 		<%_ if (helper.hasMinMax(param.schema)) { _%>
 		typeOptions: {
