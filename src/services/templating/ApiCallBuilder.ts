@@ -1,5 +1,7 @@
 import { camelCase } from "change-case";
 
+const LONG_ENDPOINT_CHARACTER_LENGTH = 20;
+
 export default class ApiCallBuilder {
   serviceApiRequest: string;
   lines: string[];
@@ -26,10 +28,10 @@ export default class ApiCallBuilder {
     this.resetState();
 
     this.isGetAll = operationId === "getAll";
-    this.hasLongEndpoint = endpoint.length > 20;
+    this.hasLongEndpoint = endpoint.length > LONG_ENDPOINT_CHARACTER_LENGTH;
 
-    const pathParams = parameters?.filter((p) => this.isPathParam(p));
-    const qsParams = parameters?.filter((p) => this.isQsParam(p));
+    const pathParams = parameters?.filter(this.isPathParam);
+    const qsParams = parameters?.filter(this.isQsParam);
 
     if (requestBody?.length) {
       this.hasRequestBody = true;
@@ -87,21 +89,35 @@ export default class ApiCallBuilder {
   }
 
   qs(qsParams: OperationParameter[]) {
-    this.lines.push("const qs: IDataObject = {");
+    const [requiredQsParams, extraQsParams] = this.partitionByRequired(qsParams);
 
-    this.lines.push(
-      ...qsParams.map(
-        (qsp) => `\t${qsp.name}: this.getNodeParameter('${qsp.name}', i),`
-      )
-    );
+    // TODO: This is only for filters. Add variants for other extra fields.
+    if (extraQsParams.length) {
+      this.lines.push(
+        "const qs = {} as IDataObject;",
+        "const filters = this.getNodeParameter('filters', i) as IDataObject;\n",
+        "if (Object.keys(filters).length) {",
+        `\tObject.assign(qs, filters);`,
+        "}\n"
+      );
+    }
 
-    this.lines.push("};");
-    this.addNewLine(this.lines);
+    if (requiredQsParams.length) {
+      this.lines.push("const qs: IDataObject = {");
+      this.lines.push(
+        ...requiredQsParams.map(
+          (rqsp) => `\t${rqsp.name}: this.getNodeParameter('${rqsp.name}', i),`
+        )
+      );
+      this.lines.push("};");
+      this.addNewLine(this.lines);
+    }
   }
 
-  qsParam({ name }: OperationParameter) {
-    this.lines.push(`qs.${name} = this.getNodeParameter('${name}', i);`);
-  }
+  // TODO: No longer used?
+  // qsParam({ name }: OperationParameter) {
+  //   this.lines.push(`qs.${name} = this.getNodeParameter('${name}', i);`);
+  // }
 
   isPathParam = (param: OperationParameter) => param.in === "path";
 
@@ -112,6 +128,7 @@ export default class ApiCallBuilder {
   requestBody(rbArray: OperationRequestBody[]) {
     rbArray.forEach((rbItem) => {
       if (rbItem.name === "Standard") {
+
         this.hasStandardRequestBody = true;
 
         const rbItemNames = this.getRequestBodyItemNames(rbItem);
@@ -135,6 +152,7 @@ export default class ApiCallBuilder {
 
         this.lines.push("} as IDataObject;");
         this.addNewLine(this.lines);
+
       } else if (
         rbItem.name === "Additional Fields" ||
         rbItem.name === "Filters" ||
@@ -240,4 +258,15 @@ export default class ApiCallBuilder {
 
     return call;
   }
+
+  // ------------------ utils ------------------------
+
+  private partition = (test: (op: OperationParameter) => boolean) => (array: OperationParameter[]) => {
+    const pass: OperationParameter[] = [], fail: OperationParameter[] = [];
+    array.forEach((item) => (test(item) ? pass : fail).push(item));
+
+    return [pass, fail];
+  }
+
+  private partitionByRequired = this.partition((op: OperationParameter) => op.required ?? false);
 }
