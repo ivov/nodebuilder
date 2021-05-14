@@ -33,7 +33,6 @@ export class Helper {
       return 0;
     }
 
-    if (arg.default) return arg.default;
     if (arg.type === "boolean") return false;
     if (arg.type === "number" || arg.type === "integer") return 0;
 
