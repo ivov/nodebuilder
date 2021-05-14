@@ -87,9 +87,13 @@ updateFields:
     phone_numbers:
       - number: string
         category: string
+    classification: enum|Legal classification of the company.
+      - LLC
+      - Corporation
 ```
 
 Notes:
-- A vertical bar can be optionally set in order to add a description for the node property.
-- A key pointing to an object, as in `address`, creates a `fixedCollection` with a single set of options allowed.
-- A key pointing to an array of objects, as in `phone_numbers`, creates a `fixedCollection` with multiple options allowed.
+- Optionally, set a vertical bar and add a description for the node property.
+- A key pointing to an object, as in `address`, creates a `fixedCollection` with a single fixed set of fields to be filled in.
+- A key pointing to an array of objects, as in `phone_numbers`, creates a `fixedCollection` with multiple fixed sets of fields to be filled in.
+- A key pointing to an enum, as in `classification`, creates an `options` dropdown with one to be selected out of multiple options.
