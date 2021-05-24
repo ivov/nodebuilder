@@ -55,8 +55,7 @@ export default class YamlStager {
 
       const outputPathParams = this.pathParams(inputOperation);
 
-      if (outputPathParams)
-        this.outputOperation.parameters = outputPathParams;
+      if (outputPathParams) this.outputOperation.parameters = outputPathParams;
 
       // ----------------------------------
       //       populate qs params
@@ -66,8 +65,7 @@ export default class YamlStager {
         required: true,
       });
 
-      if (outputQsParams)
-        this.outputOperation.parameters = outputQsParams;
+      if (outputQsParams) this.outputOperation.parameters = outputQsParams;
 
       // ----------------------------------
       //     populate qs extra params
@@ -135,8 +133,7 @@ export default class YamlStager {
       operationId,
     };
 
-    if (operationUrl)
-      this.outputOperation.operationUrl = operationUrl;
+    if (operationUrl) this.outputOperation.operationUrl = operationUrl;
   }
 
   private pathParams(inputOperation: YamlOperation) {
@@ -250,7 +247,7 @@ export default class YamlStager {
       },
     };
 
-    if (value.type === 'options') {
+    if (value.type === "options") {
       output.schema.default = value.enumItems![0]; // TODO: Remove non-null assertion operator
       output.schema.enumItems = value.enumItems;
     }

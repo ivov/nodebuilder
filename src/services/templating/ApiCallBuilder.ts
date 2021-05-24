@@ -95,7 +95,9 @@ export default class ApiCallBuilder {
   }
 
   qs(qsParams: OperationParameter[]) {
-    const [requiredQsParams, extraQsParams] = this.partitionByRequired(qsParams);
+    const [requiredQsParams, extraQsParams] = this.partitionByRequired(
+      qsParams
+    );
 
     // TODO: This is only for filters. Add variants for other extra fields.
     if (extraQsParams.length) {
@@ -134,7 +136,6 @@ export default class ApiCallBuilder {
   requestBody(rbArray: OperationRequestBody[]) {
     rbArray.forEach((rbItem) => {
       if (rbItem.name === "Standard") {
-
         this.hasStandardRequestBody = true;
 
         const rbItemNames = this.getRequestBodyItemNames(rbItem);
@@ -158,7 +159,6 @@ export default class ApiCallBuilder {
 
         this.lines.push("} as IDataObject;");
         this.addNewLine(this.lines);
-
       } else if (
         rbItem.name === "Additional Fields" ||
         rbItem.name === "Filters" ||
@@ -245,8 +245,8 @@ export default class ApiCallBuilder {
     const endpointInsert = this.hasLongEndpoint
       ? "endpoint"
       : hasBracket
-        ? `\`${this.toTemplateLiteral(endpoint)}\``
-        : `'${endpoint}'`;
+      ? `\`${this.toTemplateLiteral(endpoint)}\``
+      : `'${endpoint}'`;
 
     let call = this.isGetAll
       ? `responseData = await handleListing.call(this, i, '${requestMethod}', ${endpointInsert}`
@@ -267,12 +267,17 @@ export default class ApiCallBuilder {
 
   // ------------------ utils ------------------------
 
-  private partition = (test: (op: OperationParameter) => boolean) => (array: OperationParameter[]) => {
-    const pass: OperationParameter[] = [], fail: OperationParameter[] = [];
+  private partition = (test: (op: OperationParameter) => boolean) => (
+    array: OperationParameter[]
+  ) => {
+    const pass: OperationParameter[] = [],
+      fail: OperationParameter[] = [];
     array.forEach((item) => (test(item) ? pass : fail).push(item));
 
     return [pass, fail];
-  }
+  };
 
-  private partitionByRequired = this.partition((op: OperationParameter) => op.required ?? false);
+  private partitionByRequired = this.partition(
+    (op: OperationParameter) => op.required ?? false
+  );
 }

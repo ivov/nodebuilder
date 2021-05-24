@@ -3,8 +3,8 @@ import { titleCase } from "title-case";
 
 export class Helper {
   adjustType = (type: string, name: string) => {
-    if (type === 'integer') return "number";
-    if (name.toLowerCase().includes('date')) return "dateTime";
+    if (type === "integer") return "number";
+    if (name.toLowerCase().includes("date")) return "dateTime";
     return type;
   };
 
@@ -18,9 +18,9 @@ export class Helper {
     this.camelCase(name) + (auth === "OAuth2" ? "OAuth2" : "") + "Api";
 
   getDefault(arg: any) {
-    if (arg.type === 'dateTime') return "''";
+    if (arg.type === "dateTime") return "''";
 
-    if (arg.type === 'options') return `'${arg.enumItems[0]}'`;
+    if (arg.type === "options") return `'${arg.enumItems[0]}'`;
 
     if (arg.default && arg.type === "string") return `'${arg.default}'`; // ?
 
