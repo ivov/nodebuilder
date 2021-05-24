@@ -98,3 +98,5 @@ type AdditionalFields = {
     description?: string;
   }[];
 };
+
+type ExtraFieldName = "Additional Fields" | "Filters" | "Update Fields";

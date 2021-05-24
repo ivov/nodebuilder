@@ -15,9 +15,13 @@ export default class YamlStager {
   }
 
   public run(): NodegenParams {
-    this.initializeOutputParams();
+    this.initializeMainParams();
 
-    this.populateOutputParams();
+    this.loopOverInputOperations((inputOperation) => {
+      this.initializeOutputOperation(inputOperation);
+      this.populateOutputOperation(inputOperation);
+    });
+
     this.unescapeHash();
 
     return {
@@ -26,113 +30,112 @@ export default class YamlStager {
     };
   }
 
-  /**
-   * Remove `\` from `#` in the node color in the YAML file.
-   */
-  private unescapeHash() {
-    this.outputMetaParams.nodeColor = this.outputMetaParams.nodeColor.replace(
-      "\\#",
-      "#"
-    );
-  }
-
-  private initializeOutputParams() {
-    Object.keys(this.inputMainParams).forEach((key) => {
-      this.outputMainParams[key] = [];
+  private initializeMainParams() {
+    this.getResources().forEach((resource) => {
+      this.outputMainParams[resource] = [];
     });
   }
 
-  private iterateOverOperations(callback: (operation: YamlOperation) => void) {
-    Object.keys(this.inputMainParams).forEach((resource) => {
+  private loopOverInputOperations(
+    callback: (inputOperation: YamlOperation) => void
+  ) {
+    this.getResources().forEach((resource) => {
       this.currentResource = resource;
-      const operationsPerResource = this.inputMainParams[resource];
-      operationsPerResource.forEach((operation) => callback(operation));
-    });
-  }
-
-  private populateOutputParams() {
-    this.iterateOverOperations((inputOperation: YamlOperation) => {
-      this.initializeOutputOperation(inputOperation);
-
-      const {
-        requiredFields,
-        additionalFields: addFields,
-        filters,
-        updateFields,
-      } = inputOperation;
-
-      // ----------------------------------
-      //       populate path params
-      // ----------------------------------
-
-      const outputPathParams = this.pathParams(inputOperation);
-
-      if (outputPathParams) this.outputOperation.parameters = outputPathParams;
-
-      // ----------------------------------
-      //       populate qs params
-      // ----------------------------------
-
-      const outputQsParams = this.qsParams(requiredFields?.queryString, {
-        required: true,
-      });
-
-      if (outputQsParams) this.outputOperation.parameters = outputQsParams;
-
-      // ----------------------------------
-      //     populate qs extra params
-      // ----------------------------------
-
-      const outputQsAddFields = this.qsExtraFields(addFields, {
-        name: "Additional Fields",
-      });
-
-      if (outputQsAddFields)
-        this.outputOperation.additionalFields = outputQsAddFields;
-
-      const outputQsFilters = this.qsExtraFields(filters, {
-        name: "Filters",
-      });
-
-      if (this.outputOperation.parameters && outputQsFilters)
-        this.outputOperation.parameters.push(...outputQsFilters.options);
-
-      if (!this.outputOperation.parameters && outputQsFilters)
-        this.outputOperation.parameters = outputQsFilters.options;
-
-      const outputQsUpdateFields = this.qsExtraFields(updateFields, {
-        name: "Update Fields",
-      });
-
-      if (outputQsUpdateFields)
-        this.outputOperation.updateFields = outputQsUpdateFields;
-
-      // ----------------------------------
-      //      populate request body
-      // ----------------------------------
-
-      const outputRequestBody = this.stageRequestBody(
-        requiredFields?.requestBody,
-        {
-          required: true,
-          name: "Standard",
-        }
+      this.inputMainParams[resource].forEach((inputOperation) =>
+        callback(inputOperation)
       );
-
-      this.outputOperation.requestBody = outputRequestBody ?? [];
-
-      // ----------------------------------
-      //      populate rb extra fields
-      // ----------------------------------
-
-      this.rbExtraFields(addFields, { name: "Additional Fields" });
-      this.rbExtraFields(filters, { name: "Filters" });
-      this.rbExtraFields(updateFields, { name: "Update Fields" });
-
-      this.outputMainParams[this.currentResource].push(this.outputOperation);
     });
   }
 
+  private populateOutputOperation(inputOperation: YamlOperation) {
+    const {
+      requiredFields,
+      additionalFields,
+      filters,
+      updateFields,
+    } = inputOperation;
+
+    // ----------------------------------
+    //           path params
+    // ----------------------------------
+
+    const outputPathParams = this.pathParams(inputOperation);
+
+    if (outputPathParams) this.outputOperation.parameters = outputPathParams;
+
+    // ----------------------------------
+    //       qs params (required)
+    // ----------------------------------
+
+    const outputQsParams = this.qsParams(requiredFields?.queryString, {
+      required: true,
+    });
+
+    if (outputQsParams) this.outputOperation.parameters = outputQsParams;
+
+    // ----------------------------------
+    //         qs params (extra)
+    // ----------------------------------
+
+    // additional fields
+
+    const outputQsAddFields = this.qsExtraFields(additionalFields, {
+      name: "Additional Fields",
+    });
+
+    if (outputQsAddFields)
+      this.outputOperation.additionalFields = outputQsAddFields;
+
+    // filters
+
+    const outputQsFilters = this.qsExtraFields(filters, {
+      name: "Filters",
+    });
+
+    if (!this.outputOperation.parameters && outputQsFilters)
+      this.outputOperation.parameters = outputQsFilters.options;
+
+    if (this.outputOperation.parameters && outputQsFilters)
+      this.outputOperation.parameters.push(...outputQsFilters.options);
+
+    // update fields
+
+    const outputQsUpdateFields = this.qsExtraFields(updateFields, {
+      name: "Update Fields",
+    });
+
+    if (outputQsUpdateFields)
+      this.outputOperation.updateFields = outputQsUpdateFields;
+
+    // ----------------------------------
+    //          request body
+    // ----------------------------------
+
+    const outputRequestBody = this.stageRequestBody(
+      requiredFields?.requestBody,
+      {
+        required: true,
+        name: "Standard",
+      }
+    );
+
+    this.outputOperation.requestBody = outputRequestBody ?? [];
+
+    // ----------------------------------
+    //        request body (extra)
+    // ----------------------------------
+
+    this.rbExtraFields(additionalFields, { name: "Additional Fields" });
+    this.rbExtraFields(filters, { name: "Filters" });
+    this.rbExtraFields(updateFields, { name: "Update Fields" });
+
+    this.outputMainParams[this.currentResource].push(this.outputOperation);
+  }
+
+  /**
+   * Transfer `endpoint`, `requestMethod`, `operationId` and `operationUrl`
+   * to the output operation to be populated.
+   */
   private initializeOutputOperation({
     endpoint,
     requestMethod,
@@ -148,6 +151,9 @@ export default class YamlStager {
     if (operationUrl) this.outputOperation.operationUrl = operationUrl;
   }
 
+  /**
+   * Handle an input operation's path params (if any) by forwarding them for staging.
+   */
   private pathParams(inputOperation: YamlOperation) {
     if (!inputOperation.endpoint.match(/\{/)) return null;
 
@@ -155,9 +161,14 @@ export default class YamlStager {
 
     if (!pathParams) return null;
 
-    return pathParams.map((pp) => this.stagePathParam(pp, inputOperation));
+    return pathParams.map((pathParam) =>
+      this.stagePathParam(pathParam, inputOperation)
+    );
   }
 
+  /**
+   * Handle an input operation's query string params (if any) by forwarding them for staging.
+   */
   private qsParams(
     queryString: YamlFieldsContent | undefined,
     { required }: { required: boolean }
@@ -171,15 +182,12 @@ export default class YamlStager {
 
   private qsExtraFields(
     extraFields: YamlFields | undefined,
-    {
-      name,
-    }: {
-      name: "Additional Fields" | "Filters" | "Update Fields";
-    }
+    { name }: { name: ExtraFieldName }
   ) {
     if (!extraFields) return null;
 
     const qsExtraFields = extraFields.queryString;
+
     if (!qsExtraFields) return null;
 
     const output: AdditionalFields = {
@@ -308,5 +316,22 @@ export default class YamlStager {
     });
 
     return [outputRequestBody];
+  }
+
+  /**
+   * Remove `\` from `#` in the node color in the meta params in the YAML file.
+   */
+  private unescapeHash() {
+    this.outputMetaParams.nodeColor = this.outputMetaParams.nodeColor.replace(
+      "\\#",
+      "#"
+    );
+  }
+
+  /**
+   * Return all the resource names of the API.
+   */
+  private getResources() {
+    return Object.keys(this.inputMainParams);
   }
 }
