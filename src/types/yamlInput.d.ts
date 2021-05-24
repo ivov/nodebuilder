@@ -2,8 +2,9 @@
 //         Input YAML file
 // ----------------------------------
 
-// Only to validate the shape of the input YAML file.
-
+/**
+ * Used only to validate the shape of the input YAML file in `YamlParser.jsonifyYaml`.
+ */
 type YamlInput = {
   metaParams: MetaParams;
   mainParams: {
@@ -13,19 +14,16 @@ type YamlInput = {
       requestMethod: string;
 
       operationUrl?: string;
-      requiredFields?: Field;
-      additionalFields?: Field;
-      filters?: Field;
-      updateFields?: Field;
+      requiredFields?: YamlField;
+      additionalFields?: YamlField;
+      filters?: YamlField;
+      updateFields?: YamlField;
     }>;
   };
 };
 
-type Field = {
-  queryString?: UnadjustedNameTypeAndDescription;
-  requestBody?: UnadjustedNameTypeAndDescription;
-};
-
-type UnadjustedNameTypeAndDescription = {
-  [name: string]: string | object;
+type YamlField = {
+  [key in "queryString" | "requestBody"]?: {
+    [paramName: string]: string | object;
+  };
 };

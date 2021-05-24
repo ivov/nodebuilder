@@ -45,7 +45,7 @@ type OperationParameter = {
   description?: string;
   schema: {
     type: string;
-    default: boolean | string | number;
+    default: boolean | string | number; // TODO: Type properly
     example?: string | number;
     minimum?: number;
     maximum?: number;
@@ -71,12 +71,20 @@ type Schema = {
   type: string;
   required?: string[];
   properties: {
-    [propertyName: string]: TypeAndDescription;
+    [propertyName: string]: ParamContent;
   };
 };
 
-type TypeAndDescription = {
-  type: string;
+// TODO: Rename
+type ParamContent = {
+  type:
+    | "string"
+    | "number"
+    | "boolean"
+    | "options"
+    | "collection"
+    | "fixedCollection";
+  default?: any; // TODO: Type properly
   description?: string;
   enumItems?: string[];
 };

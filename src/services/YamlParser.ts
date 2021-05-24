@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-import yaml from "js-yaml";
+import { load as jsonifyYaml } from "js-yaml";
 import { assertType } from "typescript-is";
 
 import YamlStager from "./YamlStager";
@@ -39,8 +39,19 @@ import { yamlInputDir } from "../config";
  * ```
  */
 export default class YamlParser {
-  private yamlInputFile: string;
+  /**
+   * Name of the YAML input file to parse.
+   */
+  private yamlInputFileName: string;
+
+  /**
+   * Jsonified params from the YAML input file, before adjustment in `traverseToAdjust`.
+   */
   private yamlMainPreparams: YamlMainPreparams;
+
+  /**
+   * Fields that always contain a string, so they can be skipped in `traverseToAdjust`.
+   */
   private unsplittableFields = [
     "endpoint",
     "operationId",
@@ -48,12 +59,12 @@ export default class YamlParser {
     "operationUrl",
   ];
 
-  constructor(yamlInputFile: string) {
-    this.yamlInputFile = yamlInputFile;
+  constructor(yamlInputFileName: string) {
+    this.yamlInputFileName = yamlInputFileName;
   }
 
   public run() {
-    const { metaParams, mainParams } = this.jsonifyYaml();
+    const { metaParams, mainParams } = this.prepareYaml();
     this.yamlMainPreparams = this.sortKeys(mainParams);
 
     this.iterateOverInputOperations((inputOperation: YamlOperation) =>
@@ -66,14 +77,23 @@ export default class YamlParser {
     }).run();
   }
 
-  private jsonifyYaml() {
-    const yamlFilePath = path.join(yamlInputDir, this.yamlInputFile);
-    const yamlFileContent = fs.readFileSync(yamlFilePath, "utf-8");
-    const jsonifiedYaml = yaml.load(yamlFileContent);
+  private prepareYaml() {
+    const jsonifiedYaml = jsonifyYaml(this.readYaml());
+    this.validateInput(jsonifiedYaml);
 
+    return jsonifiedYaml as YamlPreparams; // TODO: Replace with type guard
+  }
+
+  private readYaml() {
+    const fullYamlFilePath = path.join(yamlInputDir, this.yamlInputFileName);
+    return fs.readFileSync(fullYamlFilePath, "utf-8");
+  }
+
+  /**
+   * Validate that the jsonified YAML input file content adheres to the shape of `YamlInput`.
+   */
+  private validateInput(jsonifiedYaml: JsonObject) {
     assertType<YamlInput>(jsonifiedYaml);
-
-    return jsonifiedYaml as YamlPreparams;
   }
 
   // TODO: type properly
@@ -129,7 +149,7 @@ export default class YamlParser {
 
   /**
    * Traverse the parsed JSON object to find and adjust strings with a vertical bar.
-   * TODO: Type arg properly
+   * TODO: Type arg properly, account for null
    */
   private traverseToAdjust(object: { [key: string]: any }) {
     Object.keys(object).forEach((key) => {

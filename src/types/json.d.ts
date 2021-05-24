@@ -2,7 +2,7 @@
 //              JSON
 // ----------------------------------
 
-type JsonObject = { [key in string]: JsonValue };
+type JsonObject = { [key: string]: JsonValue };
 
 type JsonValue =
   | string

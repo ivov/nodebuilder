@@ -29,5 +29,5 @@ type YamlFields = {
 };
 
 type YamlFieldsContent = {
-  [name: string]: TypeAndDescription;
+  [name: string]: ParamContent;
 };

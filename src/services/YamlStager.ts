@@ -1,6 +1,8 @@
 /**
- * Responsible for "staging" nodegen params (from a YAML source file)
- * so that they are ready for consumption by nodegen templates.
+ * Responsible for staging jsonified YAML params into nodegen params,
+ * for consumption by nodegen templates. Main methods are:
+ * - handlers, to check if there is anything to stage, and
+ * - stagers, to conver the param to a nodegen param.
  */
 export default class YamlStager {
   private inputMainParams: YamlMainPreparams;
@@ -30,10 +32,29 @@ export default class YamlStager {
     };
   }
 
+  // ----------------------------------
+  //    initializers and populators
+  // ----------------------------------
+
   private initializeMainParams() {
     this.getResources().forEach((resource) => {
       this.outputMainParams[resource] = [];
     });
+  }
+
+  private initializeOutputOperation({
+    endpoint,
+    requestMethod,
+    operationId,
+    operationUrl,
+  }: YamlOperation) {
+    this.outputOperation = {
+      endpoint,
+      requestMethod,
+      operationId,
+    };
+
+    if (operationUrl) this.outputOperation.operationUrl = operationUrl;
   }
 
   private loopOverInputOperations(
@@ -55,40 +76,35 @@ export default class YamlStager {
       updateFields,
     } = inputOperation;
 
-    // ----------------------------------
-    //           path params
-    // ----------------------------------
+    // path params
 
-    const outputPathParams = this.pathParams(inputOperation);
+    const outputPathParams = this.handlePathParams(inputOperation);
 
     if (outputPathParams) this.outputOperation.parameters = outputPathParams;
 
-    // ----------------------------------
-    //       qs params (required)
-    // ----------------------------------
+    // qs params (required)
 
-    const outputQsParams = this.qsParams(requiredFields?.queryString, {
-      required: true,
-    });
+    const outputQsParams = this.handleRequiredQsParams(
+      requiredFields?.queryString,
+      {
+        required: true,
+      }
+    );
 
     if (outputQsParams) this.outputOperation.parameters = outputQsParams;
 
-    // ----------------------------------
-    //         qs params (extra)
-    // ----------------------------------
+    // qs params (extra) - additional fields
 
-    // additional fields
-
-    const outputQsAddFields = this.qsExtraFields(additionalFields, {
+    const outputQsAddFields = this.stageQsExtraFields(additionalFields, {
       name: "Additional Fields",
     });
 
     if (outputQsAddFields)
       this.outputOperation.additionalFields = outputQsAddFields;
 
-    // filters
+    // qs params (extra) - filters
 
-    const outputQsFilters = this.qsExtraFields(filters, {
+    const outputQsFilters = this.stageQsExtraFields(filters, {
       name: "Filters",
     });
 
@@ -98,18 +114,16 @@ export default class YamlStager {
     if (this.outputOperation.parameters && outputQsFilters)
       this.outputOperation.parameters.push(...outputQsFilters.options);
 
-    // update fields
+    // qs params (extra) - update fields
 
-    const outputQsUpdateFields = this.qsExtraFields(updateFields, {
+    const outputQsUpdateFields = this.stageQsExtraFields(updateFields, {
       name: "Update Fields",
     });
 
     if (outputQsUpdateFields)
       this.outputOperation.updateFields = outputQsUpdateFields;
 
-    // ----------------------------------
-    //          request body
-    // ----------------------------------
+    // required body (required)
 
     const outputRequestBody = this.stageRequestBody(
       requiredFields?.requestBody,
@@ -121,40 +135,25 @@ export default class YamlStager {
 
     this.outputOperation.requestBody = outputRequestBody ?? [];
 
-    // ----------------------------------
-    //        request body (extra)
-    // ----------------------------------
+    // required body (extra)
 
-    this.rbExtraFields(additionalFields, { name: "Additional Fields" });
-    this.rbExtraFields(filters, { name: "Filters" });
-    this.rbExtraFields(updateFields, { name: "Update Fields" });
+    this.handleRequestBodyExtraFields(additionalFields, {
+      name: "Additional Fields",
+    });
+    this.handleRequestBodyExtraFields(filters, { name: "Filters" });
+    this.handleRequestBodyExtraFields(updateFields, { name: "Update Fields" });
 
     this.outputMainParams[this.currentResource].push(this.outputOperation);
   }
 
-  /**
-   * Transfer `endpoint`, `requestMethod`, `operationId` and `operationUrl`
-   * to the output operation to be populated.
-   */
-  private initializeOutputOperation({
-    endpoint,
-    requestMethod,
-    operationId,
-    operationUrl,
-  }: YamlOperation) {
-    this.outputOperation = {
-      endpoint,
-      requestMethod,
-      operationId,
-    };
-
-    if (operationUrl) this.outputOperation.operationUrl = operationUrl;
-  }
+  // ----------------------------------
+  //            handlers
+  // ----------------------------------
 
   /**
-   * Handle an input operation's path params (if any) by forwarding them for staging.
+   * Handle path params (if any) by forwarding them for staging.
    */
-  private pathParams(inputOperation: YamlOperation) {
+  private handlePathParams(inputOperation: YamlOperation) {
     if (!inputOperation.endpoint.match(/\{/)) return null;
 
     const pathParams = inputOperation.endpoint.match(/(?<={)(.*?)(?=})/g);
@@ -167,11 +166,11 @@ export default class YamlStager {
   }
 
   /**
-   * Handle an input operation's query string params (if any) by forwarding them for staging.
+   * Handle required query string params (if any) by forwarding them for staging.
    */
-  private qsParams(
+  private handleRequiredQsParams(
     queryString: YamlFieldsContent | undefined,
-    { required }: { required: boolean }
+    { required }: { required: true }
   ) {
     if (!queryString) return null;
 
@@ -180,32 +179,10 @@ export default class YamlStager {
     );
   }
 
-  private qsExtraFields(
-    extraFields: YamlFields | undefined,
-    { name }: { name: ExtraFieldName }
-  ) {
-    if (!extraFields) return null;
-
-    const qsExtraFields = extraFields.queryString;
-
-    if (!qsExtraFields) return null;
-
-    const output: AdditionalFields = {
-      name,
-      type: "collection",
-      description: "",
-      default: {},
-      options: [],
-    };
-
-    Object.entries(qsExtraFields).forEach(([key, value]) =>
-      output.options.push(this.stageQsParam(key, value, { required: false }))
-    );
-
-    return output.options.length ? output : null;
-  }
-
-  private rbExtraFields(
+  /**
+   * Handle extra fields in request body (if any) by forwarding them for staging.
+   */
+  private handleRequestBodyExtraFields(
     extraFields: YamlFields | undefined,
     {
       name,
@@ -225,6 +202,10 @@ export default class YamlStager {
       );
     }
   }
+
+  // ----------------------------------
+  //            stagers
+  // ----------------------------------
 
   private stagePathParam(pathParam: string, { operationId }: YamlOperation) {
     const output: OperationParameter = {
@@ -252,6 +233,31 @@ export default class YamlStager {
     return output;
   }
 
+  private stageQsExtraFields(
+    extraFields: YamlFields | undefined,
+    { name }: { name: ExtraFieldName }
+  ) {
+    if (!extraFields) return null;
+
+    const qsExtraFields = extraFields.queryString;
+
+    if (!qsExtraFields) return null;
+
+    const output: AdditionalFields = {
+      name,
+      type: "collection",
+      description: "",
+      default: {},
+      options: [],
+    };
+
+    Object.entries(qsExtraFields).forEach(([key, value]) =>
+      output.options.push(this.stageQsParam(key, value, { required: false }))
+    );
+
+    return output.options.length ? output : null;
+  }
+
   private stageQsParam(
     key: string,
     value: ParamContent,
@@ -267,8 +273,8 @@ export default class YamlStager {
       },
     };
 
-    if (value.type === "options") {
-      output.schema.default = value.enumItems![0]; // TODO: Remove non-null assertion operator
+    if (value.type === "options" && value.enumItems) {
+      output.schema.default = value.enumItems[0];
       output.schema.enumItems = value.enumItems;
     }
 
@@ -321,6 +327,10 @@ export default class YamlStager {
 
     return [outputRequestBody];
   }
+
+  // ----------------------------------
+  //            utils
+  // ----------------------------------
 
   /**
    * Remove `\` from `#` in the node color in the meta params in the YAML file.
