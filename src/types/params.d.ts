@@ -1,5 +1,37 @@
 // ----------------------------------
-//          Nodegen params
+//       pre-traversal params
+// ----------------------------------
+
+type PreTraversalParams = {
+  metaParams: MetaParams;
+  mainParams: {
+    [key: string]: YamlOperation[];
+  };
+};
+
+type YamlOperation = {
+  operationId: string;
+  requestMethod: string;
+  endpoint: string;
+
+  operationUrl?: string;
+  requiredFields?: YamlFields;
+  additionalFields?: YamlFields;
+  filters?: YamlFields;
+  updateFields?: YamlFields;
+};
+
+type YamlFields = {
+  queryString?: YamlFieldsContent;
+  requestBody?: YamlFieldsContent;
+};
+
+type YamlFieldsContent = {
+  [name: string]: ParamContent;
+};
+
+// ----------------------------------
+//          nodegen params
 // ----------------------------------
 
 type NodegenParams = {
@@ -53,7 +85,7 @@ type OperationParameter = {
   };
   required?: boolean;
   example?: string;
-  $ref?: string;
+  $ref?: string; // from OpenAPI
 };
 
 type OperationRequestBody = {
@@ -106,3 +138,45 @@ type AdditionalFields = {
 };
 
 type ExtraFieldName = "Additional Fields" | "Filters" | "Update Fields";
+
+// ----------------------------------
+//          OpenAPI keys
+// ----------------------------------
+
+type OpenApiKey = StringArrayKey | StringKey | CustomObjectKey;
+
+type StringArrayKey = "tags" | "requestMethods";
+
+type StringKey = "description" | "operationId";
+
+type CustomObjectKey = "parameters" | "requestBody";
+
+// ----------------------------------
+//         Input YAML file
+// ----------------------------------
+
+/**
+ * Used only to validate the shape of the input YAML file in `YamlParser.jsonifyYaml`.
+ */
+type YamlInput = {
+  metaParams: MetaParams;
+  mainParams: {
+    [resource: string]: Array<{
+      endpoint: string;
+      operationId: string;
+      requestMethod: string;
+
+      operationUrl?: string;
+      requiredFields?: YamlField;
+      additionalFields?: YamlField;
+      filters?: YamlField;
+      updateFields?: YamlField;
+    }>;
+  };
+};
+
+type YamlField = {
+  [key in "queryString" | "requestBody"]?: {
+    [paramName: string]: string | object;
+  };
+};

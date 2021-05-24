@@ -56,7 +56,9 @@ function isNodegenParams(value: any): value is NodegenParams {
   return "metaParams" in value && "mainParams" in value;
 }
 
-export function printTranslation(yamlMainParams: YamlMainPreparams) {
+export function printTranslation(
+  yamlMainParams: PreTraversalParams["mainParams"]
+) {
   console.log(yamlMainParams);
   fs.writeFileSync(
     "translation.json",

@@ -1,17 +1,16 @@
 /**
- * Responsible for staging jsonified YAML params into nodegen params,
- * for consumption by nodegen templates. Main methods are:
- * - handlers, to check if there is anything to stage, and
- * - stagers, to conver the param to a nodegen param.
+ * Responsible for staging traversed params into nodegen params.
+ * Staging params are for consumption by nodegen templates.
  */
 export default class YamlStager {
-  private inputMainParams: YamlMainPreparams;
+  private inputMainParams: PreTraversalParams["mainParams"];
   private outputMetaParams: MetaParams;
   private outputMainParams: MainParams = {};
-  private currentResource = "";
-  private outputOperation: Operation;
 
-  constructor(yamlNodegenParams: YamlPreparams) {
+  private outputOperation: Operation;
+  private currentResource = "";
+
+  constructor(yamlNodegenParams: any) {
     this.inputMainParams = yamlNodegenParams.mainParams;
     this.outputMetaParams = yamlNodegenParams.metaParams;
   }
@@ -24,7 +23,7 @@ export default class YamlStager {
       this.populateOutputOperation(inputOperation);
     });
 
-    this.unescapeHash();
+    this.unescapeNodeColorHash();
 
     return {
       mainParams: this.outputMainParams,
@@ -62,9 +61,7 @@ export default class YamlStager {
   ) {
     this.getResources().forEach((resource) => {
       this.currentResource = resource;
-      this.inputMainParams[resource].forEach((inputOperation) =>
-        callback(inputOperation)
-      );
+      this.inputMainParams[resource].forEach(callback);
     });
   }
 
@@ -108,11 +105,11 @@ export default class YamlStager {
       name: "Filters",
     });
 
-    if (!this.outputOperation.parameters && outputQsFilters)
-      this.outputOperation.parameters = outputQsFilters.options;
-
     if (this.outputOperation.parameters && outputQsFilters)
       this.outputOperation.parameters.push(...outputQsFilters.options);
+
+    if (!this.outputOperation.parameters && outputQsFilters)
+      this.outputOperation.parameters = outputQsFilters.options;
 
     // qs params (extra) - update fields
 
@@ -335,7 +332,7 @@ export default class YamlStager {
   /**
    * Remove `\` from `#` in the node color in the meta params in the YAML file.
    */
-  private unescapeHash() {
+  private unescapeNodeColorHash() {
     this.outputMetaParams.nodeColor = this.outputMetaParams.nodeColor.replace(
       "\\#",
       "#"
