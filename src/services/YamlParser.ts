@@ -9,7 +9,7 @@ import { yamlInputDir } from "../config";
 
 /**
  * Responsible for parsing a YAML API description into a JSON API mapping,
- * also adjusting vertical bar strings into key-value pairs.
+ * also sorting and adjusting vertical bar strings into key-value pairs.
  *
  * From:
  * ```yaml
@@ -54,11 +54,10 @@ export default class YamlParser {
 
   public run() {
     const { metaParams, mainParams } = this.jsonifyYaml();
-
     this.yamlMainPreparams = this.sortKeys(mainParams);
 
-    this.iterateOverOperations((operation: YamlOperation) =>
-      this.traverseToAdjust(operation)
+    this.iterateOverInputOperations((inputOperation: YamlOperation) =>
+      this.traverseToAdjust(inputOperation)
     );
 
     return new YamlStager({
@@ -84,7 +83,15 @@ export default class YamlParser {
     if (Array.isArray(value)) {
       const newArr = value.map((item) => this.sortKeys(item));
 
-      // sort keys for dropdown options
+      // sort operations by operationId
+      if (value.every((i) => i.operationId)) {
+        const sortedOperationIds = value.map((i) => i.operationId).sort();
+        return sortedOperationIds.map((operationId) =>
+          value.find((i) => i.operationId === operationId)
+        );
+      }
+
+      // sort dropdown options
       if (newArr.every((i) => Object.keys(i).length === 1)) {
         const orderedKeys = value.map((i) => Object.keys(i)[0]).sort();
         return orderedKeys.map((key) => newArr.find((i) => i[key]));
@@ -104,11 +111,20 @@ export default class YamlParser {
     return sorted;
   }
 
-  private iterateOverOperations(callback: (operation: YamlOperation) => void) {
-    Object.keys(this.yamlMainPreparams).forEach((resource) => {
+  private iterateOverInputOperations(
+    callback: (inputOperation: YamlOperation) => void
+  ) {
+    this.getResources().forEach((resource) => {
       const operationsPerResource = this.yamlMainPreparams[resource];
       operationsPerResource.forEach((operation) => callback(operation));
     });
+  }
+
+  /**
+   * Return all the resource names of the API.
+   */
+  private getResources() {
+    return Object.keys(this.yamlMainPreparams);
   }
 
   /**
