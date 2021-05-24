@@ -16,12 +16,24 @@ export default class YamlStager {
 
   public run(): NodegenParams {
     this.initializeOutputParams();
+
     this.populateOutputParams();
+    this.unescapeHash();
 
     return {
       mainParams: this.outputMainParams,
       metaParams: this.outputMetaParams,
     };
+  }
+
+  /**
+   * Remove `\` from `#` in the node color in the YAML file.
+   */
+  private unescapeHash() {
+    this.outputMetaParams.nodeColor = this.outputMetaParams.nodeColor.replace(
+      "\\#",
+      "#"
+    );
   }
 
   private initializeOutputParams() {
