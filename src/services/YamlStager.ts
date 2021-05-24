@@ -254,7 +254,7 @@ export default class YamlStager {
 
   private stageQsParam(
     key: string,
-    value: TypeAndDescription,
+    value: ParamContent,
     { required }: { required: boolean }
   ) {
     const output: OperationParameter = {
@@ -263,7 +263,7 @@ export default class YamlStager {
       required,
       schema: {
         type: value.type,
-        default: value.type,
+        default: value.default,
       },
     };
 
@@ -346,5 +346,7 @@ export default class YamlStager {
     if (description.includes("<a href=")) {
       return description.replace('">', '" target="_blank">');
     }
+
+    return description;
   }
 }
