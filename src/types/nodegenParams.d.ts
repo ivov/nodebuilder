@@ -20,9 +20,7 @@ type MainParams = {
   [resource: string]: Operation[];
 };
 
-type Resource = Operation[];
-
-type ResourceTuples = [string, Resource][];
+type ResourceTuples = [string, Operation[]][];
 
 type Operation = {
   endpoint: string;

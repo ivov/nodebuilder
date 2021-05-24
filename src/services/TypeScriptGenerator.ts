@@ -83,7 +83,7 @@ export default class Generator {
     });
   }
 
-  private saveResourceJson(resourceName: string, operationsArray: Resource) {
+  private saveResourceJson(resourceName: string, operationsArray: Operation[]) {
     fs.writeFileSync(
       this.resourceJson,
       JSON.stringify({ resourceName, operationsArray }, null, 2),
