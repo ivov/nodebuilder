@@ -273,7 +273,7 @@ export default class YamlStager {
     }
 
     if (value.description) {
-      output.description = value.description;
+      output.description = this.supplementLink(value.description);
     }
 
     return output;
@@ -286,7 +286,7 @@ export default class YamlStager {
       name,
     }: {
       required: boolean;
-      name: "Standard" | "Additional Fields" | "Filters" | "Update Fields";
+      name: "Standard" | ExtraFieldName;
     }
   ) {
     if (!requestBody) return null;
@@ -310,6 +310,10 @@ export default class YamlStager {
     Object.entries(requestBody).forEach(([key, value]) => {
       const properties =
         outputRequestBody.content[formUrlEncoded]?.schema.properties;
+
+      if (value.description)
+        value.description = this.supplementLink(value.description);
+
       if (properties) {
         properties[key] = value;
       }
@@ -333,5 +337,14 @@ export default class YamlStager {
    */
   private getResources() {
     return Object.keys(this.inputMainParams);
+  }
+
+  /**
+   * Add `target="_blank"` to any link in a param description.
+   */
+  private supplementLink(description: string) {
+    if (description.includes("<a href=")) {
+      return description.replace('">', '" target="_blank">');
+    }
   }
 }
