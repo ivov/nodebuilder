@@ -153,7 +153,7 @@ export default class ApiCallBuilder {
 
         this.lines.push(
           ...rbItemNames.map(
-            (rbc) => `\t${rbc}: this.getNodeParameter('${rbc}', i),`
+            (rbc) => `\t${rbc}: this.getNodeParameter('${camelCase(rbc)}', i),`
           )
         );
 
