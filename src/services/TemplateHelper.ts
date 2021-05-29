@@ -46,8 +46,13 @@ export class Helper {
 
   pascalCase = (str: string) => pascalCase(str);
 
-  titleCase = (str: string) =>
-    titleCase(str.replace(/[._]/g, " ").replace("Id", " ID")).trim();
+  titleCase = (str: string) => {
+    const base = str.replace(/[._]/g, " ").trim();
+
+    return str.includes("_")
+      ? titleCase(base).replace("Id", "ID") // for snake case
+      : titleCase(base.replace("Id", " ID")); // for camel case
+  };
 
   toTemplateLiteral = (endpoint: string) => endpoint.replace(/{/g, "${");
 
