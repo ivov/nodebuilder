@@ -19,6 +19,7 @@ export default class YamlStager {
     this.initializeMainParams();
 
     this.loopOverInputOperations((inputOperation) => {
+      this.validateInputOperation(inputOperation);
       this.initializeOutputOperation(inputOperation);
       this.populateOutputOperation(inputOperation);
     });
@@ -29,6 +30,32 @@ export default class YamlStager {
       mainParams: this.outputMainParams,
       metaParams: this.outputMetaParams,
     };
+  }
+
+  // ----------------------------------
+  //            validators
+  // ----------------------------------
+
+  validateInputOperation(operation: YamlOperation) {
+    const errors = [];
+
+    if (operation.requestMethod === "POST" && !operation.requiredFields) {
+      const invalidOperation = JSON.stringify(operation, null, 2);
+      errors.push(
+        `POST request is missing required request body params:\n${invalidOperation}`
+      );
+    }
+
+    if (this.needsRouteParam(operation) && !operation.endpoint.includes("{")) {
+      const invalidOperation = JSON.stringify(operation, null, 2);
+      errors.push(
+        `Operation is missing required route param:\n${invalidOperation}`
+      );
+    }
+
+    if (errors.length) {
+      throw new Error(`Validation failed:\n${errors}`);
+    }
   }
 
   // ----------------------------------
@@ -355,5 +382,14 @@ export default class YamlStager {
     }
 
     return description;
+  }
+
+  private needsRouteParam(operation: YamlOperation) {
+    return (
+      (operation.requestMethod === "GET" &&
+        operation.operationId !== "getAll") ||
+      operation.requestMethod === "DELETE" ||
+      operation.requestMethod === "PATCH"
+    );
   }
 }
