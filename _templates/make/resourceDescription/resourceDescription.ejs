@@ -40,7 +40,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ if (operation.parameters) { _%>
 	<%_ operation.parameters.forEach(param => { _%>
 	{
-		displayName: '<%= helper.titleCase(param.name).trim(); %>',
+		displayName: '<%= helper.titleCase(param.name); %>',
 		name: '<%= helper.camelCase(param.name); %>',
 		description: '<%- param.description; %>',
 		type: '<%= helper.adjustType(param.schema.type, param.name); %>',
@@ -90,7 +90,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ const properties = rbItem.content[mimeType].schema.properties; _%>
 	<%_ Object.entries(properties).forEach(([property, value]) => { _%>
 	{
-		displayName: '<%= helper.titleCase(property).trim(); %>',
+		displayName: '<%= helper.titleCase(property); %>',
 		name: '<%= helper.camelCase(property); %>',
 		<%_ if (value.description) { _%>
 		description: '<%- helper.escape(value.description); %>',
@@ -128,7 +128,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ }); _%> <%#_ end properties loop _%>
 	<%_ } else if (mimeType === "text/plain") { _%>
 	{
-		displayName: '<%= helper.titleCase(rbItem.textPlainProperty).trim(); %>',
+		displayName: '<%= helper.titleCase(rbItem.textPlainProperty); %>',
 		name: '<%= helper.camelCase(rbItem.textPlainProperty); %>',
 		<%_ if (rbItem.description) { _%>
 		description: '<%- helper.escape(rbItem.description); %>',
@@ -151,7 +151,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ }); _%> <%#_ end mimeType loop _%>
 	<%_ } else if (!rbItem.required) { _%>
 	{
-		displayName: '<%= rbItem.name.trim() %>',
+		displayName: '<%= rbItem.name %>',
 		name: '<%= helper.camelCase(rbItem.name) %>',
 		type: 'collection',
 		placeholder: '<%= helper.getPlaceholder(rbItem.name); %>',
@@ -176,7 +176,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 				* non-nested field inside extraFields
 				*/_%>
 			{
-				displayName: '<%= helper.titleCase(key).trim(); %>',
+				displayName: '<%= helper.titleCase(key); %>',
 				name: '<%= key %>',
 				type: '<%= helper.adjustType(value.type, key); %>',
 				default: <%- helper.getDefault(value); %>,
@@ -186,7 +186,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 			},
 			<%_ } else if (value.type === 'options') { _%>
 			{
-				displayName: '<%= helper.titleCase(key).trim(); %>',
+				displayName: '<%= helper.titleCase(key); %>',
 				name: '<%= key %>',
 				type: 'options',
 				default: '<%= value.default %>',
@@ -205,7 +205,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 				* TODO: Is this branch working or is this now covered by the previous branch?
 				*/_%>
 			{
-				displayName: '<%= helper.titleCase(key).trim(); %>',
+				displayName: '<%= helper.titleCase(key); %>',
 				name: '<%= key %>',
 				type: 'options',
 				default: '<%= Object.keys(value[0])[0] %>',
@@ -225,7 +225,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 				* fixedCollection with multipleValues inside extraFields
 				*/_%>
 			{
-				displayName: '<%= helper.titleCase(key).trim(); %>',
+				displayName: '<%= helper.titleCase(key); %>',
 				name: '<%= key %>',
 				type: 'fixedCollection',
 				default: {},
@@ -241,7 +241,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 						<%_ value.forEach(i => { _%>
 						<%_ Object.keys(i).forEach(subKey => { _%>
 							{
-								displayName: '<%= helper.titleCase(subKey).trim() %>',
+								displayName: '<%= helper.titleCase(subKey) %>',
 								name: '<%= subKey %>',
 								type: 'string',
 								default: '',
@@ -257,7 +257,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 				* fixedCollection without multipleValues inside extraFields
 				*/_%>
 			{
-				displayName: '<%= helper.titleCase(key).trim(); %>',
+				displayName: '<%= helper.titleCase(key); %>',
 				name: '<%= key %>',
 				type: 'fixedCollection',
 				default: {},
@@ -269,7 +269,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 						values: [
 						<%_ Object.keys(value).forEach(subKey => { _%>
 							{
-								displayName: '<%= helper.titleCase(subKey).trim() %>',
+								displayName: '<%= helper.titleCase(subKey) %>',
 								name: '<%= subKey %>',
 								type: 'string',
 								default: '',
