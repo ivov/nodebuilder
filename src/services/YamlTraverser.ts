@@ -1,6 +1,9 @@
 /**
- * Traverses params from a YAML API mapping to sort keys and
- * to adjust the separator `|` before staging.
+ * Traverses params from a YAML API mapping to
+ * - sort keys alphabetically, and
+ * - separate keys based at`|`.
+ *
+ * Used before staging.
  */
 export default class YamlTraverser {
   private preTraversalMainParams: PreTraversalParams["mainParams"];
