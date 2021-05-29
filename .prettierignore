@@ -1,2 +1,2 @@
 src/input/*.json
-src/output/*.ts
+src/output/**/*.ts
