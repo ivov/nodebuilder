@@ -93,24 +93,36 @@ export default class YamlTraverser {
   private adjustSeparator(value: string | object[]) {
     if (Array.isArray(value)) return value;
 
-    // for now, vertical separator is REQUIRED for enum
-    if (value.startsWith("enum|")) {
-      const [_, description] = value.split("|");
-      const items = description.split("-").map((item) => item.trim());
+    // TODO: vertical separator is REQUIRED for enum, for the time being
+    if (value.startsWith("enum|") || value.startsWith("enum=")) {
+      const [type, description] = value.split("|");
+
+      const items = description
+        .split("-")
+        .slice(1)
+        .map((item) => item.trim());
+
+      const defaultValue = type.includes("=") ? type.split("=")[1] : items[0];
+
       return {
         type: "options",
-        description: items[0],
-        enumItems: items.slice(1),
-        default: items[1],
+        description,
+        enumItems: items,
+        default: defaultValue,
       };
     }
 
-    if (value.includes("|")) {
-      const [type, description] = value.split("|");
-      return { type, description, default: this.getDefaultFromString(type) };
-    }
+    if (!value.includes("|"))
+      return { type: value, default: this.getDefaultFromString(value) };
 
-    return { type: value, default: this.getDefaultFromString(value) };
+    const [type, description] = value.split("|");
+
+    if (!type.includes("="))
+      return { type, description, default: this.getDefaultFromString(type) };
+
+    const [typeValue, defaultValue] = type.split("=");
+
+    return { type: typeValue, description, default: defaultValue };
   }
 
   // ----------------------------------

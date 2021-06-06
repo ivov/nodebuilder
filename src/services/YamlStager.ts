@@ -298,7 +298,6 @@ export default class YamlStager {
     };
 
     if (value.type === "options" && value.enumItems) {
-      output.schema.default = value.enumItems[0];
       output.schema.enumItems = value.enumItems;
     }
 
@@ -325,7 +324,7 @@ export default class YamlStager {
       name,
       required,
       content: {
-        // TODO: add also `multipart/form-data` and `text/plain`
+        // TODO: add also `multipart/form-data` and `text/plain`?
         "application/x-www-form-urlencoded": {
           schema: {
             type: "object",

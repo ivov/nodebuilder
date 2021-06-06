@@ -18,25 +18,25 @@ export class Helper {
     this.camelCase(name) + (auth === "OAuth2" ? "OAuth2" : "") + "Api";
 
   getDefault(arg: any) {
-    if (arg.type === "dateTime") return "''";
+    if (arg.default) {
+      if (arg.type === "boolean" || arg.type === "number") return arg.default;
 
-    if (arg.type === "options") return `'${arg.enumItems[0]}'`;
+      if (arg.type === "string" || arg.type === "options")
+        return `'${arg.default}'`;
 
-    if (arg.default && arg.type === "string") return `'${arg.default}'`; // ?
-
-    // edge case: number type with string default (third-party error)
-    if (
-      arg.default &&
-      (arg.type === "number" || arg.type === "integer") &&
-      typeof arg.default === "string"
-    ) {
-      return 0;
+      // edge case: number type with string default (third-party error)
+      if (
+        typeof arg.default === "string" &&
+        (arg.type === "number" || arg.type === "integer")
+      ) {
+        return 0;
+      }
     }
 
-    if (arg.type === "boolean") return false;
+    if (arg.type === "string" || arg.type === "dateTime") return "''";
     if (arg.type === "number" || arg.type === "integer") return 0;
-
-    return "''";
+    if (arg.type === "boolean") return false;
+    if (arg.type === "options") return `'${arg.enumItems[0]}'`;
   }
 
   getParams = (params: OperationParameter[], type: "query" | "path") =>
