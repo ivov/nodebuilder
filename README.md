@@ -27,9 +27,9 @@
 
 **Nodebuilder** is a utility to generate n8n node files from [OpenAPI specs](https://github.com/OAI/OpenAPI-Specification) and from [custom YAML files](#yaml). Developed to automate the node creation process following codebase conventions, for `*.node.ts` (main logic for regular node), `GenericFunctions.ts` (helper functions) and `*Description.ts` (resource descriptions).
 
-<p align="center">
+<!-- <p align="center">
   <img src="docs/screenshot.png">
-</p>
+</p> -->
 
 **Features**:
 - Logic for CRUD operations
