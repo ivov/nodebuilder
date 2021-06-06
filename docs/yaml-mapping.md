@@ -3,11 +3,11 @@
 </p>
 
 <p align="center">
-  <h2 align="center">Nodebuilder's YAML</h2>
+  <h2 align="center">YAML Mapping</h2>
 </p>
 
 <p align="center">
-  Learn how to describe an API in YAML for the Nodebuilder
+  Learn how to describe an API in YAML to generate an n8n node
 </p>
 
 <br>
@@ -136,12 +136,12 @@ updateFields:
     phone_numbers:
       - number: string
         category: string
-    classification: enum=1|Legal classification of the company.
+    classification: enum=Corporation|Legal classification of the company.
       - LLC
       - Corporation
 ```
 
 **Notes**
 
-- Optionally, set a pipe `|` after the n8n type to specify a description. As an exception, for the time being an `enum`-type param requires a description.
-- Optionally, set an equals sign `=` after the n8n type (but before the pipe) to specify a default. For an `enum`-type param, the default must be a zero-based index. If the default is unspecified, a `string` or `dateTime` param defaults to `''`, a `number` param defaults to `0`, a `boolean` param defaults to `false`, and an `options` param defaults to the zeroth item.
+- Optionally, to specify a description, set a pipe `|` after the n8n type. As an exception, for the time being an `enum`-type param requires a description. If the description is unspecified, it is not added to the param in the resource description file.
+- Optionally, to specify a default, set an equals sign `=` after the n8n type before the pipe. If the default is unspecified, a `string` or `dateTime` param defaults to `''`, a `number` param defaults to `0`, a `boolean` param defaults to `false`, and an `options` param defaults to the zeroth item.

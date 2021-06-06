@@ -14,7 +14,7 @@
 <p align="center">
   <a href="#installation">Installation</a> •
   <a href="#operation">Operation</a> •
-  <a href="/docs/nodebuilder-yaml.md">YAML Mapping</a>
+  <a href="/docs/yaml-mapping.md">YAML Mapping</a>
 </p>
 
 <p align="center">
@@ -88,9 +88,9 @@ Notes:
 2. Run `npm run generate`
 3. Inspect `src/output`
 
-For a full example of an API description in YAML, refer to [`copper.yaml`](https://github.com/ivov/nodebuilder/blob/main/src/input/yaml/copper.yaml).
+For a full description of how to describe an API in YAML, refer to [this explanation](https://github.com/ivov/nodebuilder/blob/main/docs/yaml-mapping.md).
 
-For a full description of how to describe an API in YAML, refer to [this explanation](https://github.com/ivov/nodebuilder/blob/main/docs/nodebuilder-yaml.md).
+For a full example of an API description in YAML, refer to [`copper.yaml`](https://github.com/ivov/nodebuilder/blob/main/src/input/yaml/copper.yaml).
 
 ## Author
 
