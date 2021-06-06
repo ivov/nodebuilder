@@ -12,30 +12,65 @@
 
 <br>
 
-The API description should have two main sections, `metaParams` and `mainParams`:
+The Nodebuilder can generate an n8n node from a YAML mapping, i.e. a shorthand description of an API written in [YAML syntax](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html).
 
-- `metaParams`, for properties of the API itself:
+## API-level keys
+
+The YAML mapping must have two top-level keys: `metaParams` and `mainParams`
+
+`metaParams` contains four required properties of the API itself:
 
 ```yaml
 metaParams:
-  apiUrl: https://api.myservice.com/      # base API URL
-  authType: OAuth2                        # one of "OAuth2", "ApiKey", or "None"
-  serviceName: MyService                  # properly cased service name
-  nodeColor: \#ff2564                     # brand hex color, escaped by /
+  apiUrl: https://api.myservice.com/ # base API URL
+  authType: OAuth2 # one of "OAuth2", "ApiKey", or "None"
+  serviceName: MyService # properly cased service name
+  nodeColor: \#ff2564 # brand hex color, escaped by /
 ```
 
-- `mainParams`, for resources containing one or more operations:
+```ts
+export class MyService implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: 'MyService',
+		name: 'myService',
+		icon: 'file:myService.png',
+		group: ['transform'],
+		version: 1,
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
+		description: 'Consume the MyService API',
+		defaults: {
+			name: 'MyService',
+			color: '#ff2564',
+		},
+		inputs: ['main'],
+		outputs: ['main'],
+		properties: [
+      // ...
+```
+
+`mainParams` contains one or more resources as keys, each pointing to an array of one or more operations:
 
 ```yaml
 mainParams:
   company:
     - endpoint: /companies
+      operationId: getAll
+      operationUrl: https://myservice.com/api/get-all-companies
+      requestMethod: GET
+    - endpoint: /companies
       operationId: create
       operationUrl: https://myservice.com/api/create-a-company
       requestMethod: POST
+  employee:
+    - endpoint: /employees
+      operationId: create
+      operationUrl: https://myservice.com/api/create-an-employee
+      requestMethod: POST
 ```
 
-If the `endpoint` contains a bracketed string, this will be parsed as a path parameter.
+**Notes**
+
+- If `endpoint` contains a bracketed string `{...}`, this will be parsed as a path parameter. Therefore, no need to create a parameter for any path parameters.
 
 ```yaml
 - endpoint: /companies/{companyId}
@@ -43,21 +78,30 @@ If the `endpoint` contains a bracketed string, this will be parsed as a path par
   requestMethod: GET
 ```
 
-Each operation has four **main properties**:
+## Operation-level keys
 
-- `endpoint`, `operationId`, and `requestMethod` (all required)
-- `operationUrl` (optional, for documentation URL)
+Each operation in the array has the following keys.
 
-Each operation also has four **param properties**:
+Required keys:
 
-- `requiredFields`
-- `additionalFields` (for `create` operations)
-- `filters` (for `getAll` operations)
-- `updateFields` (for `update` operations)
+- `endpoint`, the third party's API endpoint to call,
+- `operationId`, the ID of the operation in the n8n node, and
+- `requestMethod`, the HTTP method to use for the call.
 
-Every param property is optional and creates a `collection`. Note that `requiredFields` are required from the API's perspective, but are optional in that they may be omitted from the YAML file if no params (or only path params) are required for the call to succeed.
+Optional keys:
 
-Each param property must contain a single key, either `queryString` or `requestBody`:
+- `operationUrl`, a link to documentation on the operation,
+- `requiredFields`, fields that are needed for a call to succeed, and
+- optional fields, fields that are not needed for a call to succeed:
+  - `additionalFields`, optional fields in general,
+  - `filters`, optional fields for listing operations, and
+  - `updateFields`, optional fields for updating operations.
+
+Note that the key `requiredFields` contains fields required for the call to succeed, but the key itself is optional since the call may not have any required fields.
+
+## Field-level keys
+
+Field-level keys are contains for the params to be sent in the call. Each field-level property must contain one single key, either `queryString` or `requestBody`, based on the request method. Refer to the API documentation.
 
 ```yaml
 - endpoint: /companies
@@ -66,17 +110,21 @@ Each param property must contain a single key, either `queryString` or `requestB
   requiredFields:
     requestBody:
       # ...
-  additionalFields:
-    requestBody:
-      # ...
 ```
 
-Inside `queryString` or `requestBody`, each key must specify a node property and each value must specify its type:
+Inside `queryString` or `requestBody`,
+
+- each key must be a param, cased per the API documentation.
+- each value must specify its n8n type:
+  - `string`, `number`, and `boolean` for simple values, e.g. `is_active`,
+  - `enum` (to be renamed to `options`) for dropdown options, e.g. `classification`,
+  - a YAML object for a `fixedCollection` with a single set of fields, e.g. `address`,
+  - a YAML array for a `fixedCollection` with a multiple sets of fields, e.g. `phone_numbers`,
 
 ```yaml
 updateFields:
   requestBody:
-    is_active: boolean|Whether the company's record is active.
+    is_active: boolean=true|Whether the company's record is active.
     address:
       street: string
       city: string
@@ -84,16 +132,16 @@ updateFields:
       postal_code: string
       country: string
     details: string|Arbitrary string to describe the company.
+    employees: number|Number of the employees at the company.
     phone_numbers:
       - number: string
         category: string
-    classification: enum|Legal classification of the company.
+    classification: enum=1|Legal classification of the company.
       - LLC
       - Corporation
 ```
 
-Notes:
-- Optionally, set a vertical bar and add a description for the node property.
-- A key pointing to an object, as in `address`, creates a `fixedCollection` with a single fixed set of fields to be filled in.
-- A key pointing to an array of objects, as in `phone_numbers`, creates a `fixedCollection` with multiple fixed sets of fields to be filled in.
-- A key pointing to an enum, as in `classification`, creates an `options` dropdown with one to be selected out of multiple options.
+**Notes**
+
+- Optionally, set a pipe `|` after the n8n type to specify a description. As an exception, for the time being an `enum`-type param requires a description.
+- Optionally, set an equals sign `=` after the n8n type (but before the pipe) to specify a default. For an `enum`-type param, the default must be a zero-based index. If the default is unspecified, a `string` or `dateTime` param defaults to `''`, a `number` param defaults to `0`, a `boolean` param defaults to `false`, and an `options` param defaults to the zeroth item.

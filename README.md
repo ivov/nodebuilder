@@ -14,7 +14,7 @@
 <p align="center">
   <a href="#installation">Installation</a> •
   <a href="#operation">Operation</a> •
-  <a href="/docs/nodebuilder-yaml.md">API Description</a>
+  <a href="/docs/nodebuilder-yaml.md">YAML Mapping</a>
 </p>
 
 <p align="center">
@@ -25,29 +25,49 @@
 
 <br/>
 
-**Nodebuilder** is a utility to generate n8n node files from [OpenAPI specs](https://github.com/OAI/OpenAPI-Specification) and from [custom YAML files](#yaml). Developed to automate the node creation process following codebase conventions, for `*.node.ts` (main logic for regular node), `GenericFunctions.ts` (helper functions) and `*Description.ts` (resource descriptions).
+**Nodebuilder** is a utility to generate n8n node files from [OpenAPI specs](https://github.com/OAI/OpenAPI-Specification) and from [custom YAML mappings](#yaml).
+
+Developed to automate the node creation process for:
+- `*.node.ts`, main logic for a regular node,
+- `GenericFunctions.ts`, helper functions, and
+- `*Description.ts`, parameter descriptions.
 
 <!-- <p align="center">
   <img src="docs/screenshot.png">
 </p> -->
 
-**Features**:
+**Features**
 - Logic for CRUD operations
 - Alphabetization and casing
 - Endpoints with string literals
 - Required params and additional fields
 - Nested params in fixed collections
+- Adding `target="_blank"` to links
 - Default values for params
 - YAML input validation
 - Comment dividers
 
 Project in MVP status - issues welcome
 
+**Pending**
+
+- General:
+  - Implement testing with [`git.js`](https://github.com/steveukx/git-js)
+  - Explore integration with [VSCode YAML](https://github.com/redhat-developer/vscode-yaml)
+- OpenAPI:
+  - Find edge cases in more OpenAPI specs.
+  - Add intermediate step to restructure step resources and operations.
+- YAML:
+  - Rename `enum` to `options`.
+- Generator:
+  - Add resource loaders to the TypeScript generator.
+  - Generate `*.credentials.ts`
+
 ## Installation
 
 ```sh
 $ git clone https://github.com/ivov/nodebuilder.git
-$ cd nodebuilder && npm i && npm run setup
+$ cd nodebuilder && npm i
 ```
 
 ## Operation
@@ -71,14 +91,6 @@ Notes:
 For a full example of an API description in YAML, refer to [`copper.yaml`](https://github.com/ivov/nodebuilder/blob/main/src/input/yaml/copper.yaml).
 
 For a full description of how to describe an API in YAML, refer to [this explanation](https://github.com/ivov/nodebuilder/blob/main/docs/nodebuilder-yaml.md).
-
-## Pending
-
-- Find and fix more edge cases in OpenAPI specs.
-- Restructure resources and operations from OpenAPI specs.
-- Implement testing via [`git.js`](https://github.com/steveukx/git-js)
-- Add resource loaders to the TypeScript generator.
-- Generate `*.credentials.ts`
 
 ## Author
 
