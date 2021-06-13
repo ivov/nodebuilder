@@ -26,12 +26,11 @@ export async function <%= serviceName %>ApiRequest(
 	body: IDataObject = {},
 	qs: IDataObject = {},
 	uri?: string,
-	headers?: IDataObject,
 ) {
 	const options: OptionsWithUri = {
 		headers: {},
-		body,
 		method,
+		body,
 		qs,
 		uri: uri ?? `<%= metaParams.apiUrl; %>${endpoint}`,
 		json: true,
@@ -45,10 +44,6 @@ export async function <%= serviceName %>ApiRequest(
 			throw new NodeOperationError(this.getNode(), 'No credentials got returned!');
 		}
 		<%_ } _%>
-
-		if (Object.keys(headers).length) {
-			Object.assign(options.headers, headers);
-		}
 
 		if (!Object.keys(body).length) {
 			delete options.body;
