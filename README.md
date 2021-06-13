@@ -59,6 +59,7 @@ Project in MVP status - issues welcome
   - Add intermediate step to restructure step resources and operations.
 - YAML:
   - Rename `enum` to `options`.
+  - Add support for `multiOptions`
 - Generator:
   - Add resource loaders to the TypeScript generator.
   - Generate `*.credentials.ts`
