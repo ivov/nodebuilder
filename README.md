@@ -57,6 +57,7 @@ Project in MVP status - issues welcome
 - OpenAPI:
   - Find edge cases in more OpenAPI specs.
   - Add intermediate step to restructure step resources and operations.
+  - Add support for more content types.
 - YAML:
   - Rename `enum` to `options`.
   - Add support for `multiOptions`
