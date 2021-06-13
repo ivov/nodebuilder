@@ -83,11 +83,14 @@ export default class OpenApiParser {
   }
 
   private processDescription() {
-    return this.extract("description")
-      .replace(/\n/g, " ")
-      .replace(/\s+/g, " ")
-      .replace(/'/g, "\\'")
-      .trim();
+    const description = this.extract("description");
+
+    if (description)
+      return description
+        .replace(/\n/g, " ")
+        .replace(/\s+/g, " ")
+        .replace(/'/g, "\\'")
+        .trim();
   }
 
   private processRequestBody() {
@@ -131,14 +134,15 @@ export default class OpenApiParser {
       endpoint: this.currentEndpoint,
       requestMethod: requestMethod.toUpperCase(),
       operationId: this.processOperationId(requestMethod),
-      description: this.processDescription(),
     };
 
     const parameters = this.processParameters();
     const requestBody = this.processRequestBody();
+    const description = this.processDescription();
 
     if (parameters.length) operation.parameters = parameters;
     if (requestBody?.length) operation.requestBody = requestBody;
+    if (description) operation.description = description;
 
     return operation;
   }
