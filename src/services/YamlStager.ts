@@ -39,12 +39,13 @@ export default class YamlStager {
   validateInputOperation(operation: YamlOperation) {
     const errors = [];
 
-    if (operation.requestMethod === "POST" && !operation.requiredFields) {
-      const invalidOperation = JSON.stringify(operation, null, 2);
-      errors.push(
-        `POST request is missing required request body params:\n${invalidOperation}`
-      );
-    }
+    // TODO: Rethink this check.
+    // if (operation.requestMethod === "POST" && !operation.requiredFields) {
+    //   const invalidOperation = JSON.stringify(operation, null, 2);
+    //   errors.push(
+    //     `POST request is missing required request body params:\n${invalidOperation}`
+    //   );
+    // }
 
     if (this.needsRouteParam(operation) && !operation.endpoint.includes("{")) {
       const invalidOperation = JSON.stringify(operation, null, 2);
