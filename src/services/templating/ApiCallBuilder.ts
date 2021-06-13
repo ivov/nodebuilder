@@ -249,7 +249,7 @@ export default class ApiCallBuilder {
       : `'${endpoint}'`;
 
     let call = this.isGetAll
-      ? `responseData = await handleListing.call(this, i, '${requestMethod}', ${endpointInsert}`
+      ? `responseData = await handleListing.call(this, '${requestMethod}', ${endpointInsert}`
       : `responseData = await ${this.serviceApiRequest}.call(this, '${requestMethod}', ${endpointInsert}`;
 
     if (this.hasRequestBody && this.hasQueryString) {
