@@ -7,14 +7,14 @@
 </p>
 
 <p align="center">
-  Build n8n nodes from OpenAPI specs and YAML files<br />
+  Build n8n nodes from OpenAPI specs and custom API mappings<br />
   by <a href="https://github.com/ivov">Iván Ovejero</a>
 </p>
 
 <p align="center">
   <a href="#installation">Installation</a> •
   <a href="#operation">Operation</a> •
-  <a href="/docs/yaml-mapping.md">YAML Mapping</a>
+  <a href="/docs/yaml-mapping.md">Custom API Mapping in YAML</a>
 </p>
 
 <p align="center">
@@ -25,7 +25,7 @@
 
 <br/>
 
-**Nodebuilder** is a utility to generate n8n node files from [OpenAPI specs](https://github.com/OAI/OpenAPI-Specification) and from [custom YAML mappings](#yaml).
+**Nodebuilder** is a utility to generate n8n node files from [OpenAPI specs in JSON and YAML](https://github.com/OAI/OpenAPI-Specification) and from [custom API mappings in YAML](#yaml).
 
 Developed to automate the node creation process for:
 - `*.node.ts`, main logic for a regular node,
@@ -76,9 +76,9 @@ $ cd nodebuilder && npm i
 
 ### OpenAPI
 
-1. Place the input file in `src/input/openApi`
+1. Place the input file in `src/input/openApi/`
 2. Run `npm run generate`
-3. Inspect `src/output`
+3. Inspect `src/output/`
 
 Notes:
 - OpenAPI parsing may fail at undetected edge cases. If your spec cannot be parsed, please open an issue.
@@ -86,13 +86,13 @@ Notes:
 
 ### YAML
 
-1. Write a YAML file in `src/input/yaml`
+1. Write a YAML file in `src/input/custom/`
 2. Run `npm run generate`
-3. Inspect `src/output`
+3. Inspect `src/output/`
 
 For a full description of how to describe an API in YAML, refer to [this explanation](https://github.com/ivov/nodebuilder/blob/main/docs/yaml-mapping.md).
 
-For a full example of an API description in YAML, refer to [`copper.yaml`](https://github.com/ivov/nodebuilder/blob/main/src/input/yaml/copper.yaml).
+For a full example of an API description in YAML, refer to [`copper.yaml`](https://github.com/ivov/nodebuilder/blob/main/src/input/custom/copper.yaml).
 
 ## Author
 

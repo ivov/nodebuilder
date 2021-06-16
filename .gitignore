@@ -6,10 +6,10 @@ src/input/openApi/*
 !src/input/openApi/
 !src/input/openApi/.gitkeep
 
-src/input/yaml/*
-!src/input/yaml/
-!src/input/yaml/.gitkeep
-!src/input/yaml/copper.yaml
+src/input/custom/*
+!src/input/custom/
+!src/input/custom/.gitkeep
+!src/input/custom/copper.yaml
 
 src/output/*
 !src/output/.gitkeep

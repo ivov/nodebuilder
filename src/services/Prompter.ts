@@ -4,7 +4,7 @@ import { promisify } from "util";
 
 import inquirer from "inquirer";
 
-import { inputDir, openApiInputDir, yamlInputDir } from "../config";
+import { inputDir, openApiInputDir, customInputDir } from "../config";
 
 const readDir = promisify(fs.readdir);
 
@@ -14,33 +14,33 @@ export default class Prompter {
   }
 
   private validateDirs() {
-    [inputDir, yamlInputDir, openApiInputDir].forEach((dir) => {
+    [inputDir, customInputDir, openApiInputDir].forEach((dir) => {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir);
     });
   }
 
   public async askForSourceType() {
     const { sourceType } = await inquirer.prompt<{
-      sourceType: "OpenAPI" | "YAML";
+      sourceType: "OpenAPI spec in YAML or JSON" | "Custom API mapping in YAML";
     }>([
       {
         name: "sourceType",
         type: "list",
-        message: "Select the input file format.",
-        choices: ["YAML", "OpenAPI"],
+        message: "Select the source.",
+        choices: ["OpenAPI spec in YAML or JSON", "Custom API mapping in YAML"],
       },
     ]);
 
     return sourceType;
   }
 
-  public async askForYamlFile() {
+  public async askForCustomYamlFile() {
     const { yamlFile } = await inquirer.prompt<{ yamlFile: string }>([
       {
         name: "yamlFile",
         type: "list",
-        message: "Select the input YAML file.",
-        choices: await this.getInputFiles("yaml"),
+        message: "Select the custom API mapping in YAML.",
+        choices: await this.getInputFiles("custom"),
       },
     ]);
 
@@ -52,7 +52,7 @@ export default class Prompter {
       {
         name: "openApiFile",
         type: "list",
-        message: "Select the input OpenAPI file.",
+        message: "Select the OpenAPI file in JSON or YAML.",
         choices: await this.getInputFiles("openApi"),
       },
     ]);
@@ -60,8 +60,8 @@ export default class Prompter {
     return openApiFile;
   }
 
-  private async getInputFiles(format: "yaml" | "openApi") {
-    const files = await readDir(path.join(inputDir, format));
+  private async getInputFiles(sourceType: "custom" | "openApi") {
+    const files = await readDir(path.join(inputDir, sourceType));
     return files.filter((file) => file !== ".gitkeep");
   }
 }

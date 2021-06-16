@@ -1,7 +1,7 @@
 import path from "path";
 
 export const inputDir = path.join("src", "input");
-export const yamlInputDir = path.join(inputDir, "yaml");
+export const customInputDir = path.join(inputDir, "custom");
 export const openApiInputDir = path.join(inputDir, "openApi");
 
 export const outputDir = path.join("src", "output");

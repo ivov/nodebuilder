@@ -4,7 +4,7 @@ import path from "path";
 import { load as toJsObject } from "js-yaml";
 import { assertType } from "typescript-is";
 
-import { yamlInputDir } from "../config";
+import { customInputDir } from "../config";
 
 /**
  * Readis a YAML containing an API mapping, converts it into
@@ -23,7 +23,7 @@ export default class YamlParser {
   }
 
   private readYaml() {
-    const fullYamlFilePath = path.join(yamlInputDir, this.yamlInputFileName);
+    const fullYamlFilePath = path.join(customInputDir, this.yamlInputFileName);
     return fs.readFileSync(fullYamlFilePath, "utf-8");
   }
 }

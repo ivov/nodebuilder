@@ -12,7 +12,7 @@
 
 <br>
 
-The Nodebuilder can generate an n8n node from a YAML mapping, i.e. a shorthand description of an API written in [YAML syntax](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html).
+The Nodebuilder can generate an n8n node from an API mapping in YAML, i.e. a shorthand description of an API written in [YAML syntax](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html).
 
 ## API-level keys
 
