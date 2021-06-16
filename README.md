@@ -8,7 +8,7 @@
 
 <p align="center">
   Build n8n nodes from OpenAPI specs and custom API mappings<br />
-  by <a href="https://github.com/ivov">Iván Ovejero</a>
+  by <a href="https://github.com/ivov">Iván Ovejero</a><br />
   <b>Status:</b> Work in progress
 </p>
 
