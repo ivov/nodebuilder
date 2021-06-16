@@ -9,6 +9,7 @@
 <p align="center">
   Build n8n nodes from OpenAPI specs and custom API mappings<br />
   by <a href="https://github.com/ivov">Iván Ovejero</a>
+  <b>Status:</b> Work in progress
 </p>
 
 <p align="center">
@@ -25,9 +26,7 @@
 
 <br/>
 
-**Nodebuilder** is a utility to generate n8n node files from [OpenAPI specs in JSON and YAML](https://github.com/OAI/OpenAPI-Specification) and from [custom API mappings in YAML](#yaml).
-
-Developed to automate the node creation process for:
+**Nodebuilder** is a utility to generate n8n node files from [OpenAPI specs in JSON and YAML](https://github.com/OAI/OpenAPI-Specification) and from [custom API mappings in YAML](#yaml). Developed to automate the node creation process for:
 - `*.node.ts`, main logic for a regular node,
 - `GenericFunctions.ts`, helper functions, and
 - `*Description.ts`, parameter descriptions.
