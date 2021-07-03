@@ -1,3 +1,5 @@
+import OpenApiParser from "../services/OpenApiParser";
+import PackageJsonGenerator from "../services/PackageJsonGenerator";
 import Generator from "../services/TypeScriptGenerator";
 import YamlParser from "../services/YamlParser";
 import YamlStager from "../services/YamlStager";
@@ -8,7 +10,10 @@ import FilePrinter from "../utils/FilePrinter";
 
 const preTraversalParams = new YamlParser("elasticsearch.yaml").run();
 const traversedParams = new YamlTraverser(preTraversalParams).run();
-const stagedParams = new YamlStager(traversedParams).run();
+const stagedParamsFromYaml = new YamlStager(traversedParams).run();
 
-new FilePrinter(stagedParams).print({ format: "json" });
-new Generator(stagedParams.mainParams).run();
+const stagedParamsFromOpenApi = new OpenApiParser("lichess.json").run();
+
+new FilePrinter(stagedParamsFromOpenApi).print({ format: "json" });
+new Generator(stagedParamsFromOpenApi.mainParams).run();
+new PackageJsonGenerator(stagedParamsFromOpenApi.metaParams).run();
