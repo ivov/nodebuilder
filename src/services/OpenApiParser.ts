@@ -85,12 +85,15 @@ export default class OpenApiParser {
   private processDescription() {
     const description = this.extract("description");
 
-    if (description)
-      return description
-        .replace(/\n/g, " ")
-        .replace(/\s+/g, " ")
-        .replace(/'/g, "\\'")
-        .trim();
+    if (description) return this.escape(description);
+  }
+
+  private escape(description: string) {
+    return description
+      .replace(/\n/g, " ")
+      .replace(/\s+/g, " ")
+      .replace(/'/g, "\\'")
+      .trim();
   }
 
   private processRequestBody() {
@@ -152,7 +155,15 @@ export default class OpenApiParser {
   }
 
   private processParameters() {
-    return this.extract("parameters").map((field) =>
+    const parameters = this.extract("parameters");
+
+    parameters.forEach((param) => {
+      if (param.description) {
+        param.description = this.escape(param.description);
+      }
+    });
+
+    return parameters.map((field) =>
       field.required ? field : { ...field, required: false }
     );
   }
