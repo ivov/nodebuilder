@@ -8,8 +8,7 @@
 
 <p align="center">
   Build n8n nodes from OpenAPI specs and custom API mappings<br />
-  by <a href="https://github.com/ivov">Iván Ovejero</a><br /><br />
-  <b>Status:</b> Work in progress
+  by <a href="https://github.com/ivov">Iván Ovejero</a>
 </p>
 
 <p align="center">
@@ -19,50 +18,23 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/stage-MVP-blue">
+  <img src="https://img.shields.io/badge/status-work%20in%20progress-blue">
   <a href="https://github.com/n8n-io"><img src="https://img.shields.io/badge/org-n8n-ff6d5a"></a>
   <img src="https://img.shields.io/badge/license-MIT-brightgreen">
 </p>
 
 <br/>
 
-**Nodebuilder** is a utility to generate n8n node files from [OpenAPI specs in JSON and YAML](https://github.com/OAI/OpenAPI-Specification) and from [custom API mappings in YAML](#yaml). Developed to automate the node creation process for:
-- `*.node.ts`, main logic for a regular node,
+**Nodebuilder** is a utility to generate n8n node files from
+
+- [OpenAPI specs in JSON and YAML](https://github.com/OAI/OpenAPI-Specification) and
+- [custom API mappings in YAML](#yaml).
+
+Developed to automate the node creation process for:
+
+- `*.node.ts`, logic for a regular node,
 - `GenericFunctions.ts`, helper functions, and
 - `*Description.ts`, parameter descriptions.
-
-<!-- <p align="center">
-  <img src="docs/screenshot.png">
-</p> -->
-
-**Features**
-- Logic for CRUD operations
-- Alphabetization and casing
-- Endpoints with string literals
-- Required params and additional fields
-- Nested params in fixed collections
-- Adding `target="_blank"` to links
-- Default values for params
-- YAML input validation
-- Comment dividers
-
-Project in MVP status - issues welcome
-
-**Pending**
-
-- General:
-  - Implement testing with [`git.js`](https://github.com/steveukx/git-js)
-  - Explore integration with [VSCode YAML](https://github.com/redhat-developer/vscode-yaml)
-- OpenAPI:
-  - Find edge cases in more OpenAPI specs.
-  - Add intermediate step to restructure step resources and operations.
-  - Add support for more content types.
-- YAML:
-  - Rename `enum` to `options`.
-  - Add support for `multiOptions`
-- Generator:
-  - Add resource loaders to the TypeScript generator.
-  - Generate `*.credentials.ts`
 
 ## Installation
 
@@ -92,6 +64,31 @@ Notes:
 For a full description of how to describe an API in YAML, refer to [this explanation](https://github.com/ivov/nodebuilder/blob/main/docs/yaml-mapping.md).
 
 For a full example of an API description in YAML, refer to [`copper.yaml`](https://github.com/ivov/nodebuilder/blob/main/src/input/custom/copper.yaml).
+
+### Placement
+
+Run `npm run place` to place the output files in:
+
+- an n8n clone dir (located alongside the nodebuilder dir), or
+- the default custom nodes dir at `~/.n8n/custom`.
+
+## Pending
+
+**OpenAPI:**
+  - Add intermediate step to structure the result.
+  - Add support for more content types.
+
+**YAML:**
+  - Rename `enum` to `options`.
+  - Add support for `multiOptions`
+
+**Generator:**
+  - Add resource loaders to the TypeScript generator.
+  - Generate `*.credentials.ts`
+
+**Extras:**
+  - Implement testing with [`git.js`](https://github.com/steveukx/git-js)
+  - Explore integration with [VSCode YAML](https://github.com/redhat-developer/vscode-yaml)
 
 ## Author
 
