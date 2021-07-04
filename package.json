@@ -8,7 +8,8 @@
     "dev": "ttsc && node dist/scripts/dev.js",
     "render": "node dist/scripts/render.js",
     "map": "node dist/scripts/map.js",
-    "clear": "node dist/scripts/clear.js"
+    "clear": "node dist/scripts/clear.js",
+    "place": "node dist/scripts/place.js"
   },
   "keywords": [
     "n8n"

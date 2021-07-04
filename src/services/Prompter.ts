@@ -64,4 +64,19 @@ export default class Prompter {
     const files = await readDir(path.join(inputDir, sourceType));
     return files.filter((file) => file !== ".gitkeep");
   }
+
+  public async askForPlacementTargetType() {
+    const { placementTargetType } = await inquirer.prompt<{
+      placementTargetType: "clone" | "custom";
+    }>([
+      {
+        name: "placementTargetType",
+        type: "list",
+        message: "Select the target dir",
+        choices: ["clone", "custom"],
+      },
+    ]);
+
+    return placementTargetType;
+  }
 }
