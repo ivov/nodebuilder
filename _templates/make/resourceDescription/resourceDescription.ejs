@@ -190,7 +190,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 				type: 'options',
 				default: '',
 				typeOptions: {
-					loadOptionsMethod: 'get<%= helper.pascalCase(key) %>s'
+					loadOptionsMethod: 'get<%= helper.pascalCase(key) %>s',
 				},
 				description: '<%= value.description %>',
 			},
