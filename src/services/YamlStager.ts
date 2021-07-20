@@ -349,12 +349,32 @@ export default class YamlStager {
       }
     });
 
+    outputRequestBody.content[
+      formUrlEncoded
+    ]!.schema.properties = this.sortObject(
+      outputRequestBody.content[formUrlEncoded]?.schema.properties
+    );
+
     return [outputRequestBody];
   }
 
   // ----------------------------------
   //            utils
   // ----------------------------------
+
+  /**
+   * TODO: Type properly.
+   */
+  private sortObject(obj: { [key: string]: any } | undefined) {
+    if (!obj) return;
+
+    return Object.keys(obj)
+      .sort()
+      .reduce<any>((result, key) => {
+        result[key] = obj[key];
+        return result;
+      }, {});
+  }
 
   /**
    * Remove `\` from `#` in the node color in the meta params in the YAML file.
