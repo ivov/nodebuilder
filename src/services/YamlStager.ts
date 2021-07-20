@@ -81,7 +81,20 @@ export default class YamlStager {
       operationId,
     };
 
+    this.outputOperation.description = this.getOperationDescription();
+
     if (operationUrl) this.outputOperation.operationUrl = operationUrl;
+  }
+
+  private getOperationDescription() {
+    const { operationId } = this.outputOperation;
+
+    if (operationId === "create") return `Create a ${this.currentResource}`;
+    if (operationId === "delete") return `Delete a ${this.currentResource}`;
+    if (operationId === "get") return `Retrieve a ${this.currentResource}`;
+    if (operationId === "getAll")
+      return `Retrieve all ${this.currentResource}s`;
+    if (operationId === "update") return `Update a ${this.currentResource}`;
   }
 
   private loopOverInputOperations(
