@@ -250,9 +250,9 @@ export default class YamlStager {
       operationId === "update" ||
       operationId === "delete"
     ) {
-      output.description = description + operationId + ".";
+      output.description = description + operationId;
     } else if (operationId === "get") {
-      output.description = description + "retrieve.";
+      output.description = description + "retrieve";
     }
 
     return output;

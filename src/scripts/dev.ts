@@ -8,12 +8,12 @@ import FilePrinter from "../utils/FilePrinter";
 
 // for quick testing only
 
-const preTraversalParams = new YamlParser("elasticsearch.yaml").run();
+const preTraversalParams = new YamlParser("FreshworksCrm.yaml").run();
 const traversedParams = new YamlTraverser(preTraversalParams).run();
 const stagedParamsFromYaml = new YamlStager(traversedParams).run();
 
 const stagedParamsFromOpenApi = new OpenApiParser("lichess.json").run();
 
-new FilePrinter(stagedParamsFromOpenApi).print({ format: "json" });
-new Generator(stagedParamsFromOpenApi.mainParams).run();
-new PackageJsonGenerator(stagedParamsFromOpenApi.metaParams).run();
+new FilePrinter(stagedParamsFromYaml).print({ format: "json" });
+new Generator(stagedParamsFromYaml.mainParams).run();
+new PackageJsonGenerator(stagedParamsFromYaml.metaParams).run();

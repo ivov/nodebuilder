@@ -44,7 +44,7 @@ export default class ResourceBuilder {
       name: 'returnAll',
       type: 'boolean',
       default: false,
-      description: 'Return all results.',
+      description: 'Whether to return all results or only up to a given limit',
       displayOptions: {
         show: {
           resource: [
@@ -68,7 +68,7 @@ export default class ResourceBuilder {
       name: 'limit',
       type: 'number',
       default: 50,
-      description: 'The number of results to return.',
+      description: 'How many results to return',
       typeOptions: {
         minValue: 1,
       },

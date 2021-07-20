@@ -23,7 +23,6 @@ export const <%= helper.camelCase(resourceName) %>Operations = [
 			<%- builder.operationsOptions(operationsArray); %>
 		],
 		default: '<%= operationsArray[0].operationId %>',
-		description: 'Operation to perform',
 	},
 ] as INodeProperties[];
 
