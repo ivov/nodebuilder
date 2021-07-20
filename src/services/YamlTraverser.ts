@@ -106,7 +106,7 @@ export default class YamlTraverser {
 
       return {
         type: "options",
-        description,
+        description: description.split("-")[0].trim(),
         enumItems: items,
         default: defaultValue,
       };
