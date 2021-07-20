@@ -118,6 +118,7 @@ Inside `queryString` or `requestBody`,
 - each value must specify its n8n type:
   - `string`, `number`, and `boolean` for simple values, e.g. `is_active`,
   - `enum` (to be renamed to `options`) for dropdown options, e.g. `classification`,
+  - `loadOptions` for options to be loaded remotely, e.g. `accounts`,
   - a YAML object for a `fixedCollection` with a single set of fields, e.g. `address`,
   - a YAML array for a `fixedCollection` with a multiple sets of fields, e.g. `phone_numbers`,
 
@@ -133,6 +134,7 @@ updateFields:
       country: string
     details: string|Arbitrary string to describe the company.
     employees: number|Number of the employees at the company.
+    accounts: loadOptions|Accounts owned by the company
     phone_numbers:
       - number: string
         category: string

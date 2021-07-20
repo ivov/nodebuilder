@@ -184,6 +184,17 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 				description: '<%- helper.escape(value.description) %>',
 				<%_ } _%>
 			},
+			<%_ } else if (value.type === 'loadOptions') { _%>
+			{
+				displayName: '<%= helper.titleCase(key); %>',
+				name: '<%= key %>',
+				type: 'options',
+				default: '',
+				typeOptions: {
+					loadOptionsMethod: 'get<%= helper.pascalCase(key) %>s'
+				},
+				description: '<%= value.description %>',
+			},
 			<%_ } else if (value.type === 'options') { _%>
 			{
 				displayName: '<%= helper.titleCase(key); %>',
