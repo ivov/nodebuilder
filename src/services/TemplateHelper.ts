@@ -35,7 +35,7 @@ export class Helper {
 
     if (
       arg.type === "string" ||
-      arg.type === "datetime" ||
+      arg.type === "dateTime" ||
       arg.type === "loadOptions"
     )
       return "''";
