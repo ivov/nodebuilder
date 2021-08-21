@@ -12,16 +12,16 @@ export default class CustomSpecAdjuster {
   }
 
   public run() {
-    const parsedSpec = this.parseCustomSpec();
+    const parsedCustomSpec = this.parseCustomSpec();
 
-    this.mainParams = parsedSpec.mainParams;
+    this.mainParams = parsedCustomSpec.mainParams;
 
     this.mainParams = this.sortKeys(this.mainParams);
     this.separateKeys(this.mainParams);
 
     return {
       mainParams: this.mainParams,
-      metaParams: parsedSpec.metaParams,
+      metaParams: parsedCustomSpec.metaParams,
     };
   }
 
@@ -33,27 +33,15 @@ export default class CustomSpecAdjuster {
 
   // TODO: type properly
   private sortKeys(value: any): any {
-    if (this.isNotSortable(value)) return value;
+    if (this.cannotBeSorted(value)) return value;
 
-    if (isOperationsArray(value)) {
+    // alphabetize operations by operationId
+    if (this.isOperationsArray(value)) {
       const sortedIds = value.map((i) => i.operationId).sort();
       return sortedIds.map((id) => value.find((i) => i.operationId === id));
     }
 
-    // TODO: Review this
-    // if (Array.isArray(value)) {
-    //   const newArr = value.map((item) => this.sortKeys(item));
-
-    //   // sort dropdown options
-    //   if (newArr.every((i) => Object.keys(i).length === 1)) {
-    //     const orderedKeys = value.map((i) => Object.keys(i)[0]).sort();
-    //     return orderedKeys.map((key) => newArr.find((i) => i[key]));
-    //   }
-
-    //   return newArr.sort();
-    // }
-
-    // is sortable object
+    // alphabetize object keys - recursive
     const sorted: { [key: string]: string } = {};
 
     Object.keys(value)
@@ -68,7 +56,7 @@ export default class CustomSpecAdjuster {
   /**
    * Fields that always contain a string, skipped in `separateKeys`.
    */
-  private nonSeparatorFields = [
+  private skipFields = [
     "endpoint",
     "operationId",
     "requestMethod",
@@ -81,7 +69,7 @@ export default class CustomSpecAdjuster {
    */
   private separateKeys(obj: { [key: string]: any }) {
     Object.keys(obj).forEach((key) => {
-      if (this.nonSeparatorFields.includes(key)) return;
+      if (this.skipFields.includes(key)) return;
 
       const value = obj[key];
 
@@ -144,8 +132,12 @@ export default class CustomSpecAdjuster {
     return "";
   }
 
-  private isNotSortable(value: unknown) {
+  private cannotBeSorted(value: unknown) {
     return !value || typeof value !== "object";
+  }
+
+  private isOperationsArray(value: unknown): value is Operation[] {
+    return Array.isArray(value) && value[0].operationId;
   }
 
   private isObjectArray(value: unknown) {
@@ -170,6 +162,15 @@ export default class CustomSpecAdjuster {
   }
 }
 
-function isOperationsArray(value: unknown): value is Operation[] {
-  return Array.isArray(value) && value[0].operationId;
-}
+// TODO: Review this, for sortKeys
+// if (Array.isArray(value)) {
+//   const newArr = value.map((item) => this.sortKeys(item));
+
+//   // sort dropdown options
+//   if (newArr.every((i) => Object.keys(i).length === 1)) {
+//     const orderedKeys = value.map((i) => Object.keys(i)[0]).sort();
+//     return orderedKeys.map((key) => newArr.find((i) => i[key]));
+//   }
+
+//   return newArr.sort();
+// }

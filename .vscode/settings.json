@@ -1,16 +1,27 @@
 {
-	"[typescript]": {
-		"editor.formatOnSave": true
-	},
-	"[json]": {
-		"editor.formatOnSave": true
-	},
-	"search.exclude": {
-		"dist": true,
-		"node_modules": true
-	},
-	"files.exclude": {
-		"node_modules": true,
-	},
-	"typescript.tsdk": "node_modules\\typescript\\lib",
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "search.exclude": {
+    "dist": true,
+    "node_modules": true
+  },
+  "files.exclude": {
+    "node_modules": true
+  },
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+
+  "yaml.schemas": {
+    "customSpecSchema.json": "mySpec.yaml"
+  }
 }
