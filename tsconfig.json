@@ -12,9 +12,6 @@
     "skipLibCheck": true,
     "strictPropertyInitialization": false,
     "downlevelIteration": true,
-    "plugins": [
-			{ "transform": "typescript-is/lib/transform-inline/transformer" }
-		]
   },
   "exclude": [
     "src/input",

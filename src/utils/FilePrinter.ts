@@ -57,7 +57,7 @@ function isNodegenParams(value: any): value is NodegenParams {
 }
 
 export function printTranslation(
-  yamlMainParams: YamlParsedParams["mainParams"]
+  yamlMainParams: CustomSpecParams["mainParams"]
 ) {
   console.log(yamlMainParams);
   fs.writeFileSync(

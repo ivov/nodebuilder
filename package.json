@@ -4,8 +4,8 @@
   "description": "Build n8n nodes from OpenAPI specs and YAML files",
   "main": "index.js",
   "scripts": {
-    "generate": "ttsc && node dist/scripts/generate.js",
-    "dev": "ttsc && node dist/scripts/dev.js",
+    "generate": "tsc && node dist/scripts/generate.js",
+    "dev": "tsc && node dist/scripts/dev.js",
     "render": "node dist/scripts/render.js",
     "map": "node dist/scripts/map.js",
     "clear": "node dist/scripts/clear.js",
@@ -23,7 +23,6 @@
     "@types/node": "^14.14.16",
     "@types/underscore": "^1.10.24",
     "prettier": "^2.2.1",
-    "ttypescript": "^1.5.12",
     "typescript": "^4.1.3"
   },
   "dependencies": {
@@ -37,7 +36,6 @@
     "object-treeify": "^1.1.31",
     "title-case": "^3.0.3",
     "ts-morph": "^9.1.0",
-    "typescript-is": "^0.18.2",
     "underscore": "^1.12.0"
   }
 }

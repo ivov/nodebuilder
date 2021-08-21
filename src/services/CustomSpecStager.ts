@@ -3,7 +3,7 @@
  * Staging params are for consumption by nodegen templates.
  */
 export default class CustomSpecStager {
-  private inputMainParams: YamlParsedParams["mainParams"];
+  private inputMainParams: CustomSpecParams["mainParams"];
   private outputMetaParams: MetaParams;
   private outputMainParams: MainParams = {};
 
@@ -36,7 +36,7 @@ export default class CustomSpecStager {
   //            validators
   // ----------------------------------
 
-  validateInputOperation(operation: YamlOperation) {
+  validateInputOperation(operation: CustomSpecOperation) {
     const errors = [];
 
     // TODO: Rethink this check.
@@ -74,7 +74,7 @@ export default class CustomSpecStager {
     requestMethod,
     operationId,
     operationUrl,
-  }: YamlOperation) {
+  }: CustomSpecOperation) {
     this.outputOperation = {
       endpoint,
       requestMethod,
@@ -107,7 +107,7 @@ export default class CustomSpecStager {
   }
 
   private loopOverInputOperations(
-    callback: (inputOperation: YamlOperation) => void
+    callback: (inputOperation: CustomSpecOperation) => void
   ) {
     this.getResources().forEach((resource) => {
       this.currentResource = resource;
@@ -115,7 +115,7 @@ export default class CustomSpecStager {
     });
   }
 
-  private populateOutputOperation(inputOperation: YamlOperation) {
+  private populateOutputOperation(inputOperation: CustomSpecOperation) {
     const {
       requiredFields,
       additionalFields,
@@ -200,7 +200,7 @@ export default class CustomSpecStager {
   /**
    * Handle path params (if any) by forwarding them for staging.
    */
-  private handlePathParams(inputOperation: YamlOperation) {
+  private handlePathParams(inputOperation: CustomSpecOperation) {
     if (!inputOperation.endpoint.match(/\{/)) return null;
 
     const pathParams = inputOperation.endpoint.match(/(?<={)(.*?)(?=})/g);
@@ -216,7 +216,7 @@ export default class CustomSpecStager {
    * Handle required query string params (if any) by forwarding them for staging.
    */
   private handleRequiredQsParams(
-    queryString: YamlFieldsContent | undefined,
+    queryString: CustomSpecFieldContent | undefined,
     { required }: { required: true }
   ) {
     if (!queryString) return null;
@@ -230,7 +230,7 @@ export default class CustomSpecStager {
    * Handle extra fields in request body (if any) by forwarding them for staging.
    */
   private handleRequestBodyExtraFields(
-    extraFields: YamlFields | undefined,
+    extraFields: CustomSpecFields | undefined,
     {
       name,
     }: {
@@ -254,7 +254,10 @@ export default class CustomSpecStager {
   //            stagers
   // ----------------------------------
 
-  private stagePathParam(pathParam: string, { operationId }: YamlOperation) {
+  private stagePathParam(
+    pathParam: string,
+    { operationId }: CustomSpecOperation
+  ) {
     const output: OperationParameter = {
       in: "path" as const,
       name: pathParam,
@@ -281,7 +284,7 @@ export default class CustomSpecStager {
   }
 
   private stageQsExtraFields(
-    extraFields: YamlFields | undefined,
+    extraFields: CustomSpecFields | undefined,
     { name }: { name: ExtraFieldName }
   ) {
     if (!extraFields) return null;
@@ -332,7 +335,7 @@ export default class CustomSpecStager {
   }
 
   public stageRequestBody(
-    requestBody: YamlFieldsContent | undefined,
+    requestBody: CustomSpecFieldContent | undefined,
     {
       required,
       name,
@@ -426,7 +429,7 @@ export default class CustomSpecStager {
     return description;
   }
 
-  private needsRouteParam(operation: YamlOperation) {
+  private needsRouteParam(operation: CustomSpecOperation) {
     return (
       (operation.requestMethod === "GET" &&
         operation.operationId !== "getAll") ||

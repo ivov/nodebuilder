@@ -1,65 +1,35 @@
 // ----------------------------------
-//         YAML lifecycle
+//         custom spec
 // ----------------------------------
 
-/**
- * Used only to validate the shape of the input YAML file in `YamlParser.jsonifyYaml`.
- */
-type YamlInput = {
+type CustomSpecParams = {
   metaParams: MetaParams;
   mainParams: {
-    [resource: string]: Array<{
-      endpoint: string;
-      operationId: string;
-      requestMethod: string;
-      operationUrl?: string;
-      requiredFields?: YamlField;
-      additionalFields?: YamlField;
-      filters?: YamlField;
-      updateFields?: YamlField;
-    }>;
+    [resource: string]: CustomSpecOperation[];
   };
 };
 
-type YamlField = {
-  [key in "queryString" | "requestBody"]?: {
-    [paramName: string]: string | object;
-  };
-};
-
-/**
- * Params retrieved from a custom mapping in YAML and validated.
- * Output of `YamlParser`.
- */
-type YamlParsedParams = {
-  metaParams: MetaParams;
-  mainParams: {
-    [key: string]: YamlOperation[];
-  };
-};
-
-type YamlOperation = {
+type CustomSpecOperation = {
+  endpoint: string;
   operationId: string;
   requestMethod: string;
-  endpoint: string;
   operationUrl?: string;
-  requiredFields?: YamlFields;
-  additionalFields?: YamlFields;
-  filters?: YamlFields;
-  updateFields?: YamlFields;
+  requiredFields?: CustomSpecFields;
+  additionalFields?: CustomSpecFields;
+  filters?: CustomSpecFields;
+  updateFields?: CustomSpecFields;
 };
 
-type YamlFields = {
-  queryString?: YamlFieldsContent;
-  requestBody?: YamlFieldsContent;
+type CustomSpecFields = {
+  queryString?: CustomSpecFieldContent;
+  requestBody?: CustomSpecFieldContent;
 };
 
-type YamlFieldsContent = {
-  [name: string]: ParamContent;
-};
+type CustomSpecFieldContent = { [name: string]: ParamContent };
 
 // ----------------------------------
 //          nodegen params
+//        (i.e. staged params)
 // ----------------------------------
 
 /**
