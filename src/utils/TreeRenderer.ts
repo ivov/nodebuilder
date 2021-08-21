@@ -31,7 +31,6 @@ export default class TreeRenderer {
 
   /**Convert the array in `parameters` or `requestBody` into an object with numbered keys.*/
   private objectifyProperty(operation: Operation, property: string) {
-    // @ts-ignore TODO
     operation[property] = Object.assign({}, operation[property]);
   }
 

@@ -39,7 +39,7 @@ export default class CustomSpecStager {
   validateInputOperation(operation: CustomSpecOperation) {
     const errors = [];
 
-    // TODO: Rethink this check.
+    // TODO: Rethink this check
     // if (operation.requestMethod === "POST" && !operation.requiredFields) {
     //   const invalidOperation = JSON.stringify(operation, null, 2);
     //   errors.push(
@@ -242,11 +242,8 @@ export default class CustomSpecStager {
       name,
     });
 
-    if (rbExtraFields) {
-      // TODO: Remove casting
-      (this.outputOperation.requestBody as OperationRequestBody[]).push(
-        ...rbExtraFields
-      );
+    if (rbExtraFields && this.outputOperation.requestBody) {
+      this.outputOperation.requestBody.push(...rbExtraFields);
     }
   }
 
@@ -350,7 +347,7 @@ export default class CustomSpecStager {
       name,
       required,
       content: {
-        // TODO: add also `multipart/form-data` and `text/plain`?
+        // TODO: add `multipart/form-data` and `text/plain`
         "application/x-www-form-urlencoded": {
           schema: {
             type: "object",
@@ -388,7 +385,7 @@ export default class CustomSpecStager {
   // ----------------------------------
 
   /**
-   * TODO: Type properly.
+   * TODO: Type properly
    */
   private sortObject(obj: { [key: string]: any } | undefined) {
     if (!obj) return;

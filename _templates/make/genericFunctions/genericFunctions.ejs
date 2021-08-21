@@ -75,10 +75,10 @@ export async function <%= serviceName %>ApiRequestAllItems(
 
 	do {
 		responseData = await <%= serviceName %>ApiRequest.call(this, method, endpoint, body, qs);
-		// TODO: Get next page
+		// USERTASK: Get next page
 		returnData.push(...responseData);
 	} while (
-		// TODO: Add condition for total not yet reached
+		true // USERTASK: Add condition for total not yet reached
 	);
 
 	return returnData;

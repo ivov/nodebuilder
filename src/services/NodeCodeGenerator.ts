@@ -12,11 +12,6 @@ export default class NodeCodeGenerator {
     this.mainParams = mainParams;
   }
 
-  /**Generate all node functionality files:
-   * - `*.node.ts`,
-   * - one `*Description.ts` per resource,
-   * - `GenericFunctions.ts`, and ← TODO
-   * - `*.credentials.ts` if needed. ← TODO*/
   public run() {
     this.validateDirs();
 

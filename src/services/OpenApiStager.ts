@@ -48,7 +48,7 @@ export default class OpenApiStager {
 
   // TODO: temp implementation
   private getNodeColor() {
-    return "#ff6600";
+    return "#ffffff";
   }
 
   // TODO: temp implementation
@@ -162,10 +162,18 @@ export default class OpenApiStager {
         param.description = this.escape(param.description);
       }
 
+      // TODO: Type properly
       // @ts-ignore
       if ("oneOf" in param.schema && param.schema.oneOf) {
         // @ts-ignore
         param.schema = param.schema.oneOf[0];
+      }
+
+      // TODO: Type properly
+      // @ts-ignore
+      if ("anyOf" in param.schema && param.schema.anyOf) {
+        // @ts-ignore
+        param.schema = param.schema.anyOf[0];
       }
     });
 

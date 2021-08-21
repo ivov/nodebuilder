@@ -53,6 +53,7 @@ type MainParams = {
 };
 
 type Operation = {
+  [key: string]: string | OperationParameter[];
   endpoint: string;
   operationId: string;
   requestMethod: string;
@@ -80,11 +81,11 @@ type OperationParameter = {
 
 type PathQuerySchema = {
   type: string;
-  default: boolean | string | number; // TODO: Type properly
+  default: boolean | string | number;
   example?: string | number;
   minimum?: number;
   maximum?: number;
-  options?: string[]; // from YAML mapping
+  options?: string[]; // from custom spec in YAML
 };
 
 type OperationRequestBody = {
@@ -106,7 +107,6 @@ type RequestBodySchema = {
   };
 };
 
-// TODO: Rename
 type ParamContent = {
   type:
     | "string"
