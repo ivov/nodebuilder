@@ -40,7 +40,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ operation.parameters.forEach(param => { _%>
 	{
 		displayName: '<%= helper.titleCase(param.name); %>',
-		name: '<%= helper.camelCase(param.name); %>',
+		name: '<%= param.name %>',
 		description: '<%- param.description; %>',
 		type: '<%= helper.adjustType(param.schema.type, param.name); %>',
 		<%_ if (helper.hasMinMax(param.schema)) { _%>
@@ -90,7 +90,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ Object.entries(properties).forEach(([property, value]) => { _%>
 	{
 		displayName: '<%= helper.titleCase(property); %>',
-		name: '<%= helper.camelCase(property); %>',
+		name: '<%= property %>',
 		<%_ if (value.description) { _%>
 		description: '<%- helper.escape(value.description); %>',
 		<%_ } _%>
@@ -151,7 +151,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%_ } else if (!rbItem.required) { _%>
 	{
 		displayName: '<%= rbItem.name %>',
-		name: '<%= helper.camelCase(rbItem.name) %>',
+		name: '<%= rbItem.name %>',
 		type: 'collection',
 		placeholder: '<%= helper.getPlaceholder(rbItem.name); %>',
 		default: {},
