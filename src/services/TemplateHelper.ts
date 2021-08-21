@@ -41,7 +41,7 @@ export class Helper {
       return "''";
     if (arg.type === "number" || arg.type === "integer") return 0;
     if (arg.type === "boolean") return false;
-    if (arg.type === "options") return `'${arg.enumItems[0]}'`;
+    if (arg.type === "options") return `'${arg.options[0]}'`;
   }
 
   getParams = (params: OperationParameter[], type: "query" | "path") =>

@@ -3,29 +3,29 @@
 </p>
 
 <p align="center">
-  <h2 align="center">YAML Mapping</h2>
+  <h2 align="center">Custom Spec Synax</h2>
 </p>
 
 <p align="center">
-  Learn how to describe an API in YAML to generate an n8n node
+  Syntax to describe an API in YAML to generate an n8n node
 </p>
 
 <br>
 
-The Nodebuilder can generate an n8n node from an API mapping in YAML, i.e. a shorthand description of an API written in [YAML syntax](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html).
+Nodebuilder can generate an n8n node from a custom spec, i.e. a shorthand YAML description of an API.
 
 ## API-level keys
 
-The YAML mapping must have two top-level keys: `metaParams` and `mainParams`
+The YAML file must have two top-level keys: `metaParams` and `mainParams`
 
 `metaParams` contains four required properties of the API itself:
 
 ```yaml
 metaParams:
-  apiUrl: https://api.myservice.com/ # base API URL
-  authType: OAuth2 # one of "OAuth2", "ApiKey", or "None"
-  serviceName: MyService # properly cased service name
-  nodeColor: \#ff2564 # brand hex color, escaped by /
+  apiUrl: https://api.myservice.com/    # base API URL
+  authType: OAuth2                      # one of "OAuth2", "ApiKey", or "None"
+  serviceName: MyService                # properly cased service name
+  nodeColor: \#ff2564                   # brand hex color, escaped by /
 ```
 
 ```ts
@@ -97,7 +97,7 @@ Optional keys:
   - `filters`, optional fields for listing operations, and
   - `updateFields`, optional fields for updating operations.
 
-Note that the key `requiredFields` contains fields required for the call to succeed, but the key itself is optional since the call may not have any required fields.
+Note that the "required" and "optional" keys refer to nodebuilder args, whereas `requiredFields` and "optional fields" refer to fields that may or may not be needed by the API for a call to succeed.
 
 ## Field-level keys
 
@@ -115,35 +115,36 @@ Field-level keys are contains for the params to be sent in the call. Each field-
 Inside `queryString` or `requestBody`,
 
 - each key must be a param, cased per the API documentation.
-- each value must specify its n8n type:
-  - `string`, `number`, and `boolean` for simple values, e.g. `is_active`,
-  - `enum` (to be renamed to `options`) for dropdown options, e.g. `classification`,
+- each value must specify its type:
+  - `string`, `number`, `boolean` and `dateTime` for simple values, e.g. `is_active`,
+  - `options` for individual options in a dropdown, e.g. `classification`,
   - `loadOptions` for options to be loaded remotely, e.g. `accounts`,
-  - a YAML object for a `fixedCollection` with a single set of fields, e.g. `address`,
-  - a YAML array for a `fixedCollection` with a multiple sets of fields, e.g. `phone_numbers`,
+  - an object for a `fixedCollection` with a single set of fields, e.g. `address`,
+  - an array of objects for a `fixedCollection` with a multiple sets of fields, e.g. `phone_numbers`,
 
 ```yaml
 updateFields:
   requestBody:
-    is_active: boolean=true|Whether the company's record is active.
+    description: string|Arbitrary text to describe the company
+    employees: number|Number of the employees at the company
+    is_active: boolean=true|Whether the company's record is active
+    founded_at: dateTime|Date when the company was created
+    classification: options=Corporation|Legal classification of the company
+      - LLC
+      - Corporation
+    accounts: loadOptions|Accounts owned by the company
     address:
       street: string
       city: string
       state: string
       postal_code: string
       country: string
-    details: string|Arbitrary string to describe the company.
-    employees: number|Number of the employees at the company.
-    accounts: loadOptions|Accounts owned by the company
     phone_numbers:
       - number: string
         category: string
-    classification: enum=Corporation|Legal classification of the company.
-      - LLC
-      - Corporation
 ```
 
 **Notes**
 
-- Optionally, to specify a description, set a pipe `|` after the n8n type. As an exception, for the time being an `enum`-type param requires a description. If the description is unspecified, it is not added to the param in the resource description file.
-- Optionally, to specify a default, set an equals sign `=` after the n8n type before the pipe. If the default is unspecified, a `string` or `dateTime` param defaults to `''`, a `number` param defaults to `0`, a `boolean` param defaults to `false`, and an `options` param defaults to the zeroth item.
+- Optionally, specify a description with a pipe `|` after the type, e.g. `employees`.
+- Optionally, specify a default with an equals sign `=` and the default after the type e.g. `is_active`. If the default is unspecified, a `string` or `dateTime` param defaults to `''`, a `number` param defaults to `0`, a `boolean` param defaults to `false`, and an `options` param defaults to the zeroth item.

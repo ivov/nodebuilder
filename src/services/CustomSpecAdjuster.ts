@@ -31,18 +31,18 @@ export default class CustomSpecAdjuster {
     return toJsObject(fileContent) as CustomSpecParams;
   }
 
-  // TODO: type properly
   private sortKeys(value: any): any {
     if (this.cannotBeSorted(value)) return value;
 
     // alphabetize operations by operationId
     if (this.isOperationsArray(value)) {
+      value;
       const sortedIds = value.map((i) => i.operationId).sort();
       return sortedIds.map((id) => value.find((i) => i.operationId === id));
     }
 
     // alphabetize object keys - recursive
-    const sorted: { [key: string]: string } = {};
+    const sorted: { [key: string]: string | object } = {};
 
     Object.keys(value)
       .sort()
@@ -53,9 +53,6 @@ export default class CustomSpecAdjuster {
     return sorted;
   }
 
-  /**
-   * Fields that always contain a string, skipped in `separateKeys`.
-   */
   private skipFields = [
     "endpoint",
     "operationId",
@@ -63,11 +60,7 @@ export default class CustomSpecAdjuster {
     "operationUrl",
   ];
 
-  /**
-   * Traverse an object to adjust params that have a vertical bar.
-   * TODO: Type properly
-   */
-  private separateKeys(obj: { [key: string]: any }) {
+  private separateKeys(obj: any) {
     Object.keys(obj).forEach((key) => {
       if (this.skipFields.includes(key)) return;
 
@@ -88,44 +81,54 @@ export default class CustomSpecAdjuster {
   private adjustSeparator(value: string | object[]) {
     if (Array.isArray(value)) return value;
 
-    // TODO: vertical separator is REQUIRED for enum, for the time being
-    if (value.startsWith("enum|") || value.startsWith("enum=")) {
-      const [type, description] = value.split("|");
-
-      const items = description
-        .split("-")
-        .slice(1)
-        .map((item) => item.trim());
-
-      const defaultValue = type.includes("=") ? type.split("=")[1] : items[0];
+    if (value.startsWith("options") && !value.includes("|")) {
+      const [type, ...items] = value.split("-").map((i) => i.trim());
 
       return {
-        type: "options",
-        description: description.split("-")[0].trim(),
-        enumItems: items,
-        default: defaultValue,
+        type,
+        options: items,
+        default: items[0],
       };
     }
 
-    if (!value.includes("|"))
-      return { type: value, default: this.getDefaultFromString(value) };
+    if (value.startsWith("options") && value.includes("|")) {
+      const [type, rest] = value.split("|");
+      const [description, ...items] = rest.split("-").map((i) => i.trim());
+      const defaultOption = type.includes("=") ? type.split("=")[1] : items[0];
 
-    const [type, description] = value.split("|");
+      return {
+        type,
+        description,
+        options: items,
+        default: defaultOption,
+      };
+    }
 
-    if (!type.includes("="))
-      return { type, description, default: this.getDefaultFromString(type) };
+    if (!this.isSimpleType(value)) throw new Error("Unknown type: " + value);
 
-    const [typeValue, defaultValue] = type.split("=");
+    if (!value.includes("|")) {
+      return { type: value, default: this.getDefaultValue(value) };
+    }
 
-    return { type: typeValue, description, default: defaultValue };
+    if (value.includes("=|")) {
+      const [type, description] = value.split("|");
+      const [typeValue, defaultValue] = type.split("=");
+      return { type: typeValue, description, default: defaultValue };
+    }
+
+    if (value.includes("|")) {
+      const [type, description] = value.split("|");
+      return { type, description, default: this.getDefaultValue(type) };
+    }
+
+    return { type: value, default: this.getDefaultValue(value) };
   }
 
   // ----------------------------------
   //            utils
   // ----------------------------------
 
-  private getDefaultFromString(type: string) {
-    if (type === "string") return "";
+  private getDefaultValue(type: string) {
     if (type === "boolean") return false;
     if (type === "number") return 0;
 
@@ -136,7 +139,7 @@ export default class CustomSpecAdjuster {
     return !value || typeof value !== "object";
   }
 
-  private isOperationsArray(value: unknown): value is Operation[] {
+  private isOperationsArray(value: unknown): value is CustomSpecOperation[] {
     return Array.isArray(value) && value[0].operationId;
   }
 
@@ -159,6 +162,17 @@ export default class CustomSpecAdjuster {
       !Array.isArray(value) &&
       !!Object.keys(value).length
     );
+  }
+
+  private isSimpleType(value: string) {
+    const simpleTypes = [
+      "string",
+      "number",
+      "boolean",
+      "loadOptions",
+      "dateTime",
+    ];
+    return simpleTypes.some((type) => value.includes(type));
   }
 }
 

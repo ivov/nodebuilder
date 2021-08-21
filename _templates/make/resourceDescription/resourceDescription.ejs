@@ -54,7 +54,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		<%_ } _%>
 		<%_ if (param.schema.type === 'options') { _%>
 		options: [
-			<%_ param.schema.enumItems.forEach(option => { _%>
+			<%_ param.schema.options.forEach(option => { _%>
 			{
 				name: '<%= helper.titleCase(option) %>',
 				value: '<%= option %>',
@@ -105,7 +105,7 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 		default: <%- helper.getDefault(value); %>,
 		<%_ if (value.type === 'options') { _%>
 		options: [
-			<%_ value.enumItems.forEach(option => { _%>
+			<%_ value.options.forEach(option => { _%>
 			{
 				name: '<%= helper.titleCase(option) %>',
 				value: '<%= option %>',
@@ -200,8 +200,11 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 				name: '<%= key %>',
 				type: 'options',
 				default: '<%= value.default %>',
+				<%_ if (value.description) { _%>
+				description: '<%- helper.escape(value.description) %>',
+				<%_ } _%>
 				options: [
-					<%_ value.enumItems.forEach(option => { _%>
+					<%_ value.options.forEach(option => { _%>
 					{
 						name: '<%= helper.titleCase(option) %>',
 						value: '<%= option %>',

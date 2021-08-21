@@ -14,7 +14,7 @@
 <p align="center">
   <a href="#installation">Installation</a> •
   <a href="#operation">Operation</a> •
-  <a href="/docs/yaml-mapping.md">Custom API Mapping in YAML</a>
+  <a href="/docs/custom-spec.md">Custom Spec Syntax</a>
 </p>
 
 <p align="center">
@@ -79,7 +79,6 @@ Run `npm run place` to place the output files in:
   - Add support for more content types.
 
 **YAML:**
-  - Rename `enum` to `options`.
   - Add support for `multiOptions`
 
 **Generator:**

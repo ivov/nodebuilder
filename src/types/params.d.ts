@@ -1,5 +1,5 @@
 // ----------------------------------
-//         custom spec
+//       custom spec params
 // ----------------------------------
 
 type CustomSpecParams = {
@@ -28,12 +28,10 @@ type CustomSpecFields = {
 type CustomSpecFieldContent = { [name: string]: ParamContent };
 
 // ----------------------------------
-//          nodegen params
-//        (i.e. staged params)
+//         nodegen params
 // ----------------------------------
 
 /**
- * Params originating in an OpenApi spec or in a custom API mapping in YAML.
  * Output of `OpenApiStager` and of `YamlStager`.
  */
 type NodegenParams = {
@@ -86,7 +84,7 @@ type PathQuerySchema = {
   example?: string | number;
   minimum?: number;
   maximum?: number;
-  enumItems?: string[]; // from YAML mapping
+  options?: string[]; // from YAML mapping
 };
 
 type OperationRequestBody = {
@@ -119,7 +117,7 @@ type ParamContent = {
     | "fixedCollection";
   default?: any; // TODO: Type properly
   description?: string;
-  enumItems?: string[];
+  options?: string[];
 };
 
 type AdditionalFields = {

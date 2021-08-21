@@ -323,8 +323,8 @@ export default class CustomSpecStager {
       },
     };
 
-    if (value.type === "options" && value.enumItems) {
-      output.schema.enumItems = value.enumItems;
+    if (value.type === "options" && value.options) {
+      output.schema.options = value.options;
     }
 
     if (value.description) {
