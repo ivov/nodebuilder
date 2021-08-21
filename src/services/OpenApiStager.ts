@@ -8,7 +8,7 @@ import { camelCase } from "change-case";
 
 import { inputDir, openApiInputDir, swagger } from "../config";
 
-export default class OpenApiParser {
+export default class OpenApiStager {
   private readonly json: JsonObject & { paths: object };
   private readonly serviceName: string;
   private currentEndpoint: string;

@@ -1,37 +1,49 @@
+import fs from "fs";
+import path from "path";
+
+import { load as toJsObject } from "js-yaml";
+import { assertType } from "typescript-is";
+
+import { customInputDir } from "../config";
+
 /**
- * Traverses params from a YAML API mapping to
- * - sort keys alphabetically, and
- * - separate keys based at`|`.
+ * Adjusts YAML-parsed params by sorting keys alphabetically and
+ * by separating any keys that contain a vertical bar.
  *
- * Used before staging.
+ * Used after parsing and before staging.
  */
-export default class YamlTraverser {
-  private preTraversalMainParams: PreTraversalParams["mainParams"];
-  private preTraversalMetaParams: PreTraversalParams["metaParams"];
+export default class CustomSpecAdjuster {
+  private yamlInputFileName: string;
+  private mainParams: YamlParsedParams["mainParams"];
+  private metaParams: YamlParsedParams["metaParams"];
 
-  /**
-   * Fields that always contain a string, skipped in `separateKeys`.
-   */
-  private nonSeparatorFields = [
-    "endpoint",
-    "operationId",
-    "requestMethod",
-    "operationUrl",
-  ];
-
-  constructor(preTraversalParams: PreTraversalParams) {
-    this.preTraversalMainParams = preTraversalParams.mainParams;
-    this.preTraversalMetaParams = preTraversalParams.metaParams;
+  constructor(yamlInputFileName: string) {
+    this.yamlInputFileName = yamlInputFileName;
   }
 
   public run() {
-    this.preTraversalMainParams = this.sortKeys(this.preTraversalMainParams);
-    this.separateKeys(this.preTraversalMainParams);
+    const parsedParams = this.parseCustomSpec();
+
+    this.mainParams = parsedParams.mainParams;
+    this.metaParams = parsedParams.metaParams;
+
+    this.mainParams = this.sortKeys(this.mainParams);
+    this.separateKeys(this.mainParams);
 
     return {
-      mainParams: this.preTraversalMainParams,
-      metaParams: this.preTraversalMetaParams,
+      mainParams: this.mainParams,
+      metaParams: this.metaParams,
     };
+  }
+
+  public parseCustomSpec(): YamlParsedParams {
+    const filePath = path.join(customInputDir, this.yamlInputFileName);
+    const fileContent = fs.readFileSync(filePath, "utf-8");
+    const jsonifiedContent = toJsObject(fileContent);
+
+    if (validate(jsonifiedContent)) return jsonifiedContent;
+
+    throw new Error("Invalid API mapping in YAML");
   }
 
   // TODO: type properly
@@ -69,7 +81,17 @@ export default class YamlTraverser {
   }
 
   /**
-   * Traverse an object to find and params that have a vertical bar.
+   * Fields that always contain a string, skipped in `separateKeys`.
+   */
+  private nonSeparatorFields = [
+    "endpoint",
+    "operationId",
+    "requestMethod",
+    "operationUrl",
+  ];
+
+  /**
+   * Traverse an object to adjust params that have a vertical bar.
    * TODO: Type properly
    */
   private separateKeys(obj: { [key: string]: any }) {
@@ -142,11 +164,15 @@ export default class YamlTraverser {
   }
 
   private isObjectArray(value: unknown) {
-    return Array.isArray(value) && value.length && typeof value[0] === "object";
+    return (
+      Array.isArray(value) && !!value.length && typeof value[0] === "object"
+    );
   }
 
   private isStringArray(value: Array<unknown>) {
-    return Array.isArray(value) && value.length && typeof value[0] === "string";
+    return (
+      Array.isArray(value) && !!value.length && typeof value[0] === "string"
+    );
   }
 
   private isTraversableObject(value: unknown) {
@@ -161,4 +187,9 @@ export default class YamlTraverser {
 
 function isOperationsArray(value: unknown): value is Operation[] {
   return Array.isArray(value) && value[0].operationId;
+}
+
+function validate(object: unknown): object is YamlParsedParams {
+  assertType<YamlInput>(object);
+  return true;
 }

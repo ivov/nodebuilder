@@ -1,11 +1,37 @@
 // ----------------------------------
-//       pre-traversal params
+//         YAML lifecycle
 // ----------------------------------
 
 /**
- * JSONified content of a YAML OpenAPI spec.
+ * Used only to validate the shape of the input YAML file in `YamlParser.jsonifyYaml`.
  */
-type PreTraversalParams = {
+type YamlInput = {
+  metaParams: MetaParams;
+  mainParams: {
+    [resource: string]: Array<{
+      endpoint: string;
+      operationId: string;
+      requestMethod: string;
+      operationUrl?: string;
+      requiredFields?: YamlField;
+      additionalFields?: YamlField;
+      filters?: YamlField;
+      updateFields?: YamlField;
+    }>;
+  };
+};
+
+type YamlField = {
+  [key in "queryString" | "requestBody"]?: {
+    [paramName: string]: string | object;
+  };
+};
+
+/**
+ * Params retrieved from a custom mapping in YAML and validated.
+ * Output of `YamlParser`.
+ */
+type YamlParsedParams = {
   metaParams: MetaParams;
   mainParams: {
     [key: string]: YamlOperation[];
@@ -36,6 +62,10 @@ type YamlFieldsContent = {
 //          nodegen params
 // ----------------------------------
 
+/**
+ * Params originating in an OpenApi spec or in a custom API mapping in YAML.
+ * Output of `OpenApiStager` and of `YamlStager`.
+ */
 type NodegenParams = {
   metaParams: MetaParams;
   mainParams: MainParams;
@@ -54,13 +84,10 @@ type MainParams = {
   [resource: string]: Operation[];
 };
 
-type ResourceTuples = [string, Operation[]][];
-
 type Operation = {
   endpoint: string;
   operationId: string;
   requestMethod: string;
-
   operationUrl?: string;
   description?: string;
   parameters?: OperationParameter[];
@@ -143,6 +170,11 @@ type AdditionalFields = {
 
 type ExtraFieldName = "Additional Fields" | "Filters" | "Update Fields";
 
+/**
+ * Utility type for template builder.
+ */
+type ResourceTuples = [string, Operation[]][];
+
 // ----------------------------------
 //          OpenAPI keys
 // ----------------------------------
@@ -154,33 +186,3 @@ type StringArrayKey = "tags" | "requestMethods";
 type StringKey = "description" | "operationId";
 
 type CustomObjectKey = "parameters" | "requestBody";
-
-// ----------------------------------
-//         Input YAML file
-// ----------------------------------
-
-/**
- * Used only to validate the shape of the input YAML file in `YamlParser.jsonifyYaml`.
- */
-type YamlInput = {
-  metaParams: MetaParams;
-  mainParams: {
-    [resource: string]: Array<{
-      endpoint: string;
-      operationId: string;
-      requestMethod: string;
-
-      operationUrl?: string;
-      requiredFields?: YamlField;
-      additionalFields?: YamlField;
-      filters?: YamlField;
-      updateFields?: YamlField;
-    }>;
-  };
-};
-
-type YamlField = {
-  [key in "queryString" | "requestBody"]?: {
-    [paramName: string]: string | object;
-  };
-};

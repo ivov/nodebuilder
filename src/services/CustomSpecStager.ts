@@ -2,8 +2,8 @@
  * Responsible for staging traversed params into nodegen params.
  * Staging params are for consumption by nodegen templates.
  */
-export default class YamlStager {
-  private inputMainParams: PreTraversalParams["mainParams"];
+export default class CustomSpecStager {
+  private inputMainParams: YamlParsedParams["mainParams"];
   private outputMetaParams: MetaParams;
   private outputMainParams: MainParams = {};
 

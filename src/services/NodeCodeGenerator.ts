@@ -4,7 +4,7 @@ import path from "path";
 
 import { descriptionsOutputDir, hygen, inputDir, outputDir } from "../config";
 
-export default class Generator {
+export default class NodeCodeGenerator {
   private mainParams: MainParams;
   private resourceJson = path.join(inputDir, "_resource.json");
 

@@ -1,11 +1,11 @@
 import { execSync } from "child_process";
-import Generator from "../services/TypeScriptGenerator";
-import OpenApiParser from "../services/OpenApiParser";
-import YamlParser from "../services/YamlParser";
+import NodeCodeGenerator from "../services/NodeCodeGenerator";
+import OpenApiStager from "../services/OpenApiStager";
+// import CustomSpecParser from "../services/CustomSpecParser";
 import FilePrinter from "../utils/FilePrinter";
 import Prompter from "../services/Prompter";
-import YamlStager from "../services/YamlStager";
-import YamlTraverser from "../services/YamlTraverser";
+import CustomSpecStager from "../services/CustomSpecStager";
+import CustomSpecAdjuster from "../services/CustomSpecAdjuster";
 import { openApiInputDir, swagger } from "../config";
 import path from "path";
 
@@ -15,9 +15,9 @@ import path from "path";
   let stagedParams;
   if (sourceType === "Custom API mapping in YAML") {
     const customFile = await prompter.askForCustomYamlFile();
-    const preTraversalParams = new YamlParser(customFile).run();
-    const traversedParams = new YamlTraverser(preTraversalParams).run();
-    stagedParams = new YamlStager(traversedParams).run();
+    // const parsedParams = new CustomSpecParser(customFile).run();
+    const adjustedParams = new CustomSpecAdjuster(customFile).run();
+    stagedParams = new CustomSpecStager(adjustedParams).run();
   } else {
     let openApiFile = await prompter.askForOpenApiFile();
 
@@ -31,9 +31,9 @@ import path from "path";
       openApiFile = `${openApiFileName}.json`;
     }
 
-    stagedParams = new OpenApiParser(openApiFile).run();
+    stagedParams = new OpenApiStager(openApiFile).run();
   }
 
   new FilePrinter(stagedParams).print({ format: "json" });
-  new Generator(stagedParams.mainParams).run();
+  new NodeCodeGenerator(stagedParams.mainParams).run();
 })();

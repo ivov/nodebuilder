@@ -2,8 +2,6 @@
 //              JSON
 // ----------------------------------
 
-type JsonObject = { [key: string]: JsonValue };
-
 type JsonValue =
   | string
   | number
@@ -12,8 +10,10 @@ type JsonValue =
   | Array<JsonValue>
   | JsonObject;
 
+type JsonObject = { [key: string]: JsonValue };
+
 // ----------------------------------
-//           package.json
+//         n8n package.json
 // ----------------------------------
 
 type PackageJson = {
