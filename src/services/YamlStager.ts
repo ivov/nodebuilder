@@ -89,12 +89,21 @@ export default class YamlStager {
   private getOperationDescription() {
     const { operationId } = this.outputOperation;
 
-    if (operationId === "create") return `Create a ${this.currentResource}`;
-    if (operationId === "delete") return `Delete a ${this.currentResource}`;
-    if (operationId === "get") return `Retrieve a ${this.currentResource}`;
+    const addArticle = (resource: string) =>
+      "aeiou".split("").includes(this.currentResource.charAt(0))
+        ? `an ${resource}`
+        : `a ${resource}`;
+
+    if (operationId === "create")
+      return `Create ${addArticle(this.currentResource)}`;
+    if (operationId === "delete")
+      return `Delete ${addArticle(this.currentResource)}`;
+    if (operationId === "get")
+      return `Retrieve ${addArticle(this.currentResource)}`;
     if (operationId === "getAll")
       return `Retrieve all ${this.currentResource}s`;
-    if (operationId === "update") return `Update a ${this.currentResource}`;
+    if (operationId === "update")
+      return `Update ${addArticle(this.currentResource)}`;
   }
 
   private loopOverInputOperations(
