@@ -2,6 +2,9 @@
 //       pre-traversal params
 // ----------------------------------
 
+/**
+ * JSONified content of a YAML OpenAPI spec.
+ */
 type PreTraversalParams = {
   metaParams: MetaParams;
   mainParams: {
@@ -13,7 +16,6 @@ type YamlOperation = {
   operationId: string;
   requestMethod: string;
   endpoint: string;
-
   operationUrl?: string;
   requiredFields?: YamlFields;
   additionalFields?: YamlFields;
@@ -75,23 +77,25 @@ type OperationParameter = {
   in: "path" | "query" | "header";
   name: string;
   description?: string;
-  schema: {
-    type: string;
-    default: boolean | string | number; // TODO: Type properly
-    example?: string | number;
-    minimum?: number;
-    maximum?: number;
-    enumItems?: string[]; // from YAML mapping
-  };
+  schema: PathQuerySchema;
   required?: boolean;
   example?: string;
   $ref?: string; // from OpenAPI
 };
 
+type PathQuerySchema = {
+  type: string;
+  default: boolean | string | number; // TODO: Type properly
+  example?: string | number;
+  minimum?: number;
+  maximum?: number;
+  enumItems?: string[]; // from YAML mapping
+};
+
 type OperationRequestBody = {
   content: {
-    "application/x-www-form-urlencoded"?: { schema: Schema };
-    "text/plain"?: { schema: Schema };
+    "application/x-www-form-urlencoded"?: { schema: RequestBodySchema };
+    "text/plain"?: { schema: RequestBodySchema };
   };
   name?: "Standard" | "Additional Fields" | "Filters" | "Update Fields";
   description?: string;
@@ -99,7 +103,7 @@ type OperationRequestBody = {
   textPlainProperty?: string;
 };
 
-type Schema = {
+type RequestBodySchema = {
   type: string;
   required?: string[];
   properties: {

@@ -121,7 +121,7 @@ export default class OpenApiParser {
       .toLowerCase();
   }
 
-  private sanitizeProperties(urlEncoded: { schema: Schema }) {
+  private sanitizeProperties(urlEncoded: { schema: RequestBodySchema }) {
     const properties = Object.keys(urlEncoded.schema.properties);
     properties.forEach((property) => {
       const sanitizedProperty = camelCase(property.replace(".", " "));
@@ -160,6 +160,12 @@ export default class OpenApiParser {
     parameters.forEach((param) => {
       if (param.description) {
         param.description = this.escape(param.description);
+      }
+
+      // @ts-ignore
+      if ("oneOf" in param.schema && param.schema.oneOf) {
+        // @ts-ignore
+        param.schema = param.schema.oneOf[0];
       }
     });
 
