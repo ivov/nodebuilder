@@ -14,7 +14,7 @@
 <p align="center">
   <a href="#installation">Installation</a> •
   <a href="#operation">Operation</a> •
-  <a href="/docs/custom-spec.md">Custom Spec Syntax</a>
+  <a href="/docs/custom-spec-syntax.md">Custom Spec Syntax</a>
 </p>
 
 <p align="center">

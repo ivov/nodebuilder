@@ -5,45 +5,77 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "ignored": {
-      "type": "array",
-      "description": "A list of rules to be ignored",
-      "items": {
-        "type": "string",
-        "oneOf": [
-          {
-            "const": "DL3000",
-            "description": "Use absolute WORKDIR."
-          },
-          {
-            "const": "DL3001",
-            "description": "For some bash commands it makes no sense running them in a Docker container like ssh, vim, shutdown, service, ps, free, top, kill, mount, ifconfig."
-          },
-          {
-            "const": "DL3002",
-            "description": "Last user should not be root."
-          },
-          {
-            "const": "DL3003",
-            "description": "Use WORKDIR to switch to a directory."
-          },
-          {
-            "const": "DL3004",
-            "description": "Do not use sudo as it leads to unpredictable behavior. Use a tool like gosu to enforce root."
-          },
-          {
-            "const": "DL3005",
-            "description": "Do not use apt-get upgrade or dist-upgrade."
-          }
-        ],
-        "title": "Rule"
+    "metaParams": {
+      "type": "object",
+      "properties": {
+        "apiUrl": {
+          "type": "string",
+          "description": "Base URL of the API"
+        },
+        "authType": {
+          "type": "string",
+          "description": "abc",
+          "oneOf": [
+            {
+              "const": "OAuth2"
+            },
+            {
+              "const": "ApiKey"
+            },
+            {
+              "const": "None"
+            }
+          ]
+        },
+        "serviceName": {
+          "type": "string",
+          "description": "abc"
+        },
+        "nodeColor": {
+          "type": "string",
+          "description": "abc"
+        }
       }
     },
-    "trustedRegistries": {
-      "type": "array",
-      "description": "A list of trusted registries. Ex: docker.io",
-      "items": {
-        "type": "string"
+
+    "mainParams": {
+      "type": "object",
+      "properties": {
+        "/": {}
+      },
+      "patternProperties": {
+        "^.+$": {
+          "type": "array",
+          "description": "Resource",
+          "items": {
+            "type": "object",
+            "properties": {
+              "endpoint": {
+                "type": "string"
+              },
+              "operationId": {
+                "type": "string"
+              },
+              "requestMethod": {
+                "type": "string",
+                "oneOf": [
+                  {
+                    "const": "GET"
+                  },
+                  {
+                    "const": "POST"
+                  },
+                  {
+                    "const": "PUT"
+                  },
+                  {
+                    "const": "DELETE"
+                  }
+                ]
+              }
+            }
+          }
+        }
       }
     }
   }

@@ -14,6 +14,8 @@
 
 Nodebuilder can generate an n8n node from a custom spec, i.e. a shorthand YAML description of an API.
 
+Install [YAML Support](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml) for VSCode.
+
 ## API-level keys
 
 The YAML file must have two top-level keys: `metaParams` and `mainParams`
@@ -27,6 +29,8 @@ metaParams:
   serviceName: MyService                # properly cased service name
   nodeColor: \#ff2564                   # brand hex color, escaped by /
 ```
+
+Used in the node class `description`:
 
 ```ts
 export class MyService implements INodeType {
