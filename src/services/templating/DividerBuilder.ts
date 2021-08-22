@@ -43,7 +43,10 @@ export default class DividerBuilder {
   }
 
   resourceDescriptionDivider(resourceName: string, operationId: string) {
-    const divider = this.dividerLines(resourceName, operationId).join("\n\t");
+    const divider = this.dividerLines(
+      resourceName.charAt(0).toLowerCase() + resourceName.slice(1),
+      operationId
+    ).join("\n\t");
 
     if (this.isFirstOperation) {
       this.isFirstOperation = false;
