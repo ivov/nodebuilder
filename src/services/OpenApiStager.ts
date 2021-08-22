@@ -1,11 +1,10 @@
 import { execSync } from "child_process";
 import path from "path";
 import fs from "fs";
-
 import { JSONPath as jsonQuery } from "jsonpath-plus";
 import { titleCase } from "title-case";
 import { camelCase } from "change-case";
-
+import pluralize from "pluralize";
 import { inputDir, openApiInputDir, swagger } from "../config";
 
 export default class OpenApiStager {
@@ -79,7 +78,7 @@ export default class OpenApiStager {
 
   private getResources() {
     const resources = this.extract("tags").filter((r) => r !== "OAuth");
-    return [...new Set(resources)];
+    return [...new Set(resources)].map((r) => this.singularize(r));
   }
 
   private processDescription() {
@@ -235,5 +234,9 @@ export default class OpenApiStager {
     if (key === "tags") return `*.${key}.*`;
     if (key === "requestMethods") return `*~`;
     return `*.${key}`;
+  }
+
+  private singularize(entity: string) {
+    return pluralize(entity, 1);
   }
 }
