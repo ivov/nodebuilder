@@ -11,6 +11,7 @@ export default class OpenApiStager {
   private readonly json: JsonObject & { paths: object };
   private readonly serviceName: string;
   private currentEndpoint: string;
+  private currentResource: string;
 
   constructor(serviceName: string) {
     this.serviceName = serviceName.replace(".json", "");
@@ -66,8 +67,9 @@ export default class OpenApiStager {
 
       resources.forEach((resource) => {
         methods.forEach((method) => {
+          this.currentResource = resource;
           const operation = this.createOperation(method);
-          mainParams[resource] = mainParams[resource] || [];
+          mainParams[resource] = mainParams[resource] || []; // TODO: nullish-coalescing operator
           mainParams[resource].push(operation);
         });
       });
@@ -150,7 +152,25 @@ export default class OpenApiStager {
   }
 
   private processOperationId(requestMethod: string) {
-    return this.extract("operationId") ?? this.getFallbackId(requestMethod);
+    let extracted = this.extract("operationId");
+
+    if (!extracted) return this.getFallbackId(requestMethod);
+
+    if (extracted.endsWith("ById")) return "get";
+
+    if (extracted.match(/get./)) {
+      const words = this.camelCaseToSpaced(extracted).split(" ");
+      const lastWord = words.slice(-1).join("");
+      return lastWord.endsWith("s") ? "getAll" : extracted;
+    }
+
+    if (extracted.startsWith("edit")) return "update";
+
+    if (extracted.startsWith("add")) return "create";
+
+    const surplusRegex = new RegExp(this.currentResource.replace(" ", ""), "g");
+
+    return extracted.replace(surplusRegex, "");
   }
 
   private processParameters() {
@@ -197,7 +217,7 @@ export default class OpenApiStager {
    * Based on [JSON Path Plus](https://github.com/JSONPath-Plus/JSONPath).
    *
    * Note: The square brackets escape chars in the endpoint.*/
-  private extract(key: "description" | "operationId"): string;
+  private extract(key: "description" | "operationId"): string | undefined;
   private extract(key: "tags" | "requestMethods"): string[];
   private extract(key: "parameters"): OperationParameter[];
   private extract(key: "requestBody"): OperationRequestBody | null;
@@ -236,7 +256,11 @@ export default class OpenApiStager {
     return `*.${key}`;
   }
 
-  private singularize(entity: string) {
-    return pluralize(entity, 1);
+  private singularize(str: string) {
+    return pluralize(str, 1);
+  }
+
+  private camelCaseToSpaced(str: string) {
+    return str.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
   }
 }
