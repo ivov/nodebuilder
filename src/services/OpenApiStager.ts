@@ -30,7 +30,9 @@ export default class OpenApiStager {
     };
   }
 
-  /**Replace `$ref` with its referenced value and parse the resulting JSON.*/
+  /**
+   * Replace `$ref` with its referenced value and parse the resulting JSON.
+   * */
   private parseSpec(serviceName: string) {
     const source = path.join(openApiInputDir, serviceName);
     const target = path.join(inputDir, "_deref.json");
@@ -72,10 +74,12 @@ export default class OpenApiStager {
           mainParams[resource] = mainParams[resource] || []; // TODO: nullish-coalescing operator
           mainParams[resource].push(operation);
         });
+
+        mainParams[resource] = this.alphabetizeOperations(mainParams[resource]);
       });
     }
 
-    return mainParams;
+    return this.alphabetizeResources(mainParams);
   }
 
   private getResources() {
@@ -168,7 +172,8 @@ export default class OpenApiStager {
 
     if (extracted.startsWith("add")) return "create";
 
-    const surplusRegex = new RegExp(this.currentResource.replace(" ", ""), "g");
+    const surplusPart = this.currentResource.replace(" ", "");
+    const surplusRegex = new RegExp(surplusPart, "g");
 
     return extracted.replace(surplusRegex, "");
   }
@@ -201,17 +206,9 @@ export default class OpenApiStager {
     );
   }
 
-  private getFallbackId(requestMethod: string) {
-    const hasBracket = this.currentEndpoint.split("").includes("}");
-
-    if (requestMethod === "get" && hasBracket) return "get";
-    if (requestMethod === "get" && !hasBracket) return "getAll";
-    if (requestMethod === "put") return "update";
-    if (requestMethod === "delete") return "delete";
-    if (requestMethod === "post") return "create";
-
-    return "UNNAMED";
-  }
+  // ----------------------------------
+  //            extractors
+  // ----------------------------------
 
   /**Extract the keys and values from the OpenAPI JSON based on the current endpoint.
    * Based on [JSON Path Plus](https://github.com/JSONPath-Plus/JSONPath).
@@ -256,11 +253,58 @@ export default class OpenApiStager {
     return `*.${key}`;
   }
 
+  // ----------------------------------
+  //            utils
+  // ----------------------------------
+
   private singularize(str: string) {
     return pluralize(str, 1);
   }
 
   private camelCaseToSpaced(str: string) {
     return str.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
+  }
+
+  private alphabetizeResources(obj: { [key: string]: any }) {
+    const sorted: { [key: string]: any } = {};
+
+    Object.keys(obj)
+      .sort()
+      .forEach((key) => {
+        sorted[key] = obj[key];
+      });
+
+    return sorted;
+  }
+
+  private alphabetizeOperations(operations: Operation[]) {
+    return operations
+      .map((o) => o.operationId)
+      .sort()
+      .map((id) =>
+        this.safeFind(operations, (o: Operation) => o.operationId === id)
+      );
+  }
+
+  private safeFind<T>(arg: T[], cb: (arg: T) => boolean): T {
+    const found = arg.find(cb);
+
+    if (found === undefined || found === null) {
+      throw new Error("Expected value is missing");
+    }
+
+    return found;
+  }
+
+  private getFallbackId(requestMethod: string) {
+    const hasBracket = this.currentEndpoint.split("").includes("}");
+
+    if (requestMethod === "get" && hasBracket) return "get";
+    if (requestMethod === "get" && !hasBracket) return "getAll";
+    if (requestMethod === "put") return "update";
+    if (requestMethod === "delete") return "delete";
+    if (requestMethod === "post") return "create";
+
+    return "UNNAMED";
   }
 }
