@@ -1,3 +1,5 @@
+import { snakeCase } from "change-case";
+
 /**
  * Responsible for staging traversed params into nodegen params.
  * Staging params are for consumption by nodegen templates.
@@ -19,7 +21,7 @@ export default class CustomSpecStager {
     this.initializeMainParams();
 
     this.loopOverInputOperations((inputOperation) => {
-      this.validateInputOperation(inputOperation);
+      // this.validateInputOperation(inputOperation);
       this.initializeOutputOperation(inputOperation);
       this.populateOutputOperation(inputOperation);
     });
@@ -89,21 +91,21 @@ export default class CustomSpecStager {
   private getOperationDescription() {
     const { operationId } = this.outputOperation;
 
+    let adjustedResource = this.handleMultipleWords(this.currentResource);
+
+    if (operationId === "getAll") return `Retrieve all ${adjustedResource}s`;
+
     const addArticle = (resource: string) =>
       "aeiou".split("").includes(this.currentResource.charAt(0))
         ? `an ${resource}`
         : `a ${resource}`;
 
-    if (operationId === "create")
-      return `Create ${addArticle(this.currentResource)}`;
-    if (operationId === "delete")
-      return `Delete ${addArticle(this.currentResource)}`;
-    if (operationId === "get")
-      return `Retrieve ${addArticle(this.currentResource)}`;
-    if (operationId === "getAll")
-      return `Retrieve all ${this.currentResource}s`;
-    if (operationId === "update")
-      return `Update ${addArticle(this.currentResource)}`;
+    const capitalize = (resource: string) =>
+      resource.charAt(0).toUpperCase() + resource.slice(1);
+
+    let adjustedCurrentResource = addArticle(adjustedResource);
+
+    return `${capitalize(operationId)} ${adjustedCurrentResource}`;
   }
 
   private loopOverInputOperations(
@@ -265,7 +267,9 @@ export default class CustomSpecStager {
       required: true,
     };
 
-    let description = `ID of the ${this.currentResource} to `;
+    let description = `ID of the ${this.handleMultipleWords(
+      this.currentResource
+    )} to `;
 
     if (
       operationId === "create" ||
@@ -383,6 +387,12 @@ export default class CustomSpecStager {
   // ----------------------------------
   //            utils
   // ----------------------------------
+
+  private handleMultipleWords(resource: string) {
+    return snakeCase(resource).includes("_")
+      ? snakeCase(resource).replace(/_/g, " ")
+      : resource;
+  }
 
   /**
    * TODO: Type properly
