@@ -1,2 +1,3 @@
 src/input/*.json
 src/output/**/*.ts
+*.yaml
