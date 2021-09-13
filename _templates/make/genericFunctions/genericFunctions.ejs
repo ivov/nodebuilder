@@ -36,23 +36,23 @@ export async function <%= serviceName %>ApiRequest(
 		json: true,
 	};
 
+	<%_ if (metaParams.authType !== "None") { _%>
+	const credentials = await this.getCredentials('<%= credentialsName %>');
+
+	if (credentials === undefined) {
+		throw new NodeOperationError(this.getNode(), 'No credentials got returned!');
+	}
+	<%_ } _%>
+
+	if (!Object.keys(body).length) {
+		delete options.body;
+	}
+
+	if (!Object.keys(qs).length) {
+		delete options.qs;
+	}
+
 	try {
-		<%_ if (metaParams.authType !== "None") { _%>
-		const credentials = this.getCredentials('<%= credentialsName %>');
-
-		if (credentials === undefined) {
-			throw new NodeOperationError(this.getNode(), 'No credentials got returned!');
-		}
-		<%_ } _%>
-
-		if (!Object.keys(body).length) {
-			delete options.body;
-		}
-
-		if (!Object.keys(qs).length) {
-			delete options.qs;
-		}
-
 		<%_ if (metaParams.authType === "OAuth2") { _%>
 		return await this.helpers.requestOAuth2.call(this, '<%= credentialsName %>', options);
 		<%_ } else { _%>
