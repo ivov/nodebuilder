@@ -7,7 +7,7 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export const <%= helper.camelCase(resourceName) %>Operations = [
+export const <%= helper.camelCase(resourceName) %>Operations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -24,11 +24,11 @@ export const <%= helper.camelCase(resourceName) %>Operations = [
 		],
 		default: '<%= operationsArray[0].operationId %>',
 	},
-] as INodeProperties[];
+];
 
-export const <%= helper.camelCase(resourceName) %>Fields = [
+export const <%= helper.camelCase(resourceName) %>Fields: INodeProperties[] = [
 	<%_ operationsArray.forEach(operation => { _%>
-	<%_ if (operation.requestBody || operation.parameters || operation.additionalFields) { _%>
+	<%_ if (operation.parameters) { _%>
 	<%= builder.resourceDescriptionDivider(resourceName, operation.operationId); %>
 	<%_ } _%>
 	<%_/**
@@ -305,4 +305,4 @@ export const <%= helper.camelCase(resourceName) %>Fields = [
 	<%- builder.getAllAdditions(resourceName, operation.operationId); %>
 	<%_ } _%>
 <%_ }); _%> <%#_ end operations loop _%>
-] as INodeProperties[];
+];
