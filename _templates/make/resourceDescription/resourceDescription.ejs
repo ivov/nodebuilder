@@ -90,7 +90,7 @@ export const <%= helper.camelCase(resourceName) %>Fields: INodeProperties[] = [
 	<%_ Object.entries(properties).forEach(([property, value]) => { _%>
 	{
 		displayName: '<%= helper.titleCase(property); %>',
-		name: '<%= property %>',
+		name: '<%= helper.camelCase(property) %>',
 		<%_ if (value.description) { _%>
 		description: '<%- helper.escape(value.description); %>',
 		<%_ } _%>
@@ -151,7 +151,7 @@ export const <%= helper.camelCase(resourceName) %>Fields: INodeProperties[] = [
 	<%_ } else if (!rbItem.required) { _%>
 	{
 		displayName: '<%= rbItem.name %>',
-		name: '<%= rbItem.name %>',
+		name: '<%= helper.camelCase(rbItem.name) %>',
 		type: 'collection',
 		placeholder: '<%= helper.getPlaceholder(rbItem.name); %>',
 		default: {},
