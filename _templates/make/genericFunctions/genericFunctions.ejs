@@ -6,7 +6,6 @@ to: src/output/GenericFunctions.ts
 <%_ const credentialsName = helper.getCredentialsString(metaParams.serviceName, metaParams.authType); _%>
 import {
 	IExecuteFunctions,
-	IHookFunctions,
 } from 'n8n-core';
 
 import {
@@ -64,7 +63,7 @@ export async function <%= serviceName %>ApiRequest(
 }
 
 export async function <%= serviceName %>ApiRequestAllItems(
-	this: IHookFunctions | IExecuteFunctions,
+	this: IExecuteFunctions,
 	method: string,
 	endpoint: string,
 	body: IDataObject = {},

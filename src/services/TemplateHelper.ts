@@ -42,6 +42,8 @@ export class Helper {
     if (arg.type === "number" || arg.type === "integer") return 0;
     if (arg.type === "boolean") return false;
     if (arg.type === "options") return `'${arg.options[0]}'`;
+
+    return "''";
   }
 
   getParams = (params: OperationParameter[], type: "query" | "path") =>
