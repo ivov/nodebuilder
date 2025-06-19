@@ -1,8 +1,4 @@
 <p align="center">
-  <img src="docs/logo.png" width="450" alt="Nodemaker" />
-</p>
-
-<p align="center">
   <h1 align="center">Nodebuilder</h1>
 </p>
 
@@ -23,7 +19,8 @@
   <img src="https://img.shields.io/badge/license-MIT-brightgreen">
 </p>
 
-<br/>
+> [!WARNING]
+> **This project is deprecated and no longer maintained.** Please refer to [`n8n-nodewriter`](https://github.com/ivov/nodewriter) instead.
 
 **Nodebuilder** is a utility to generate n8n node files from
 
